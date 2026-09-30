@@ -13,6 +13,7 @@ import {
   Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { initiateLinkedInLogin } from '../lib/linkedinAuth';
 
 export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => {
   const { currentUser, updateCurrentUserProfile } = useApp();
@@ -108,17 +109,10 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
     confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
   };
 
-  // 5. Connect LinkedIn OAuth (Simulation + Real Redirect)
+  // 5. Connect LinkedIn OAuth (Official OpenID Connect Redirect)
   const handleConnectLinkedIn = () => {
     setIsLinkedInConnecting(true);
-    setTimeout(() => {
-      setIsLinkedInConnecting(false);
-      setIsLinkedInVerified(true);
-      if (updateCurrentUserProfile) {
-        updateCurrentUserProfile({ linkedInVerified: true });
-      }
-      confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
-    }, 1500);
+    initiateLinkedInLogin();
   };
 
   return (

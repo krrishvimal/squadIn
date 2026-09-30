@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { BottomTabs } from './components/BottomTabs';
@@ -12,6 +13,7 @@ import { SquadRadarView } from './components/SquadRadarView';
 import { KarmaReviewModal } from './components/KarmaReviewModal';
 import { ReportUserModal } from './components/ReportUserModal';
 import { CommunityGuidelinesModal } from './components/CommunityGuidelinesModal';
+import { checkLinkedInCallback } from './lib/linkedinAuth';
 import { Sparkles, Users, Filter, Compass, Plus, ShieldCheck, Navigation, Smartphone, X } from 'lucide-react';
 
 const CATEGORY_FILTERS = [
@@ -43,10 +45,20 @@ export function App() {
     setShowGuidelinesModal,
     reportingUser,
     setReportingUser,
-    blockedUserIds
+    blockedUserIds,
+    updateCurrentUserProfile
   } = useApp();
 
   const [showPwaBanner, setShowPwaBanner] = useState(true);
+
+  // Check for LinkedIn OAuth 2.0 OpenID Connect callback on load
+  useEffect(() => {
+    const callbackResult = checkLinkedInCallback();
+    if (callbackResult?.success) {
+      updateCurrentUserProfile({ linkedInVerified: true });
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+    }
+  }, []);
 
   // Filter plans based on selected city, category, women-only toggle, and blocked users
   let filteredPlans = plans.filter(plan => {
