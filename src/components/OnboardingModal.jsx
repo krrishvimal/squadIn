@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { INDIAN_CITIES } from '../venueData';
-import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2, X } from 'lucide-react';
+import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2, X, Camera } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
+import { LiveSelfieCapture } from './LiveSelfieCapture';
 
 const POPULAR_INTERESTS = [
   '☕ Specialty Coffee', '🏸 Badminton', '🎭 Standup Comedy',
@@ -17,6 +18,7 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
 
   const [step, setStep] = useState(1); // 1: Profile Info, 2: Phone OTP, 3: Success
   const [name, setName] = useState(currentUser?.name && currentUser?.name !== 'Verified Member' ? currentUser.name : '');
+  const [avatar, setAvatar] = useState(currentUser?.avatar || '');
   const [age, setAge] = useState(currentUser?.age || '');
   const [city, setCity] = useState(selectedCity || 'Pune');
   const [role, setRole] = useState(currentUser?.role && currentUser?.role !== 'Member' ? currentUser.role : '');
@@ -97,6 +99,7 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
   const handleVerifyAndFinish = () => {
     const updatedProfile = {
       name: name.trim(),
+      avatar: avatar || currentUser.avatar,
       age: parseInt(age, 10) || 25,
       city: city,
       role: role.trim() || 'Creative Professional',
@@ -122,6 +125,7 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
   const handleQuickSkip = () => {
     const updatedProfile = {
       name: name.trim() || 'Verified Member',
+      avatar: avatar || currentUser.avatar,
       age: parseInt(age, 10) || 25,
       city: city,
       role: role.trim() || 'Member',
@@ -259,6 +263,13 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
                 className="w-full text-xs p-2.5 rounded-xl border border-stone-300 bg-white font-normal text-stone-800 focus:outline-none focus:border-amber-500"
               />
             </div>
+
+            {/* Live Photo & Selfie Camera Verification */}
+            <LiveSelfieCapture
+              currentAvatar={avatar || currentUser?.avatar}
+              onPhotoCaptured={(img) => setAvatar(img)}
+              isVerified={Boolean(currentUser?.idVerified)}
+            />
 
             {/* Interests Pills */}
             <div>

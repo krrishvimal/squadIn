@@ -10,15 +10,17 @@ import {
   Mail,
   RefreshCw,
   Sparkles,
-  Lock
+  Lock,
+  Camera
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
+import { LiveSelfieCapture } from './LiveSelfieCapture';
 
 export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => {
   const { currentUser, updateCurrentUserProfile } = useApp();
 
-  const [activeTab, setActiveTab] = useState(initialTab); // 'phone' | 'linkedin' | 'work_email'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'phone' | 'selfie' | 'linkedin' | 'work_email'
 
   // Phone OTP State
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -142,7 +144,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
         <div className="flex border-b border-stone-200 bg-stone-50 px-5 pt-2 gap-2">
           <button
             onClick={() => setActiveTab('phone')}
-            className={`pb-2.5 px-3 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
               activeTab === 'phone'
                 ? 'border-amber-600 text-amber-900'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -154,28 +156,41 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
           </button>
 
           <button
+            onClick={() => setActiveTab('selfie')}
+            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+              activeTab === 'selfie'
+                ? 'border-amber-600 text-amber-900'
+                : 'border-transparent text-stone-400 hover:text-stone-700'
+            }`}
+          >
+            <Camera size={13} />
+            <span>2. Live Face ID</span>
+            {currentUser?.idVerified && <span className="text-emerald-600">✓</span>}
+          </button>
+
+          <button
             onClick={() => setActiveTab('linkedin')}
-            className={`pb-2.5 px-3 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
               activeTab === 'linkedin'
                 ? 'border-blue-600 text-blue-900'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
             }`}
           >
             <ExternalLink size={13} />
-            <span>2. LinkedIn OAuth</span>
+            <span>3. LinkedIn</span>
             {isLinkedInVerified && <span className="text-blue-600">✓</span>}
           </button>
 
           <button
             onClick={() => setActiveTab('work_email')}
-            className={`pb-2.5 px-3 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
               activeTab === 'work_email'
                 ? 'border-emerald-600 text-emerald-900'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
             }`}
           >
             <Mail size={13} />
-            <span>3. Work Email</span>
+            <span>4. Work Email</span>
             {isWorkVerified && <span className="text-emerald-600">✓</span>}
           </button>
         </div>
@@ -299,7 +314,33 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
             </div>
           )}
 
-          {/* TAB 2: LINKEDIN OAUTH */}
+          {/* TAB 2: LIVE SELFIE ID */}
+          {activeTab === 'selfie' && (
+            <div className="space-y-4 animate-fade-in">
+              <LiveSelfieCapture
+                currentAvatar={currentUser?.avatar}
+                isVerified={Boolean(currentUser?.idVerified)}
+                onPhotoCaptured={(photo) => {
+                  updateCurrentUserProfile({
+                    avatar: photo,
+                    idVerified: true
+                  });
+                }}
+              />
+
+              <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200 text-xs space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                  <ShieldCheck size={14} className="text-amber-700" />
+                  <span>Why Live Selfie Verification?</span>
+                </div>
+                <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+                  Meeting real strangers in Bangalore & Pune requires trust. A live front-camera selfie verifies your likeness so hosts and crew members feel safe meeting at the venue.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: LINKEDIN OAUTH */}
           {activeTab === 'linkedin' && (
             <div className="space-y-4 animate-fade-in">
               <div className="bg-white p-4 rounded-2xl border border-stone-200 space-y-3">
