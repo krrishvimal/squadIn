@@ -103,8 +103,11 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 relative">
+      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 relative">
         
+        {/* Mobile drag handle */}
+        <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden" />
+
         {/* Top-Right Cross 'X' Button */}
         <button
           onClick={onClose}
@@ -115,7 +118,7 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
         </button>
 
         {/* Header */}
-        <div className="px-6 pt-5 pb-3 border-b border-stone-200 bg-white sticky top-0 z-10 text-center">
+        <div className="px-6 pt-4 pb-3 border-b border-stone-100 bg-white sticky top-0 z-10 text-center">
           <div className="w-10 h-10 rounded-2xl bg-amber-500 text-espresso font-extrabold text-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
             ⚡
           </div>
@@ -129,7 +132,7 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
 
         {/* STEP 1: Profile Information */}
         {step === 1 && (
-          <form onSubmit={handleStep1Submit} className="overflow-y-auto p-5 space-y-4">
+          <form onSubmit={handleStep1Submit} className="overflow-y-auto p-5 space-y-4 bg-white">
             
             {/* Name & Age */}
             <div className="grid grid-cols-3 gap-2.5">
