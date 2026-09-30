@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { VerificationModal } from './VerificationModal';
-import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail } from 'lucide-react';
+import { OnboardingModal } from './OnboardingModal';
+import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail, Edit3 } from 'lucide-react';
 
 export const ProfileView = () => {
   const { currentUser, setShowGuidelinesModal } = useApp();
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [verifyTab, setVerifyTab] = useState('phone');
 
   const openVerification = (tab = 'phone') => {
@@ -16,9 +18,18 @@ export const ProfileView = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-extrabold text-espresso">Profile & Trust Hub</h2>
-        <p className="text-xs text-stone-500 font-medium">Your verified identity & community reputation</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-extrabold text-espresso">Profile & Trust Hub</h2>
+          <p className="text-xs text-stone-500 font-medium">Your verified identity & community reputation</p>
+        </div>
+        <button
+          onClick={() => setShowEditProfileModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors"
+        >
+          <Edit3 size={13} />
+          <span>Edit ID</span>
+        </button>
       </div>
 
       {/* Profile Card */}
@@ -209,6 +220,12 @@ export const ProfileView = () => {
         isOpen={showVerifyModal}
         initialTab={verifyTab}
         onClose={() => setShowVerifyModal(false)}
+      />
+
+      {/* Edit Profile ID Modal */}
+      <OnboardingModal
+        isOpen={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
       />
     </div>
   );

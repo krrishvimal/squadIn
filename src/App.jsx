@@ -13,6 +13,7 @@ import { SquadRadarView } from './components/SquadRadarView';
 import { KarmaReviewModal } from './components/KarmaReviewModal';
 import { ReportUserModal } from './components/ReportUserModal';
 import { CommunityGuidelinesModal } from './components/CommunityGuidelinesModal';
+import { OnboardingModal } from './components/OnboardingModal';
 import { checkLinkedInCallback } from './lib/linkedinAuth';
 import { Sparkles, Users, Filter, Compass, Plus, ShieldCheck, Navigation, Smartphone, X } from 'lucide-react';
 
@@ -50,6 +51,9 @@ export function App() {
   } = useApp();
 
   const [showPwaBanner, setShowPwaBanner] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return localStorage.getItem('squadin_onboarded') !== 'true';
+  });
 
   // Check for LinkedIn OAuth 2.0 OpenID Connect callback on load
   useEffect(() => {
@@ -248,6 +252,10 @@ export function App() {
         targetUser={reportingUser?.user}
         planId={reportingUser?.planId}
         onClose={() => setReportingUser(null)}
+      />
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
       />
 
       {/* Bottom Sticky Navigation */}
