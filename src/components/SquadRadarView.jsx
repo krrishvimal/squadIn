@@ -299,6 +299,17 @@ export const SquadRadarView = () => {
               </div>
             );
           })}
+
+          {filteredMembers.length === 0 && (
+            <div className="absolute bottom-5 z-20 px-4 py-2 bg-stone-900/90 border border-amber-500/30 rounded-2xl text-center backdrop-blur-sm max-w-xs animate-fade-in shadow-lg">
+              <p className="text-[11px] font-bold text-amber-300">
+                🧭 Squad Radar is Scanning in {selectedCity}
+              </p>
+              <p className="text-[9.5px] text-stone-400 mt-0.5 leading-tight">
+                As nearby verified members open the app, they will appear on your distance rings.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
