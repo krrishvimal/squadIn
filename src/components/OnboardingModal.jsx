@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -27,6 +27,16 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState('789123');
+
+  // Lock background body scroll while modal is active
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -102,37 +112,37 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 relative">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in">
+      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 relative pb-2 sm:pb-0">
         
         {/* Mobile drag handle */}
-        <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden" />
+        <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden flex-shrink-0" />
 
         {/* Top-Right Cross 'X' Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors z-20 shadow-xs"
+          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors z-20 shadow-xs"
           title="Close"
         >
           <X size={17} />
         </button>
 
         {/* Header */}
-        <div className="px-6 pt-4 pb-3 border-b border-stone-100 bg-white sticky top-0 z-10 text-center">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500 text-espresso font-extrabold text-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
+        <div className="px-5 pt-3 pb-2.5 border-b border-stone-100 bg-white sticky top-0 z-10 text-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-2xl bg-amber-500 text-espresso font-extrabold text-lg flex items-center justify-center mx-auto mb-1 shadow-sm">
             ⚡
           </div>
-          <h2 className="text-lg font-extrabold text-espresso">
+          <h2 className="text-base font-extrabold text-espresso">
             {step === 1 ? 'Create Your SquadIn ID' : step === 2 ? 'Verify Your Identity' : 'Welcome to SquadIn!'}
           </h2>
-          <p className="text-xs text-stone-500 font-medium">
+          <p className="text-[11px] text-stone-500 font-medium">
             {step === 1 ? 'Join verified, small-group weekend hangouts across India' : 'Real-world trust starts with verified members'}
           </p>
         </div>
 
         {/* STEP 1: Profile Information */}
         {step === 1 && (
-          <form onSubmit={handleStep1Submit} className="overflow-y-auto p-5 space-y-4 bg-white">
+          <form onSubmit={handleStep1Submit} className="overflow-y-auto p-4 space-y-3 bg-white">
             
             {/* Name & Age */}
             <div className="grid grid-cols-3 gap-2.5">
