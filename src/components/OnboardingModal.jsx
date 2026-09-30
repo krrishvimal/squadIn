@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
 
@@ -103,8 +103,17 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200">
+      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 relative">
         
+        {/* Top-Right Cross 'X' Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors z-20 shadow-xs"
+          title="Close"
+        >
+          <X size={17} />
+        </button>
+
         {/* Header */}
         <div className="px-6 pt-5 pb-3 border-b border-stone-200 bg-white sticky top-0 z-10 text-center">
           <div className="w-10 h-10 rounded-2xl bg-amber-500 text-espresso font-extrabold text-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
