@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { INDIAN_CITIES } from '../venueData';
 import { Sparkles, ShieldCheck, User, Briefcase, MapPin, Smartphone, ArrowRight, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
@@ -21,6 +22,13 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
   const [company, setCompany] = useState(currentUser?.company || '');
   const [bio, setBio] = useState(currentUser?.bio || '');
   const [selectedInterests, setSelectedInterests] = useState(currentUser?.interests?.length > 0 ? currentUser.interests : ['☕ Specialty Coffee']);
+
+  // Sync city when user's location is detected
+  useEffect(() => {
+    if (selectedCity) {
+      setCity(selectedCity);
+    }
+  }, [selectedCity]);
 
   // Phone OTP
   const [phone, setPhone] = useState('');
@@ -185,10 +193,9 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setCity(e.target.value)}
                 className="w-full text-xs p-2.5 rounded-xl border border-stone-300 bg-white font-bold text-stone-900 focus:outline-none focus:border-amber-500 cursor-pointer"
               >
-                <option value="Bengaluru">Bengaluru (Koramangala, Indiranagar, HSR)</option>
-                <option value="Mumbai">Mumbai (Bandra, BKC, Andheri)</option>
-                <option value="Delhi-NCR">Delhi-NCR (Cyber City, Hauz Khas, Noida)</option>
-                <option value="Pune">Pune (Koregaon Park, Baner, Viman Nagar)</option>
+                {INDIAN_CITIES.map(c => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
               </select>
             </div>
 

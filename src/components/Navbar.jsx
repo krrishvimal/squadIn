@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { INDIAN_CITIES } from '../venueData';
 import { MapPin, ShieldCheck, Plus, Sparkles, ChevronDown, UserCheck } from 'lucide-react';
 
 export const Navbar = () => {
@@ -41,10 +42,9 @@ export const Navbar = () => {
                 onChange={(e) => setSelectedCity(e.target.value)}
                 className="bg-transparent text-stone-700 font-bold focus:outline-none cursor-pointer text-[11px] max-w-[110px] sm:max-w-none truncate"
               >
-                <option value="Bengaluru">Bengaluru</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Delhi-NCR">Delhi-NCR</option>
-                <option value="Pune">Pune</option>
+                {INDIAN_CITIES.map(c => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
               </select>
             </div>
           </div>

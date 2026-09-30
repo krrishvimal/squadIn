@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CURRENT_USER, OTHER_USERS, INITIAL_PLANS } from '../userData';
-import { calculateDistanceKm } from '../venueData';
+import { calculateDistanceKm, INDIAN_CITIES, detectClosestCity } from '../venueData';
 import { NEARBY_RADAR_MEMBERS } from '../radarData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -89,7 +89,17 @@ export const AppProvider = ({ children }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showKarmaModal, setShowKarmaModal] = useState(false);
   const [karmaReviewPlan, setKarmaReviewPlan] = useState(null);
-  const [selectedCity, setSelectedCity] = useState('Bengaluru');
+  const [selectedCity, setSelectedCityState] = useState(() => {
+    return localStorage.getItem('squadin_selected_city') || 'Bengaluru';
+  });
+
+  const setSelectedCity = (city) => {
+    setSelectedCityState(city);
+    try {
+      localStorage.setItem('squadin_selected_city', city);
+    } catch (e) {}
+  };
+
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [womenOnlyFilter, setWomenOnlyFilter] = useState(false);
   const [sortByDistance, setSortByDistance] = useState(false);
@@ -119,19 +129,51 @@ export const AppProvider = ({ children }) => {
     isRealGPS: false
   });
 
-  // Fetch real device location on mount
+  // Fetch real device location on mount and automatically detect city
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
           setUserCoords({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
+            lat,
+            lng,
             isRealGPS: true
           });
+
+          // 1. Instantly detect nearest Indian city center based on distance
+          const closest = detectClosestCity(lat, lng);
+          if (closest) {
+            setSelectedCity(closest);
+          }
+
+          // 2. Reverse geocode for fine city/neighborhood detection
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+            if (res.ok) {
+              const data = await res.json();
+              const address = data.address || {};
+              const detectedName = address.city || address.town || address.state_district || address.county || address.state || '';
+              if (detectedName) {
+                const lower = detectedName.toLowerCase();
+                const match = INDIAN_CITIES.find(c => 
+                  c.name.toLowerCase() === lower || 
+                  c.aliases.some(a => lower.includes(a))
+                );
+                if (match) {
+                  setSelectedCity(match.name);
+                }
+              }
+            }
+          } catch (e) {
+            // closest city already assigned
+          }
         },
-        () => {},
-        { enableHighAccuracy: true, timeout: 6000 }
+        (err) => {
+          console.warn('Geolocation notice:', err);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
       );
     }
   }, []);
