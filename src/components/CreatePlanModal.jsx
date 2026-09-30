@@ -31,11 +31,15 @@ export const CreatePlanModal = () => {
   useEffect(() => {
     if (showCreateModal) {
       document.body.style.overflow = 'hidden';
+      if (userCoords?.lat && userCoords?.lng) {
+        setPinnedLat(userCoords.lat);
+        setPinnedLng(userCoords.lng);
+      }
       return () => {
         document.body.style.overflow = '';
       };
     }
-  }, [showCreateModal]);
+  }, [showCreateModal, userCoords]);
 
   if (!showCreateModal) return null;
 

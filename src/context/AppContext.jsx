@@ -121,14 +121,42 @@ export const AppProvider = ({ children }) => {
   const [showKarmaModal, setShowKarmaModal] = useState(false);
   const [karmaReviewPlan, setKarmaReviewPlan] = useState(null);
   const [selectedCity, setSelectedCityState] = useState(() => {
-    return localStorage.getItem('squadin_selected_city') || 'Bengaluru';
+    try {
+      return localStorage.getItem('squadin_selected_city') || 'Pune';
+    } catch {
+      return 'Pune';
+    }
   });
+
+  // User's Live GPS Coordinates (initialized to selected city center)
+  const [userCoords, setUserCoords] = useState(() => {
+    try {
+      const savedCity = localStorage.getItem('squadin_selected_city') || 'Pune';
+      const cityObj = INDIAN_CITIES.find(c => c.name.toLowerCase() === savedCity.toLowerCase());
+      if (cityObj) {
+        return { lat: cityObj.lat, lng: cityObj.lng, isRealGPS: false };
+      }
+    } catch {}
+    return { lat: 18.5204, lng: 73.8567, isRealGPS: false };
+  });
+  const [isLocating, setIsLocating] = useState(false);
 
   const setSelectedCity = (city) => {
     setSelectedCityState(city);
     try {
       localStorage.setItem('squadin_selected_city', city);
     } catch (e) {}
+
+    // Update userCoords to match selected city center when GPS is not currently active
+    const cityObj = INDIAN_CITIES.find(c => c.name.toLowerCase() === city.toLowerCase());
+    if (cityObj) {
+      setUserCoords(prev => {
+        if (!prev.isRealGPS) {
+          return { lat: cityObj.lat, lng: cityObj.lng, isRealGPS: false };
+        }
+        return prev;
+      });
+    }
   };
 
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -152,14 +180,6 @@ export const AppProvider = ({ children }) => {
   const [isRadarBroadcastOn, setIsRadarBroadcastOn] = useState(true);
   const [invitedUserIds, setInvitedUserIds] = useState([]);
   const [selectedRadarUser, setSelectedRadarUser] = useState(null);
-
-  // User's Live GPS Coordinates
-  const [userCoords, setUserCoords] = useState({
-    lat: 12.9344,
-    lng: 77.6288,
-    isRealGPS: false
-  });
-  const [isLocating, setIsLocating] = useState(false);
 
   // Reusable function to request live GPS coordinates on demand
   const requestLiveLocation = () => {
