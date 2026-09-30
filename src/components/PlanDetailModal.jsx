@@ -271,9 +271,14 @@ export const PlanDetailModal = () => {
                           <div className="flex items-center gap-2">
                             <img src={applicant.avatar} className="w-8 h-8 rounded-full object-cover" />
                             <div>
-                              <div className="text-xs font-bold text-stone-900 flex items-center gap-1">
-                                {applicant.name}
-                                {applicant.idVerified && <ShieldCheck size={12} className="text-blue-600" />}
+                              <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                                <span>{applicant.name}</span>
+                                {applicant.idVerified && (
+                                  <span className="px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 text-[9px] font-extrabold flex items-center gap-0.5 border border-blue-200">
+                                    <ShieldCheck size={10} className="text-blue-600" />
+                                    <span>Live Verified</span>
+                                  </span>
+                                )}
                               </div>
                               <div className="text-[10px] text-stone-500">{applicant.company} · ⭐ {applicant.karmaScore}</div>
                             </div>
