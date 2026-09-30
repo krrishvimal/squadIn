@@ -13,7 +13,8 @@ export const Navbar = () => {
     setShowGuidelinesModal,
     requestLiveLocation,
     isLocating,
-    userCoords
+    userCoords,
+    requireVerification
   } = useApp();
 
   return (
@@ -74,7 +75,7 @@ export const Navbar = () => {
 
           {/* Post a Plan Button */}
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => requireVerification(() => setShowCreateModal(true), 'create_plan')}
             className="flex items-center gap-1 bg-espresso hover:bg-stone-800 text-cream px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all flex-shrink-0"
           >
             <Plus size={13} className="text-amber-400" />

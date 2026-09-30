@@ -5,7 +5,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail, Edit3 } from 'lucide-react';
 
 export const ProfileView = () => {
-  const { currentUser, setShowGuidelinesModal } = useApp();
+  const { currentUser, setShowGuidelinesModal, isUserVerified, setShowOnboardingModal, setOnboardingReason } = useApp();
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [verifyTab, setVerifyTab] = useState('phone');
@@ -13,6 +13,11 @@ export const ProfileView = () => {
   const openVerification = (tab = 'phone') => {
     setVerifyTab(tab);
     setShowVerifyModal(true);
+  };
+
+  const handleStartVerification = () => {
+    setOnboardingReason('profile');
+    setShowOnboardingModal(true);
   };
 
   return (
@@ -24,13 +29,34 @@ export const ProfileView = () => {
           <p className="text-xs text-stone-500 font-medium">Your verified identity & community reputation</p>
         </div>
         <button
-          onClick={() => setShowEditProfileModal(true)}
+          onClick={() => isUserVerified ? setShowEditProfileModal(true) : handleStartVerification()}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors"
         >
           <Edit3 size={13} />
-          <span>Edit ID</span>
+          <span>{isUserVerified ? 'Edit ID' : 'Setup ID'}</span>
         </button>
       </div>
+
+      {/* Guest Mode Notice */}
+      {!isUserVerified && (
+        <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-orange-500/15 border border-amber-300/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-xs">
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-950">
+              <span className="px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 text-[10px]">Guest Mode</span>
+              <span>Complete Verification</span>
+            </div>
+            <p className="text-[11px] text-amber-800 font-medium mt-0.5">
+              Add your name & mobile number to join meetup crews and host plans.
+            </p>
+          </div>
+          <button
+            onClick={handleStartVerification}
+            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-espresso text-xs font-extrabold rounded-xl transition-all shadow-xs flex-shrink-0"
+          >
+            Verify in 30s
+          </button>
+        </div>
+      )}
 
       {/* Profile Card */}
       <div className="bg-white rounded-3xl border border-stone-200 p-5 space-y-4 shadow-sm">

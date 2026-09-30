@@ -222,6 +222,29 @@ export const AppProvider = ({ children }) => {
   const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [reportingUser, setReportingUser] = useState(null); // { user, planId }
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
+  const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
+
+  // Progressive Verification Check: True only if user has real name and verification
+  const isUserVerified = Boolean(
+    currentUser?.name &&
+    currentUser?.name.trim() !== '' &&
+    currentUser?.name !== 'Verified Member' &&
+    (currentUser?.phoneVerified || currentUser?.idVerified || localStorage.getItem('squadin_onboarded') === 'true')
+  );
+
+  // High-intent action gatekeeper: allows action if verified, otherwise prompts 30-sec verification modal
+  const requireVerification = (actionCallback, reason = 'general') => {
+    if (isUserVerified) {
+      if (typeof actionCallback === 'function') actionCallback();
+      return true;
+    }
+    setPendingActionAfterAuth(() => actionCallback);
+    setOnboardingReason(reason);
+    setShowOnboardingModal(true);
+    return false;
+  };
   const [blockedUserIds, setBlockedUserIds] = useState(() => {
     try {
       const saved = localStorage.getItem('squadin_blocked_users');
@@ -555,6 +578,14 @@ export const AppProvider = ({ children }) => {
     setCurrentUser(updated);
     setAllUsers(users => users.map(u => u.id === currentUser.id ? updated : u));
     localStorage.setItem('squadin_current_user', JSON.stringify(updated));
+
+    // If there was a pending high-intent action waiting for verification, execute it now
+    if (pendingActionAfterAuth && typeof pendingActionAfterAuth === 'function') {
+      setTimeout(() => {
+        pendingActionAfterAuth();
+        setPendingActionAfterAuth(null);
+      }, 300);
+    }
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -1045,6 +1076,12 @@ export const AppProvider = ({ children }) => {
         setShowGuidelinesModal,
         reportingUser,
         setReportingUser,
+        showOnboardingModal,
+        setShowOnboardingModal,
+        onboardingReason,
+        setOnboardingReason,
+        isUserVerified,
+        requireVerification,
         blockedUserIds,
         blockUser,
         unblockUser,

@@ -47,13 +47,14 @@ export function App() {
     reportingUser,
     setReportingUser,
     blockedUserIds,
-    updateCurrentUserProfile
+    updateCurrentUserProfile,
+    showOnboardingModal,
+    setShowOnboardingModal,
+    onboardingReason,
+    requireVerification
   } = useApp();
 
   const [showPwaBanner, setShowPwaBanner] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return localStorage.getItem('squadin_onboarded') !== 'true';
-  });
 
   // Check for LinkedIn OAuth 2.0 OpenID Connect callback on load
   useEffect(() => {
@@ -213,7 +214,7 @@ export function App() {
                     <p className="text-[11px] text-stone-400 mt-0.5">Be the first host to post a weekend activity in {selectedCity}!</p>
                   </div>
                   <button
-                    onClick={() => setShowCreateModal(true)}
+                    onClick={() => requireVerification(() => setShowCreateModal(true), 'create_plan')}
                     className="px-4 py-2 bg-espresso text-cream font-bold text-xs rounded-xl hover:bg-stone-800 transition-all"
                   >
                     Post a Plan (Free)
@@ -254,8 +255,9 @@ export function App() {
         onClose={() => setReportingUser(null)}
       />
       <OnboardingModal
-        isOpen={showOnboarding}
-        onClose={() => setShowOnboarding(false)}
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+        reason={onboardingReason}
       />
 
       {/* Bottom Sticky Navigation */}

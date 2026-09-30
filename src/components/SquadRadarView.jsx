@@ -57,7 +57,8 @@ export const SquadRadarView = () => {
     userCoords,
     isLocating,
     requestLiveLocation,
-    setShowCreateModal
+    setShowCreateModal,
+    requireVerification
   } = useApp();
 
   const [selectedCat, setSelectedCat] = useState('all');
@@ -122,7 +123,9 @@ export const SquadRadarView = () => {
       alert('Please select or create a plan to invite this member to.');
       return;
     }
-    sendCrewInvite(candidateId, selectedPlanForInvite);
+    requireVerification(() => {
+      sendCrewInvite(candidateId, selectedPlanForInvite);
+    }, 'radar_invite');
   };
 
   return (
@@ -571,7 +574,7 @@ export const SquadRadarView = () => {
                     <button
                       onClick={() => {
                         setActiveCandidate(null);
-                        setShowCreateModal(true);
+                        requireVerification(() => setShowCreateModal(true), 'create_plan');
                       }}
                       className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-espresso text-xs font-extrabold transition-colors inline-flex items-center gap-1"
                     >

@@ -33,7 +33,8 @@ export const PlanDetailModal = () => {
     hostEarlyUnlockPlan,
     hostUpdateCapacity,
     setActiveChatPlanId,
-    setActiveTab
+    setActiveTab,
+    requireVerification
   } = useApp();
 
   const [joinNote, setJoinNote] = useState('');
@@ -383,7 +384,7 @@ export const PlanDetailModal = () => {
             </div>
           ) : (
             <button
-              onClick={() => setShowJoinInput(true)}
+              onClick={() => requireVerification(() => setShowJoinInput(true), 'join_plan')}
               className="w-full py-3 bg-espresso hover:bg-stone-800 text-cream rounded-2xl font-extrabold text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
             >
               <span>Request to Join Crew</span>

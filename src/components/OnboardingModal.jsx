@@ -11,17 +11,36 @@ const POPULAR_INTERESTS = [
   '🍕 Food Walks', '💻 Tech & Startups', '🎬 Indie Cinema'
 ];
 
-export const OnboardingModal = ({ isOpen, onClose }) => {
-  const { currentUser, updateCurrentUserProfile, selectedCity, setSelectedCity } = useApp();
+export const OnboardingModal = ({ isOpen, onClose, reason }) => {
+  const { currentUser, updateCurrentUserProfile, selectedCity, setSelectedCity, onboardingReason } = useApp();
+  const activeReason = reason || onboardingReason || 'general';
 
   const [step, setStep] = useState(1); // 1: Profile Info, 2: Phone OTP, 3: Success
-  const [name, setName] = useState(currentUser?.name || '');
+  const [name, setName] = useState(currentUser?.name && currentUser?.name !== 'Verified Member' ? currentUser.name : '');
   const [age, setAge] = useState(currentUser?.age || '');
-  const [city, setCity] = useState(selectedCity || 'Bengaluru');
-  const [role, setRole] = useState(currentUser?.role || '');
-  const [company, setCompany] = useState(currentUser?.company || '');
+  const [city, setCity] = useState(selectedCity || 'Pune');
+  const [role, setRole] = useState(currentUser?.role && currentUser?.role !== 'Member' ? currentUser.role : '');
+  const [company, setCompany] = useState(currentUser?.company && currentUser?.company !== 'SquadIn' ? currentUser.company : '');
   const [bio, setBio] = useState(currentUser?.bio || '');
   const [selectedInterests, setSelectedInterests] = useState(currentUser?.interests?.length > 0 ? currentUser.interests : ['☕ Specialty Coffee']);
+
+  const getHeaderTitle = () => {
+    if (step === 2) return 'Verify Your Identity';
+    if (step === 3) return 'Verification Complete!';
+    if (activeReason === 'create_plan') return 'Verify ID to Post a Meetup';
+    if (activeReason === 'join_plan') return 'Verify ID to Request to Join';
+    if (activeReason === 'radar_invite') return 'Verify ID to Invite Members';
+    return 'Complete Your SquadIn ID';
+  };
+
+  const getHeaderSubtitle = () => {
+    if (step === 2) return 'Real-world trust starts with verified 100% real members';
+    if (step === 3) return 'You are now ready to join and host IRL crews!';
+    if (activeReason === 'create_plan') return 'Hosts must have a real name and verified mobile number.';
+    if (activeReason === 'join_plan') return 'Hosts review verified profiles before approving join requests.';
+    if (activeReason === 'radar_invite') return 'Nearby members only accept invites from verified members.';
+    return 'Takes 30 seconds to unlock join requests, hosting, and group chats';
+  };
 
   // Sync city when user's location is detected
   useEffect(() => {
@@ -97,7 +116,7 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
 
     setTimeout(() => {
       onClose();
-    }, 2000);
+    }, 1500);
   };
 
   const handleQuickSkip = () => {
@@ -141,10 +160,10 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
             ⚡
           </div>
           <h2 className="text-base font-extrabold text-espresso">
-            {step === 1 ? 'Create Your SquadIn ID' : step === 2 ? 'Verify Your Identity' : 'Welcome to SquadIn!'}
+            {getHeaderTitle()}
           </h2>
           <p className="text-[11px] text-stone-500 font-medium">
-            {step === 1 ? 'Join verified, small-group weekend hangouts across India' : 'Real-world trust starts with verified members'}
+            {getHeaderSubtitle()}
           </p>
         </div>
 
