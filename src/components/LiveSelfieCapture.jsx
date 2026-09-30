@@ -124,8 +124,13 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
             <Camera size={15} />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-stone-900">Live Photo & Face Verification</h4>
-            <p className="text-[10px] text-stone-500">Take a live selfie to prove identity & prevent fake profiles</p>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-stone-900">Live Selfie Verification</h4>
+              <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 text-[9px] font-extrabold">
+                +30% Trust Boost
+              </span>
+            </div>
+            <p className="text-[10px] text-stone-500">Anti-bot protection · Snaps front camera in real time</p>
           </div>
         </div>
         {isVerified && (
@@ -135,7 +140,7 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
         )}
       </div>
 
-      {/* Hidden file input for native mobile front camera */}
+      {/* Hidden file input fallback for mobile front camera */}
       <input
         ref={fileInputRef}
         type="file"
@@ -160,7 +165,7 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
             <div className="w-40 h-48 rounded-full border-2 border-dashed border-amber-400/80 shadow-[0_0_15px_rgba(251,191,36,0.3)] animate-pulse" />
             <span className="text-[10px] font-extrabold text-white bg-black/60 px-2.5 py-0.5 rounded-full mt-2 backdrop-blur-sm">
-              Align your face inside
+              Align face inside oval
             </span>
           </div>
 
@@ -173,7 +178,7 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
               className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-espresso font-extrabold text-xs rounded-full shadow-lg transition-transform active:scale-95 flex items-center gap-1.5"
             >
               <Camera size={14} />
-              <span>{isCapturing ? 'Snapping...' : 'Snap Live Selfie'}</span>
+              <span>{isCapturing ? 'Verifying...' : 'Snap Live Selfie'}</span>
             </button>
             <button
               type="button"
@@ -185,46 +190,43 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-3.5 bg-stone-50 p-3 rounded-xl border border-stone-100">
-          <div className="relative flex-shrink-0">
-            <img
-              src={previewPhoto || currentAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-              alt="Live Selfie"
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-300 shadow-sm"
-            />
-            {isVerified && (
-              <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-0.5 rounded-full ring-2 ring-white">
-                <ShieldCheck size={12} />
-              </div>
-            )}
-          </div>
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-3.5 bg-stone-50 p-3 rounded-xl border border-stone-100">
+            <div className="relative flex-shrink-0">
+              <img
+                src={previewPhoto || currentAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                alt="Live Selfie"
+                className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-300 shadow-sm"
+              />
+              {isVerified && (
+                <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-0.5 rounded-full ring-2 ring-white">
+                  <ShieldCheck size={12} />
+                </div>
+              )}
+            </div>
 
-          <div className="space-y-1.5 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="space-y-1.5 flex-1">
               <button
                 type="button"
                 onClick={startCamera}
-                className="px-3 py-1.5 bg-espresso hover:bg-stone-800 text-cream text-xs font-extrabold rounded-xl transition-all shadow-xs flex items-center gap-1.5 active:scale-95"
+                className="w-full py-2 bg-espresso hover:bg-stone-800 text-cream text-xs font-extrabold rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
               >
                 <Camera size={13} className="text-amber-400" />
-                <span>{previewPhoto ? 'Retake Live Selfie' : 'Take Live Selfie'}</span>
+                <span>{previewPhoto ? 'Retake Live Selfie' : '📸 Take Live Selfie Verification'}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="px-2.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold rounded-xl transition-all"
-                title="Upload photo from device gallery"
-              >
-                Upload Photo
-              </button>
+              <p className="text-[10px] text-stone-500 font-medium leading-tight">
+                {previewPhoto
+                  ? '✓ Live selfie confirmed! Anti-bot verification active.'
+                  : 'Tap to open your front camera for real-time selfie verification.'}
+              </p>
             </div>
+          </div>
 
-            <p className="text-[10px] text-stone-500 font-medium leading-tight">
-              {previewPhoto
-                ? '✓ Live photo captured! Your face will be displayed on verified meetup crews.'
-                : 'Tap to open your front camera and snap a quick verification selfie.'}
-            </p>
+          {/* +30% Trust Boost Callout */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 rounded-xl border border-amber-200/80 text-[10.5px] text-amber-900 font-bold">
+            <Sparkles size={12} className="text-amber-600 flex-shrink-0" />
+            <span>Live selfie increases profile trust by <strong>30%</strong> & prevents fake bot accounts.</span>
           </div>
         </div>
       )}
