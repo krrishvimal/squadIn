@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CURRENT_USER, OTHER_USERS, INITIAL_PLANS } from '../userData';
-import { VERIFIED_VENUES, calculateDistanceKm } from '../venueData';
+import { calculateDistanceKm } from '../venueData';
 import { NEARBY_RADAR_MEMBERS } from '../radarData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -285,13 +285,6 @@ export const AppProvider = ({ children }) => {
 
   // 1. Create a Plan (Host custom capacity)
   const createPlan = async (planData) => {
-    const matchedVenue = VERIFIED_VENUES.find(v => v.name.toLowerCase().includes(planData.venueName.toLowerCase())) || {
-      lat: userCoords.lat + (Math.random() * 0.02 - 0.01),
-      lng: userCoords.lng + (Math.random() * 0.02 - 0.01)
-    };
-
-    const isMatched = VERIFIED_VENUES.some(v => v.name.toLowerCase().includes(planData.venueName.toLowerCase()));
-
     const newPlan = {
       id: `plan_${Date.now()}`,
       title: planData.title,
@@ -300,15 +293,15 @@ export const AppProvider = ({ children }) => {
       hostId: currentUser.id,
       city: planData.city || selectedCity,
       venueName: planData.venueName,
-      venueLat: planData.venueLat ?? matchedVenue.lat,
-      venueLng: planData.venueLng ?? matchedVenue.lng,
+      venueLat: planData.venueLat ?? userCoords.lat,
+      venueLng: planData.venueLng ?? userCoords.lng,
       neighborhood: planData.neighborhood || `${selectedCity}`,
       dateText: planData.dateText,
       targetCapacity: parseInt(planData.targetCapacity, 10) || 4,
       status: 'OPEN',
       womenOnly: Boolean(planData.womenOnly),
-      isVerifiedVenue: isMatched || Boolean(planData.isVerifiedVenue),
-      venueType: isMatched ? 'Verified Commercial Spot' : (planData.venueType || 'Public Landmark / Custom Venue'),
+      isVerifiedVenue: false,
+      venueType: planData.venueType || 'Public Meetup Spot',
       description: planData.description,
       acceptedMembers: [currentUser.id],
       pendingRequests: [],

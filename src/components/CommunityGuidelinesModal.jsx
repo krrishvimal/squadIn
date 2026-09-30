@@ -42,11 +42,11 @@ export const CommunityGuidelinesModal = ({ isOpen, onClose }) => {
         {/* Content */}
         <div className="overflow-y-auto p-5 space-y-4">
           
-          {/* Rule 1: Public Venues */}
+          {/* Rule 1: Public Spaces */}
           <div className="p-4 bg-white rounded-2xl border border-stone-200 space-y-1.5 shadow-sm">
             <div className="flex items-center gap-2 text-espresso font-extrabold text-xs">
               <MapPin size={15} className="text-amber-600" />
-              <span>1. 100% Public & Verified Venues Only</span>
+              <span>1. 100% Public & Safe Spaces Only</span>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed font-normal">
               Meetups take place exclusively in open, public commercial spots (cafes, turf grounds, comedy clubs, comedy trials, shopping centers). Private residences or secluded locations are strictly prohibited.

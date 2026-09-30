@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { VERIFIED_VENUES } from '../venueData';
 import { MapPinPicker } from './MapPinPicker';
 import { X, Sparkles, Users, MapPin, Calendar, Plus, Minus, ShieldCheck, CheckCircle2, Tag } from 'lucide-react';
 
@@ -28,7 +27,6 @@ export const CreatePlanModal = () => {
   const [dateText, setDateText] = useState('This Saturday, 5:00 PM');
   const [description, setDescription] = useState('');
   const [womenOnly, setWomenOnly] = useState(false);
-  const [showVenueSuggestions, setShowVenueSuggestions] = useState(false);
 
   useEffect(() => {
     if (showCreateModal) {
@@ -41,26 +39,9 @@ export const CreatePlanModal = () => {
 
   if (!showCreateModal) return null;
 
-  // Filter verified venues matching user search or city
-  const filteredVenues = VERIFIED_VENUES.filter(v => 
-    v.city.toLowerCase() === selectedCity.toLowerCase() ||
-    v.name.toLowerCase().includes(venueSearch.toLowerCase()) ||
-    v.neighborhood.toLowerCase().includes(venueSearch.toLowerCase())
-  );
-
   const handleCategorySelect = (cat) => {
     setSelectedCat(cat.id);
     setTargetCapacity(cat.defaultCap);
-  };
-
-  const handleSelectVenue = (venue) => {
-    setVenueSearch(venue.name);
-    setNeighborhood(venue.neighborhood);
-    if (venue.lat && venue.lng) {
-      setPinnedLat(venue.lat);
-      setPinnedLng(venue.lng);
-    }
-    setShowVenueSuggestions(false);
   };
 
   const handleSubmit = (e) => {
@@ -242,65 +223,19 @@ export const CreatePlanModal = () => {
                 type="text"
                 required
                 value={venueSearch}
-                onFocus={() => setShowVenueSuggestions(true)}
-                onChange={(e) => {
-                  setVenueSearch(e.target.value);
-                  setShowVenueSuggestions(true);
-                }}
-                placeholder="Type any cafe, turf, park or landmark (e.g. Third Wave Coffee, Decathlon, Cubbon Park)..."
+                onChange={(e) => setVenueSearch(e.target.value)}
+                placeholder="e.g. Third Wave Coffee, Decathlon, Cubbon Park, Blue Tokai..."
                 className="w-full text-xs p-2.5 pl-8 rounded-xl border border-stone-300 bg-white focus:outline-none focus:border-amber-500 shadow-sm font-medium"
               />
               <MapPin size={14} className="absolute left-2.5 top-3 text-stone-400" />
             </div>
-
-            {/* Quick popular chips in selected city */}
-            <div className="pt-1">
-              <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1.5">
-                Popular Spots in {selectedCity} (Tap to autofill):
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {VERIFIED_VENUES.filter(v => v.city.toLowerCase() === selectedCity.toLowerCase()).slice(0, 4).map((v, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSelectVenue(v)}
-                    className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-stone-100 hover:bg-amber-100 hover:text-amber-900 border border-stone-200 text-stone-700 transition-colors"
-                  >
-                    📍 {v.name.split(',')[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Suggestions Dropdown if searching */}
-            {showVenueSuggestions && venueSearch.length > 1 && filteredVenues.length > 0 && (
-              <div className="absolute top-[88px] left-0 right-0 bg-white rounded-xl shadow-2xl border border-stone-200 max-h-44 overflow-y-auto z-30 p-1">
-                <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2.5 py-1">
-                  Verified Matches:
-                </div>
-                {filteredVenues.map((v, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSelectVenue(v)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-amber-50 flex items-start gap-2 text-xs transition-colors"
-                  >
-                    <CheckCircle2 size={13} className="text-emerald-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="font-bold text-stone-800">{v.name}</div>
-                      <div className="text-[10px] text-stone-400">{v.neighborhood}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Interactive Leaflet Pin Drop Map */}
             <div className="pt-2">
               <MapPinPicker
                 lat={pinnedLat}
                 lng={pinnedLng}
-                venueLabel={venueSearch.trim() || 'Selected Spot'}
+                venueLabel={venueSearch.trim() || 'Selected Meetup Spot'}
                 userCoords={userCoords}
                 onLocationChange={(newLat, newLng) => {
                   setPinnedLat(newLat);
