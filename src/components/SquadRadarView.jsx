@@ -83,7 +83,7 @@ export const SquadRadarView = () => {
 
   // Filter members by city, selected weekend passion category, women-only, and distance radius
   const filteredMembers = radarMembers.filter(m => {
-    if (m.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
+    if (!m.city || m.city.trim().toLowerCase() !== selectedCity.trim().toLowerCase()) return false;
     
     // Category & Weekend Passion matching
     if (selectedCat !== 'all') {

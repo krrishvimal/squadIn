@@ -98,14 +98,58 @@ const mapPlanToRow = (plan) => ({
   accepted_members: plan.acceptedMembers
 });
 
+const DEFAULT_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80'
+];
+
+const getOrCreateUserId = () => {
+  try {
+    let id = localStorage.getItem('squadin_user_id');
+    if (!id || id === 'usr_guest') {
+      id = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36).slice(-4);
+      localStorage.setItem('squadin_user_id', id);
+    }
+    return id;
+  } catch {
+    return 'usr_' + Math.random().toString(36).substring(2, 9);
+  }
+};
+
 export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('squadin_current_user');
-    return saved ? JSON.parse(saved) : CURRENT_USER;
+    try {
+      const saved = localStorage.getItem('squadin_current_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.id && parsed.id !== 'usr_guest') {
+          return parsed;
+        }
+      }
+    } catch {}
+    const newId = getOrCreateUserId();
+    const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const chosenAvatar = DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length];
+    const newUser = {
+      ...CURRENT_USER,
+      id: newId,
+      name: CURRENT_USER.name || 'Verified Member',
+      avatar: chosenAvatar,
+      city: 'Pune',
+      interests: ['☕ Specialty Coffee', '🍕 Food Walks']
+    };
+    try {
+      localStorage.setItem('squadin_current_user', JSON.stringify(newUser));
+    } catch {}
+    return newUser;
   });
 
   const [allUsers, setAllUsers] = useState(() => {
-    return [CURRENT_USER, ...OTHER_USERS];
+    return [currentUser, ...OTHER_USERS];
   });
 
   // Strict: 100% clean plans array
@@ -156,6 +200,18 @@ export const AppProvider = ({ children }) => {
         }
         return prev;
       });
+    }
+
+    // Update current user profile city and sync
+    if (currentUser?.id) {
+      const updatedUser = { ...currentUser, city };
+      setCurrentUser(updatedUser);
+      try {
+        localStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
+      } catch (e) {}
+      if (isSupabaseConfigured && supabase) {
+        supabase.from('profiles').update({ city }).eq('id', currentUser.id).then(() => {}).catch(() => {});
+      }
     }
   };
 
