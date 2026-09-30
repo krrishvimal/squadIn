@@ -1,11 +1,42 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CURRENT_USER, OTHER_USERS, INITIAL_PLANS } from '../userData';
-import { calculateDistanceKm, INDIAN_CITIES, detectClosestCity } from '../venueData';
+import { calculateDistanceKm, INDIAN_CITIES, detectClosestCity, PASSION_TO_CATEGORY_MAP } from '../venueData';
 import { NEARBY_RADAR_MEMBERS } from '../radarData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const AppContext = createContext();
+
+// Helper to convert database profile row to radar member
+const mapProfileToRadarMember = (p) => {
+  const primaryCat = (p.interests && p.interests.length > 0)
+    ? (PASSION_TO_CATEGORY_MAP[p.interests[0]] || 'cafe')
+    : 'cafe';
+  const primaryActivity = (p.interests && p.interests.length > 0)
+    ? p.interests[0]
+    : '☕ Specialty Coffee';
+
+  return {
+    id: p.id,
+    name: p.name || 'Verified Member',
+    avatar: p.avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
+    role: p.role || 'Member',
+    company: p.company || 'SquadIn',
+    city: p.city || 'Pune',
+    gender: p.gender || 'unspecified',
+    interests: p.interests || [primaryActivity],
+    primaryActivity: primaryActivity,
+    primaryCat: primaryCat,
+    phoneVerified: Boolean(p.phone_verified),
+    workEmailVerified: Boolean(p.work_email_verified),
+    linkedin_verified: Boolean(p.linkedin_verified),
+    idVerified: Boolean(p.id_verified || p.phone_verified),
+    karmaScore: p.karma_score || 5.0,
+    distanceKm: 1.8,
+    latOffset: (Math.random() * 0.03 - 0.015),
+    lngOffset: (Math.random() * 0.03 - 0.015)
+  };
+};
 
 // Force wipe any old browser localStorage cache immediately on script execution
 try {
@@ -22,7 +53,7 @@ try {
 }
 
 // Convert database row to frontend plan object
-const mapRowToPlan = (row, messages = []) => ({
+const mapRowToPlan = (row, messages = [], requests = []) => ({
   id: row.id,
   title: row.title,
   category: row.category,
@@ -41,7 +72,7 @@ const mapRowToPlan = (row, messages = []) => ({
   venueType: row.venue_type,
   description: row.description,
   acceptedMembers: row.accepted_members || [],
-  pendingRequests: [],
+  pendingRequests: requests,
   messages: messages
 });
 
@@ -209,9 +240,44 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return;
 
-    // 1. Fetch initial plans and messages from Supabase
+    // 1. Fetch initial profiles, plans, messages, and join requests from Supabase
     const initCloudData = async () => {
       try {
+        // Fetch profiles for allUsers and Radar
+        const { data: cloudProfiles } = await supabase.from('profiles').select('*');
+        if (cloudProfiles && cloudProfiles.length > 0) {
+          const userProfiles = cloudProfiles.map(p => ({
+            id: p.id,
+            name: p.name || 'Verified Member',
+            avatar: p.avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
+            role: p.role || 'Member',
+            company: p.company || 'SquadIn',
+            city: p.city || 'Pune',
+            interests: p.interests || [],
+            phoneVerified: Boolean(p.phone_verified),
+            workEmailVerified: Boolean(p.work_email_verified),
+            linkedin_verified: Boolean(p.linkedin_verified),
+            idVerified: Boolean(p.id_verified || p.phone_verified),
+            karmaScore: p.karma_score || 5.0
+          }));
+
+          setAllUsers(prev => {
+            const map = new Map();
+            [...prev, ...userProfiles].forEach(u => map.set(u.id, u));
+            return Array.from(map.values());
+          });
+
+          // Set radar members for other users
+          const radarCandidates = cloudProfiles
+            .filter(p => p.id !== currentUser.id)
+            .map(p => mapProfileToRadarMember(p));
+
+          if (radarCandidates.length > 0) {
+            setRadarMembers(radarCandidates);
+          }
+        }
+
+        // Fetch plans
         const { data: cloudPlans, error: plansError } = await supabase
           .from('plans')
           .select('*')
@@ -223,6 +289,13 @@ export const AppProvider = ({ children }) => {
             .select('*')
             .order('created_at', { ascending: true });
 
+          // Fetch join requests
+          let cloudRequests = [];
+          try {
+            const { data: reqs } = await supabase.from('plan_requests').select('*');
+            if (reqs) cloudRequests = reqs;
+          } catch (e) {}
+
           const formattedPlans = cloudPlans.map(cp => {
             const planMsgs = (cloudMessages || [])
               .filter(m => m.plan_id === cp.id)
@@ -233,7 +306,18 @@ export const AppProvider = ({ children }) => {
                 timestamp: m.timestamp,
                 isSystem: m.is_system
               }));
-            return mapRowToPlan(cp, planMsgs);
+
+            const planReqs = cloudRequests
+              .filter(r => r.plan_id === cp.id && r.status !== 'ACCEPTED')
+              .map(r => ({
+                userId: r.user_id,
+                userName: r.user_name || 'Member',
+                userAvatar: r.user_avatar,
+                message: r.message,
+                requestedAt: 'Just now'
+              }));
+
+            return mapRowToPlan(cp, planMsgs, planReqs);
           });
 
           if (formattedPlans.length > 0) {
@@ -247,19 +331,19 @@ export const AppProvider = ({ children }) => {
 
     initCloudData();
 
-    // 2. Realtime WebSocket subscriptions for Plans & Messages
+    // 2. Realtime WebSocket subscriptions for Plans, Messages, Profiles, and Requests
     const plansSubscription = supabase
       .channel('public:plans')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'plans' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          const newPlan = mapRowToPlan(payload.new, []);
+          const newPlan = mapRowToPlan(payload.new, [], []);
           setPlans(prev => [newPlan, ...prev.filter(p => p.id !== newPlan.id)]);
         } else if (payload.eventType === 'UPDATE') {
           setPlans(prev => prev.map(p => {
             if (p.id === payload.new.id) {
               return {
                 ...p,
-                ...mapRowToPlan(payload.new, p.messages)
+                ...mapRowToPlan(payload.new, p.messages, p.pendingRequests)
               };
             }
             return p;
@@ -295,9 +379,75 @@ export const AppProvider = ({ children }) => {
       })
       .subscribe();
 
+    const profilesSubscription = supabase
+      .channel('public:profiles')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+        if (payload.new) {
+          const updatedProfile = payload.new;
+          if (updatedProfile.id !== currentUser.id) {
+            const radarCandidate = mapProfileToRadarMember(updatedProfile);
+            setRadarMembers(prev => [radarCandidate, ...prev.filter(m => m.id !== radarCandidate.id)]);
+            setAllUsers(prev => [{
+              id: updatedProfile.id,
+              name: updatedProfile.name,
+              avatar: updatedProfile.avatar,
+              role: updatedProfile.role,
+              company: updatedProfile.company,
+              city: updatedProfile.city,
+              interests: updatedProfile.interests || []
+            }, ...prev.filter(u => u.id !== updatedProfile.id)]);
+          }
+        }
+      })
+      .subscribe();
+
+    const requestsSubscription = supabase
+      .channel('public:plan_requests')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_requests' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const req = payload.new;
+          setPlans(prev => prev.map(p => {
+            if (p.id === req.plan_id) {
+              const exists = p.pendingRequests.some(r => r.userId === req.user_id);
+              if (exists) return p;
+              return {
+                ...p,
+                pendingRequests: [
+                  ...p.pendingRequests,
+                  {
+                    userId: req.user_id,
+                    userName: req.user_name || 'Member',
+                    userAvatar: req.user_avatar,
+                    message: req.message,
+                    requestedAt: 'Just now'
+                  }
+                ]
+              };
+            }
+            return p;
+          }));
+        } else if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
+          const req = payload.old || payload.new;
+          if (req?.plan_id && req?.user_id) {
+            setPlans(prev => prev.map(p => {
+              if (p.id === req.plan_id) {
+                return {
+                  ...p,
+                  pendingRequests: p.pendingRequests.filter(r => r.userId !== req.user_id)
+                };
+              }
+              return p;
+            }));
+          }
+        }
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(plansSubscription);
       supabase.removeChannel(messagesSubscription);
+      supabase.removeChannel(profilesSubscription);
+      supabase.removeChannel(requestsSubscription);
     };
   }, []);
 
@@ -389,7 +539,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // 2. Request to Join Plan
-  const requestToJoinPlan = (planId, userMessage = 'Hey! Would love to join your crew.') => {
+  const requestToJoinPlan = async (planId, userMessage = 'Hey! Would love to join your crew.') => {
     setPlans(prev => prev.map(p => {
       if (p.id !== planId) return p;
       if (p.acceptedMembers.includes(currentUser.id)) return p;
@@ -401,12 +551,29 @@ export const AppProvider = ({ children }) => {
           ...p.pendingRequests,
           {
             userId: currentUser.id,
+            userName: currentUser.name || 'Member',
+            userAvatar: currentUser.avatar,
             requestedAt: 'Just now',
             message: userMessage
           }
         ]
       };
     }));
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('plan_requests').insert({
+          plan_id: planId,
+          user_id: currentUser.id,
+          user_name: currentUser.name || 'Member',
+          user_avatar: currentUser.avatar,
+          message: userMessage,
+          status: 'PENDING'
+        });
+      } catch (err) {
+        console.warn('Request cloud sync notice:', err);
+      }
+    }
   };
 
   // 3. Host Accepts Request
@@ -460,6 +627,12 @@ export const AppProvider = ({ children }) => {
             status: updatedPlanTarget.status
           })
           .eq('id', planId);
+
+        await supabase
+          .from('plan_requests')
+          .delete()
+          .eq('plan_id', planId)
+          .eq('user_id', userId);
       } catch (err) {
         console.warn('Accept request cloud sync notice:', err);
       }
@@ -467,7 +640,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // 4. Host Rejects Request
-  const rejectJoinRequest = (planId, userId) => {
+  const rejectJoinRequest = async (planId, userId) => {
     setPlans(prev => prev.map(p => {
       if (p.id !== planId) return p;
       return {
@@ -475,6 +648,18 @@ export const AppProvider = ({ children }) => {
         pendingRequests: p.pendingRequests.filter(r => r.userId !== userId)
       };
     }));
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase
+          .from('plan_requests')
+          .delete()
+          .eq('plan_id', planId)
+          .eq('user_id', userId);
+      } catch (err) {
+        console.warn('Reject request cloud sync notice:', err);
+      }
+    }
   };
 
   // 5. Host Early Unlock

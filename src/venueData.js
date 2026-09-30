@@ -1,6 +1,19 @@
 // Database of verified public venues (0 mock entries for clean production)
 export const VERIFIED_VENUES = [];
 
+export const PASSION_TO_CATEGORY_MAP = {
+  '☕ Specialty Coffee': 'cafe',
+  '🍕 Food Walks': 'cafe',
+  '🏸 Badminton': 'sports',
+  '🏃 Running 5K': 'sports',
+  '🎭 Standup Comedy': 'comedy',
+  '🎬 Indie Cinema': 'comedy',
+  '🏺 Pottery & Art': 'arts',
+  '🥾 Weekend Treks': 'hike',
+  '🎵 Concerts & Gigs': 'concert',
+  '💻 Tech & Startups': 'other'
+};
+
 // Major Indian Metro & Tech Hub Coordinates
 export const INDIAN_CITIES = [
   { name: 'Bengaluru', lat: 12.9716, lng: 77.5946, aliases: ['bangalore', 'bengaluru', 'koramangala', 'indiranagar', 'hsr', 'whitefield', 'bellandur', 'jayanagar'] },
