@@ -128,10 +128,18 @@ export const AppProvider = ({ children }) => {
     lng: 77.6288,
     isRealGPS: false
   });
+  const [isLocating, setIsLocating] = useState(false);
 
-  // Fetch real device location on mount and automatically detect city
-  useEffect(() => {
-    if (navigator.geolocation) {
+  // Reusable function to request live GPS coordinates on demand
+  const requestLiveLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your device browser.');
+        reject('Not supported');
+        return;
+      }
+
+      setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const lat = pos.coords.latitude;
@@ -169,13 +177,23 @@ export const AppProvider = ({ children }) => {
           } catch (e) {
             // closest city already assigned
           }
+
+          setIsLocating(false);
+          resolve({ lat, lng, city: closest });
         },
         (err) => {
+          setIsLocating(false);
           console.warn('Geolocation notice:', err);
+          reject(err);
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
-    }
+    });
+  };
+
+  // Trigger once on mount
+  useEffect(() => {
+    requestLiveLocation().catch(() => {});
   }, []);
 
   // Save to LocalStorage
@@ -735,6 +753,8 @@ export const AppProvider = ({ children }) => {
         sortByDistance,
         setSortByDistance,
         userCoords,
+        isLocating,
+        requestLiveLocation,
         showPwaInstall,
         setShowPwaInstall,
         isCloudConnected,

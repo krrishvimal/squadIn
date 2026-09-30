@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { INDIAN_CITIES } from '../venueData';
-import { MapPin, ShieldCheck, Plus, Sparkles, ChevronDown, UserCheck } from 'lucide-react';
+import { MapPin, ShieldCheck, Plus, Sparkles, ChevronDown, UserCheck, Navigation } from 'lucide-react';
 
 export const Navbar = () => {
   const {
@@ -10,7 +10,10 @@ export const Navbar = () => {
     currentUser,
     setActiveTab,
     setShowCreateModal,
-    setShowGuidelinesModal
+    setShowGuidelinesModal,
+    requestLiveLocation,
+    isLocating,
+    userCoords
   } = useApp();
 
   return (
@@ -34,18 +37,26 @@ export const Navbar = () => {
               </span>
             </div>
             
-            {/* City Switcher */}
-            <div className="flex items-center gap-0.5 text-stone-500 text-[11px] font-medium cursor-pointer">
+            {/* City Switcher & GPS Auto-Locate */}
+            <div className="flex items-center gap-1 text-stone-500 text-[11px] font-medium">
               <MapPin size={11} className="text-amber-600 flex-shrink-0" />
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="bg-transparent text-stone-700 font-bold focus:outline-none cursor-pointer text-[11px] max-w-[110px] sm:max-w-none truncate"
+                className="bg-transparent text-stone-700 font-bold focus:outline-none cursor-pointer text-[11px] max-w-[100px] sm:max-w-none truncate"
               >
                 {INDIAN_CITIES.map(c => (
                   <option key={c.name} value={c.name}>{c.name}</option>
                 ))}
               </select>
+              <button
+                onClick={() => requestLiveLocation()}
+                disabled={isLocating}
+                className="p-0.5 rounded-md hover:bg-stone-200 text-stone-400 hover:text-amber-700 transition-colors flex-shrink-0"
+                title="Auto-detect my current city via GPS"
+              >
+                <Navigation size={10} className={isLocating ? "animate-spin text-amber-600" : userCoords.isRealGPS ? "text-amber-600" : "text-stone-400"} />
+              </button>
             </div>
           </div>
         </div>

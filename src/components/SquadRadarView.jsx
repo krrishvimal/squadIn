@@ -40,6 +40,8 @@ export const SquadRadarView = () => {
     plans,
     currentUser,
     userCoords,
+    isLocating,
+    requestLiveLocation,
     setShowCreateModal
   } = useApp();
 
@@ -98,10 +100,27 @@ export const SquadRadarView = () => {
       {/* Top Hero Banner */}
       <div className="bg-gradient-to-br from-stone-900 via-amber-950 to-espresso text-cream rounded-3xl p-5 shadow-md relative overflow-hidden">
         <div className="relative z-10 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-espresso font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
-              <Radio size={12} className="animate-pulse" /> Live Squad Radar
-            </span>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-espresso font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
+                <Radio size={12} className="animate-pulse" /> Live Squad Radar
+              </span>
+
+              {/* Live GPS Sync Button */}
+              <button
+                onClick={() => requestLiveLocation()}
+                disabled={isLocating}
+                className={`text-[10.5px] font-extrabold px-2.5 py-0.5 rounded-full border transition-all flex items-center gap-1 shadow-xs active:scale-95 ${
+                  userCoords.isRealGPS
+                    ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30'
+                    : 'bg-stone-800 text-amber-400 border-amber-500/50 hover:bg-stone-700 animate-pulse'
+                }`}
+                title="Recalibrate / Sync with device GPS"
+              >
+                <Navigation size={11} className={isLocating ? "animate-spin text-amber-400" : "text-amber-400"} />
+                <span>{isLocating ? 'Locating...' : userCoords.isRealGPS ? 'GPS Active' : 'Sync Live GPS'}</span>
+              </button>
+            </div>
 
             {/* Broadcast status toggle */}
             <button
@@ -113,7 +132,7 @@ export const SquadRadarView = () => {
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${isRadarBroadcastOn ? 'bg-emerald-400 animate-ping' : 'bg-stone-500'}`} />
-              <span>{isRadarBroadcastOn ? 'You are Visible on Radar' : 'Radar Hidden'}</span>
+              <span>{isRadarBroadcastOn ? 'Visible' : 'Hidden'}</span>
             </button>
           </div>
 
