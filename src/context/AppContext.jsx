@@ -243,27 +243,26 @@ export const AppProvider = ({ children }) => {
 
   // Update profile
   const updateCurrentUserProfile = async (updates) => {
-    setCurrentUser(prev => {
-      const updated = { ...prev, ...updates };
-      setAllUsers(users => users.map(u => u.id === prev.id ? updated : u));
-      return updated;
-    });
+    const updated = { ...currentUser, ...updates };
+    setCurrentUser(updated);
+    setAllUsers(users => users.map(u => u.id === currentUser.id ? updated : u));
+    localStorage.setItem('squadin_current_user', JSON.stringify(updated));
 
     if (isSupabaseConfigured && supabase) {
       try {
         await supabase.from('profiles').upsert({
-          id: currentUser.id,
-          name: currentUser.name,
-          avatar: currentUser.avatar,
-          bio: currentUser.bio,
-          city: selectedCity,
-          role: currentUser.role,
-          company: currentUser.company,
-          phone_verified: updates.phoneVerified ?? currentUser.phoneVerified,
-          work_email_verified: updates.workEmailVerified ?? currentUser.workEmailVerified,
-          linkedin_verified: updates.linkedInVerified ?? currentUser.linkedInVerified,
-          karma_score: currentUser.karmaScore,
-          phone_number: updates.phoneNumber ?? currentUser.phoneNumber
+          id: updated.id,
+          name: updated.name,
+          avatar: updated.avatar,
+          bio: updated.bio,
+          city: updated.city || selectedCity,
+          role: updated.role,
+          company: updated.company,
+          phone_verified: updated.phoneVerified,
+          work_email_verified: updated.workEmailVerified,
+          linkedin_verified: updated.linkedInVerified,
+          karma_score: updated.karmaScore,
+          phone_number: updated.phoneNumber
         });
       } catch (e) {
         console.warn('Profile sync notice:', e);
