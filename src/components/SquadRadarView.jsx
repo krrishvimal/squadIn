@@ -20,13 +20,28 @@ import {
   Activity
 } from 'lucide-react';
 
+export const PASSION_TO_CATEGORY_MAP = {
+  '☕ Specialty Coffee': 'cafe',
+  '🍕 Food Walks': 'cafe',
+  '🏸 Badminton': 'sports',
+  '🏃 Running 5K': 'sports',
+  '🎭 Standup Comedy': 'comedy',
+  '🎬 Indie Cinema': 'comedy',
+  '🏺 Pottery & Art': 'arts',
+  '🥾 Weekend Treks': 'hike',
+  '🎵 Concerts & Gigs': 'concert',
+  '💻 Tech & Startups': 'other'
+};
+
 const ACTIVITY_FILTERS = [
-  { id: 'all', label: 'All Activities', icon: '✨' },
-  { id: 'cafe', label: 'Cafe & Brunch', icon: '☕' },
-  { id: 'sports', label: 'Sports & Turf', icon: '🏸' },
-  { id: 'comedy', label: 'Standup & Comedy', icon: '🎭' },
+  { id: 'all', label: 'All Passions', icon: '✨' },
+  { id: 'cafe', label: 'Coffee & Food', icon: '☕' },
+  { id: 'sports', label: 'Sports & Run', icon: '🏸' },
+  { id: 'comedy', label: 'Standup & Cinema', icon: '🎭' },
+  { id: 'arts', label: 'Pottery & Art', icon: '🏺' },
+  { id: 'hike', label: 'Weekend Treks', icon: '🥾' },
   { id: 'concert', label: 'Concerts & Gigs', icon: '🎵' },
-  { id: 'arts', label: 'Workshops', icon: '🏺' }
+  { id: 'other', label: 'Tech & Meetups', icon: '💻' }
 ];
 
 export const SquadRadarView = () => {
@@ -66,10 +81,26 @@ export const SquadRadarView = () => {
     return dist && dist > 0 ? dist : member.distanceKm;
   };
 
-  // Filter members by city, category, women-only, and distance radius
+  // Filter members by city, selected weekend passion category, women-only, and distance radius
   const filteredMembers = radarMembers.filter(m => {
     if (m.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
-    if (selectedCat !== 'all' && m.primaryCat !== selectedCat && !m.interests?.includes(selectedCat)) return false;
+    
+    // Category & Weekend Passion matching
+    if (selectedCat !== 'all') {
+      const memberCats = [
+        m.primaryCat,
+        ...(m.interests || []).map(p => PASSION_TO_CATEGORY_MAP[p] || p)
+      ].filter(Boolean);
+
+      const matchesPassion = memberCats.some(c => 
+        c.toLowerCase() === selectedCat.toLowerCase() ||
+        c.toLowerCase().includes(selectedCat.toLowerCase()) ||
+        selectedCat.toLowerCase().includes(c.toLowerCase())
+      );
+
+      if (!matchesPassion) return false;
+    }
+
     if (womenOnly && m.gender !== 'female') return false;
     
     // Radius filter
@@ -315,9 +346,9 @@ export const SquadRadarView = () => {
               >
                 <div className="relative flex flex-col items-center">
                   
-                  {/* Activity Badge Floating above avatar */}
+                  {/* Activity / Passion Badge Floating above avatar */}
                   <div className="mb-1 px-2 py-0.5 rounded-full bg-stone-900/95 border border-amber-400 text-amber-300 text-[9.5px] font-extrabold shadow-md flex items-center gap-1 whitespace-nowrap">
-                    <span>{member.primaryActivity}</span>
+                    <span>{member.primaryActivity || (member.interests && member.interests.length > 0 ? member.interests[0] : '✨ Weekend Passion')}</span>
                   </div>
 
                   {/* Avatar Bubble */}
