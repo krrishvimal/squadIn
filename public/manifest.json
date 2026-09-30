@@ -1,5 +1,5 @@
 {
-  "name": "SquadIn - Real World Weekend Crews",
+  "name": "SquadIn - Real-World Weekend Crews",
   "short_name": "SquadIn",
   "description": "Find your weekend crew in India. Post a plan, accept your crew, chat unlocks when ready.",
   "start_url": "/",
@@ -9,14 +9,14 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/squadin_minimal_logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/squadin_premium_nexus.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
