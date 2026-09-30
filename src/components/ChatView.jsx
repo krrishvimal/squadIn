@@ -13,7 +13,8 @@ import {
   Share2,
   Star,
   ChevronLeft,
-  Info
+  Info,
+  Flag
 } from 'lucide-react';
 
 export const ChatView = () => {
@@ -27,7 +28,8 @@ export const ChatView = () => {
     hostEarlyUnlockPlan,
     triggerEmergencySOS,
     setShowKarmaModal,
-    setKarmaReviewPlan
+    setKarmaReviewPlan,
+    setReportingUser
   } = useApp();
 
   const [inputMessage, setInputMessage] = useState('');
@@ -336,8 +338,15 @@ export const ChatView = () => {
 
               <div>
                 {!isMe && (
-                  <div className="text-[10px] font-bold text-stone-500 mb-0.5 ml-1">
-                    {sender.name} · {sender.company}
+                  <div className="flex items-center justify-between text-[10px] font-bold text-stone-500 mb-0.5 ml-1 gap-2">
+                    <span>{sender.name} · {sender.company}</span>
+                    <button
+                      onClick={() => setReportingUser({ user: sender, planId: activePlan.id })}
+                      className="text-stone-400 hover:text-rose-600 p-0.5 rounded transition-colors"
+                      title="Report user"
+                    >
+                      <Flag size={10} />
+                    </button>
                   </div>
                 )}
                 <div

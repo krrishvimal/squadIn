@@ -10,6 +10,8 @@ import { MyCrewsView } from './components/MyCrewsView';
 import { ProfileView } from './components/ProfileView';
 import { SquadRadarView } from './components/SquadRadarView';
 import { KarmaReviewModal } from './components/KarmaReviewModal';
+import { ReportUserModal } from './components/ReportUserModal';
+import { CommunityGuidelinesModal } from './components/CommunityGuidelinesModal';
 import { Sparkles, Users, Filter, Compass, Plus, ShieldCheck, Navigation, Smartphone, X } from 'lucide-react';
 
 const CATEGORY_FILTERS = [
@@ -36,13 +38,19 @@ export function App() {
     getPlanDistance,
     setShowCreateModal,
     selectedCity,
-    userCoords
+    userCoords,
+    showGuidelinesModal,
+    setShowGuidelinesModal,
+    reportingUser,
+    setReportingUser,
+    blockedUserIds
   } = useApp();
 
   const [showPwaBanner, setShowPwaBanner] = useState(true);
 
-  // Filter plans based on selected city, category and women-only toggle
+  // Filter plans based on selected city, category, women-only toggle, and blocked users
   let filteredPlans = plans.filter(plan => {
+    if (blockedUserIds?.includes(plan.hostId)) return false;
     if (selectedCity && plan.city && plan.city.toLowerCase() !== selectedCity.toLowerCase()) {
       return false;
     }
@@ -219,6 +227,16 @@ export function App() {
       <PlanDetailModal />
       <CreatePlanModal />
       <KarmaReviewModal />
+      <CommunityGuidelinesModal
+        isOpen={showGuidelinesModal}
+        onClose={() => setShowGuidelinesModal(false)}
+      />
+      <ReportUserModal
+        isOpen={Boolean(reportingUser)}
+        targetUser={reportingUser?.user}
+        planId={reportingUser?.planId}
+        onClose={() => setReportingUser(null)}
+      />
 
       {/* Bottom Sticky Navigation */}
       <BottomTabs />

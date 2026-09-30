@@ -4,7 +4,7 @@ import { VerificationModal } from './VerificationModal';
 import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail } from 'lucide-react';
 
 export const ProfileView = () => {
-  const { currentUser } = useApp();
+  const { currentUser, setShowGuidelinesModal } = useApp();
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [verifyTab, setVerifyTab] = useState('phone');
 
@@ -188,14 +188,20 @@ export const ProfileView = () => {
       </div>
 
       {/* Safety Pledge */}
-      <div className="p-4 bg-stone-100/80 rounded-2xl text-center space-y-1 border border-stone-200">
+      <div 
+        onClick={() => setShowGuidelinesModal(true)}
+        className="p-4 bg-stone-100/80 hover:bg-stone-200/60 rounded-2xl text-center space-y-1 border border-stone-200 cursor-pointer transition-all active:scale-[0.99]"
+      >
         <div className="text-xs font-bold text-stone-800 flex items-center justify-center gap-1.5">
           <Heart size={13} className="text-rose-500 fill-rose-500" />
-          <span>SquadIn Community Trust & Safety Pledge</span>
+          <span>SquadIn Community Trust & Safety Standards</span>
         </div>
         <p className="text-[11px] text-stone-600 leading-normal max-w-sm mx-auto">
           Public venues only · Platonic real-world connection · Zero tolerance for harassment, ghosting, or fake profiles.
         </p>
+        <span className="text-[10px] font-bold text-amber-800 underline inline-block pt-0.5">
+          Read Full Safety Guidelines & Terms ➔
+        </span>
       </div>
 
       {/* Verification Modal */}

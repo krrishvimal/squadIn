@@ -93,6 +93,16 @@ export const AppProvider = ({ children }) => {
   const [sortByDistance, setSortByDistance] = useState(false);
   const [showPwaInstall, setShowPwaInstall] = useState(false);
   const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
+  const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
+  const [reportingUser, setReportingUser] = useState(null); // { user, planId }
+  const [blockedUserIds, setBlockedUserIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('squadin_blocked_users');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Radar State
   const [radarMembers, setRadarMembers] = useState(NEARBY_RADAR_MEMBERS);
@@ -623,6 +633,45 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  // 12. Safety Moderation: Block & Report
+  const blockUser = (userId) => {
+    setBlockedUserIds(prev => {
+      if (prev.includes(userId)) return prev;
+      const updated = [...prev, userId];
+      try {
+        localStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const unblockUser = (userId) => {
+    setBlockedUserIds(prev => {
+      const updated = prev.filter(id => id !== userId);
+      try {
+        localStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const reportUser = async (reportData) => {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('reports').insert({
+          target_user_id: reportData.targetUserId,
+          reporter_id: currentUser.id,
+          plan_id: reportData.planId,
+          reason: reportData.reason,
+          details: reportData.details,
+          created_at: new Date().toISOString()
+        });
+      } catch (e) {
+        // Table created on demand
+      }
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -653,6 +702,14 @@ export const AppProvider = ({ children }) => {
         showPwaInstall,
         setShowPwaInstall,
         isCloudConnected,
+        showGuidelinesModal,
+        setShowGuidelinesModal,
+        reportingUser,
+        setReportingUser,
+        blockedUserIds,
+        blockUser,
+        unblockUser,
+        reportUser,
         radarMembers,
         setRadarMembers,
         isRadarBroadcastOn,

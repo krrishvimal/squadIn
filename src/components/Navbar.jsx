@@ -9,7 +9,8 @@ export const Navbar = () => {
     currentUser,
     allUsers,
     setActiveTab,
-    setShowCreateModal
+    setShowCreateModal,
+    setShowGuidelinesModal
   } = useApp();
 
   return (
@@ -49,7 +50,16 @@ export const Navbar = () => {
         </div>
 
         {/* Action Button & User Profile */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
+          {/* Safety Standards Button */}
+          <button
+            onClick={() => setShowGuidelinesModal(true)}
+            className="w-8 h-8 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 flex items-center justify-center transition-all"
+            title="Community Safety Standards"
+          >
+            <ShieldCheck size={16} className="text-amber-700" />
+          </button>
+
           {/* Post a Plan Button */}
           <button
             onClick={() => setShowCreateModal(true)}
