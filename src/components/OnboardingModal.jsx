@@ -14,13 +14,13 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
   const { currentUser, updateCurrentUserProfile, selectedCity, setSelectedCity } = useApp();
 
   const [step, setStep] = useState(1); // 1: Profile Info, 2: Phone OTP, 3: Success
-  const [name, setName] = useState(currentUser?.name === 'Aarav Sharma' ? '' : currentUser?.name || '');
-  const [age, setAge] = useState(currentUser?.age || 26);
+  const [name, setName] = useState(currentUser?.name || '');
+  const [age, setAge] = useState(currentUser?.age || '');
   const [city, setCity] = useState(selectedCity || 'Bengaluru');
-  const [role, setRole] = useState(currentUser?.role === 'Product Designer' ? '' : currentUser?.role || '');
-  const [company, setCompany] = useState(currentUser?.company === 'Swiggy' ? '' : currentUser?.company || '');
-  const [bio, setBio] = useState(currentUser?.bio?.startsWith('Weekend coffee') ? '' : currentUser?.bio || '');
-  const [selectedInterests, setSelectedInterests] = useState(['☕ Specialty Coffee', '🎭 Standup Comedy']);
+  const [role, setRole] = useState(currentUser?.role || '');
+  const [company, setCompany] = useState(currentUser?.company || '');
+  const [bio, setBio] = useState(currentUser?.bio || '');
+  const [selectedInterests, setSelectedInterests] = useState(currentUser?.interests?.length > 0 ? currentUser.interests : ['☕ Specialty Coffee']);
 
   // Phone OTP
   const [phone, setPhone] = useState('');

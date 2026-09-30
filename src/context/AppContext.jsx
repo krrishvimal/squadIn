@@ -10,10 +10,12 @@ const AppContext = createContext();
 // Force wipe any old browser localStorage cache immediately on script execution
 try {
   const version = localStorage.getItem('squadin_data_version');
-  if (version !== 'clean_v2') {
+  if (version !== 'clean_v3') {
     localStorage.removeItem('squadin_plans');
     localStorage.removeItem('squadin_current_user');
-    localStorage.setItem('squadin_data_version', 'clean_v2');
+    localStorage.removeItem('squadin_onboarded');
+    localStorage.removeItem('squadin_blocked_users');
+    localStorage.setItem('squadin_data_version', 'clean_v3');
   }
 } catch (e) {
   // ignore

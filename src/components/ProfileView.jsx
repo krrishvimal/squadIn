@@ -49,10 +49,13 @@ export const ProfileView = () => {
 
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="text-base font-extrabold text-espresso">{currentUser.name}</h3>
-                <span className="text-xs font-bold text-stone-400">({currentUser.age})</span>
+                <h3 className="text-base font-extrabold text-espresso">{currentUser.name || 'New Member'}</h3>
+                {currentUser.age ? <span className="text-xs font-bold text-stone-400">({currentUser.age})</span> : null}
               </div>
-              <p className="text-xs text-stone-600 font-medium">{currentUser.role} at <strong className="text-stone-800">{currentUser.company}</strong></p>
+              <p className="text-xs text-stone-600 font-medium">
+                {currentUser.role ? `${currentUser.role} at ` : 'Tap Edit ID to setup profile'}
+                {currentUser.company ? <strong className="text-stone-800">{currentUser.company}</strong> : null}
+              </p>
               
               {/* Trust Badges */}
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
