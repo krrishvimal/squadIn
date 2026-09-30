@@ -44,6 +44,7 @@ export const SquadRadarView = () => {
   } = useApp();
 
   const [selectedCat, setSelectedCat] = useState('all');
+  const [distanceFilter, setDistanceFilter] = useState(15); // 5 | 15 | 999 (Whole City)
   const [womenOnly, setWomenOnly] = useState(false);
   const [viewMode, setViewMode] = useState('radar'); // 'radar' | 'cards'
   const [activeCandidate, setActiveCandidate] = useState(null);
@@ -54,14 +55,6 @@ export const SquadRadarView = () => {
     p => p.hostId === currentUser.id && p.status !== 'COMPLETED'
   );
 
-  // Filter members by city, category, women-only
-  const filteredMembers = radarMembers.filter(m => {
-    if (m.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
-    if (selectedCat !== 'all' && m.primaryCat !== selectedCat && !m.interests?.includes(selectedCat)) return false;
-    if (womenOnly && m.gender !== 'female') return false;
-    return true;
-  });
-
   // Calculate dynamic live distance from user's current GPS coordinates
   const getMemberDistance = (member) => {
     if (!userCoords?.lat || !userCoords?.lng) return member.distanceKm;
@@ -70,6 +63,18 @@ export const SquadRadarView = () => {
     const dist = calculateDistanceKm(userCoords.lat, userCoords.lng, mLat, mLng);
     return dist && dist > 0 ? dist : member.distanceKm;
   };
+
+  // Filter members by city, category, women-only, and distance radius
+  const filteredMembers = radarMembers.filter(m => {
+    if (m.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
+    if (selectedCat !== 'all' && m.primaryCat !== selectedCat && !m.interests?.includes(selectedCat)) return false;
+    if (womenOnly && m.gender !== 'female') return false;
+    
+    // Radius filter
+    const liveDist = getMemberDistance(m);
+    if (distanceFilter !== 999 && liveDist > distanceFilter) return false;
+    return true;
+  });
 
   const handleOpenCandidate = (candidate) => {
     const liveDist = getMemberDistance(candidate);
@@ -170,6 +175,33 @@ export const SquadRadarView = () => {
           </button>
         </div>
 
+        {/* Discovery Radius 3-Pill Filter Row */}
+        <div className="flex items-center justify-between gap-2 p-2 bg-stone-100/80 rounded-2xl border border-stone-200/80">
+          <div className="flex items-center gap-1 text-[11px] font-extrabold text-stone-600 pl-1">
+            <Navigation size={12} className="text-amber-600" />
+            <span>Radius:</span>
+          </div>
+          <div className="flex items-center gap-1.5 flex-1 justify-end">
+            {[
+              { id: 5, label: '📍 5 km', desc: 'Neighborhood' },
+              { id: 15, label: '⚡ 15 km', desc: 'City Hubs' },
+              { id: 999, label: '🏙️ Whole City', desc: 'All Areas' }
+            ].map(pill => (
+              <button
+                key={pill.id}
+                onClick={() => setDistanceFilter(pill.id)}
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold transition-all ${
+                  distanceFilter === pill.id
+                    ? 'bg-espresso text-cream shadow-sm ring-1 ring-stone-900'
+                    : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                }`}
+              >
+                {pill.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Activity category pills */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {ACTIVITY_FILTERS.map(f => (
@@ -195,17 +227,23 @@ export const SquadRadarView = () => {
           
           {/* Concentric Radar Distance Rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            {/* Outer Ring (5 km) */}
+            {/* Outer Ring */}
             <div className="w-[340px] h-[340px] rounded-full border border-dashed border-amber-500/20 flex items-center justify-center">
-              <span className="absolute top-2 text-[9px] font-bold text-amber-500/40 tracking-wider">~5 KM RADIUS</span>
+              <span className="absolute top-2 text-[9px] font-bold text-amber-500/40 tracking-wider">
+                {distanceFilter === 5 ? '~5 KM (NEIGHBORHOOD)' : distanceFilter === 15 ? '~15 KM (CITY HUBS)' : `~${selectedCity.toUpperCase()} (WHOLE CITY)`}
+              </span>
               
-              {/* Middle Ring (3 km) */}
+              {/* Middle Ring */}
               <div className="w-[230px] h-[230px] rounded-full border border-amber-500/30 flex items-center justify-center">
-                <span className="absolute top-16 text-[9px] font-bold text-amber-500/50 tracking-wider">~3 KM</span>
+                <span className="absolute top-16 text-[9px] font-bold text-amber-500/50 tracking-wider">
+                  {distanceFilter === 5 ? '~3 KM' : distanceFilter === 15 ? '~5 KM' : '~15 KM'}
+                </span>
                 
-                {/* Inner Ring (1 km) */}
+                {/* Inner Ring */}
                 <div className="w-[120px] h-[120px] rounded-full border border-amber-400/40 flex items-center justify-center">
-                  <span className="absolute top-3 text-[8px] font-bold text-amber-400/60 tracking-wider">~1 KM</span>
+                  <span className="absolute top-3 text-[8px] font-bold text-amber-400/60 tracking-wider">
+                    {distanceFilter === 5 ? '~1 KM' : distanceFilter === 15 ? '~2 KM' : '~5 KM'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -233,17 +271,10 @@ export const SquadRadarView = () => {
             const liveDist = getMemberDistance(member);
 
             // Compute exact radial radius from center in pixels matching concentric rings:
-            // 1 km ring radius: ~60px
-            // 3 km ring radius: ~115px
-            // 5 km ring radius: ~170px
             let radialPx;
-            if (liveDist <= 1.0) {
-              radialPx = 28 + (liveDist / 1.0) * 28; // Placed inside 1 KM inner ring (28px - 56px)
-            } else if (liveDist <= 3.0) {
-              radialPx = 62 + ((liveDist - 1.0) / 2.0) * 48; // Placed in 1-3 KM middle ring (62px - 110px)
-            } else {
-              radialPx = 115 + (Math.min(5.0, liveDist - 3.0) / 2.0) * 48; // Placed in 3-5 KM outer ring (115px - 163px)
-            }
+            const maxR = distanceFilter === 999 ? 35 : distanceFilter;
+            const normDist = Math.min(maxR, liveDist) / maxR;
+            radialPx = 35 + normDist * 130; // Scale dynamically between 35px and 165px
 
             // Angular dispersion for clean visual separation
             const angles = [35, 145, 215, 310, 85, 260, 180, 0];
