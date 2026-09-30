@@ -263,6 +263,28 @@ export const AppProvider = ({ children }) => {
     // 1. Fetch initial profiles, plans, messages, and join requests from Supabase
     const initCloudData = async () => {
       try {
+        // Automatically sync current user profile to cloud so other active users see them on Radar
+        if (currentUser?.id) {
+          try {
+            await supabase.from('profiles').upsert({
+              id: currentUser.id,
+              name: currentUser.name || 'Verified Member',
+              avatar: currentUser.avatar,
+              bio: currentUser.bio || 'Excited to meet new people and explore weekend activities!',
+              city: currentUser.city || selectedCity,
+              role: currentUser.role || 'Member',
+              company: currentUser.company || 'SquadIn',
+              interests: currentUser.interests || ['☕ Specialty Coffee'],
+              phone_verified: Boolean(currentUser.phoneVerified),
+              work_email_verified: Boolean(currentUser.workEmailVerified),
+              linkedin_verified: Boolean(currentUser.linkedInVerified),
+              karma_score: currentUser.karmaScore || 5.0
+            });
+          } catch (e) {
+            console.warn('Current user profile auto-sync notice:', e);
+          }
+        }
+
         // Fetch profiles for allUsers and Radar
         const { data: cloudProfiles } = await supabase.from('profiles').select('*');
         if (cloudProfiles && cloudProfiles.length > 0) {
