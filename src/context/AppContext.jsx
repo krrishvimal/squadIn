@@ -660,6 +660,19 @@ export const AppProvider = ({ children }) => {
     const messagesSubscription = supabase
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        if (payload.new?.plan_id === 'waves' || payload.new?.type === 'wave') {
+          const incomingWave = {
+            fromUserId: payload.new.user_id,
+            toUserId: payload.new.target_user_id,
+            timestamp: payload.new.created_at || new Date().toISOString()
+          };
+          setWaves(prev => {
+            if (prev.some(w => w.fromUserId === incomingWave.fromUserId && w.toUserId === incomingWave.toUserId)) return prev;
+            return [...prev, incomingWave];
+          });
+          return;
+        }
+
         const newMsg = {
           id: payload.new.id,
           senderId: payload.new.sender_id,

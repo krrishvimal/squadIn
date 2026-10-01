@@ -384,6 +384,11 @@ export const SquadRadarView = () => {
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center border border-white text-[9px] font-extrabold">
                       ✓
                     </div>
+                    {hasReceivedWaveFrom(member.id) && !isMutualWave(member.id) && (
+                      <div className="absolute -top-1 -left-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-[8px] shadow-lg animate-pulse" title={`${member.name} waved at you!`}>
+                        👋
+                      </div>
+                    )}
                     {hasWavedAt(member.id) && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-violet-500 rounded-full flex items-center justify-center text-[8px] shadow-lg">
                         👋
@@ -585,6 +590,23 @@ export const SquadRadarView = () => {
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center">
                     <p className="text-amber-400 font-semibold text-sm">👋 Wave Sent!</p>
                     <p className="text-amber-300/60 text-xs mt-0.5">Waiting for {activeCandidate.name} to wave back</p>
+                  </div>
+                ) : hasReceivedWaveFrom(activeCandidate.id) ? (
+                  // Someone waved at YOU! Prompt to wave back!
+                  <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-500/30 rounded-xl p-3.5 text-center space-y-2">
+                    <p className="text-emerald-400 font-bold text-sm flex items-center justify-center gap-1.5">
+                      <span>👋</span> {activeCandidate.name} waved at you!
+                    </p>
+                    <button
+                      onClick={() => {
+                        requireVerification(() => {
+                          sendWave(activeCandidate.id);
+                        }, 'radar_invite');
+                      }}
+                      className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-sm rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98] animate-bounce"
+                    >
+                      <span>👋 Wave Back to Match!</span>
+                    </button>
                   </div>
                 ) : (
                   // Can wave

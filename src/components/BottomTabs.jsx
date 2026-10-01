@@ -3,7 +3,12 @@ import { useApp } from '../context/AppContext';
 import { Compass, Radio, Users, MessageSquare, User } from 'lucide-react';
 
 export const BottomTabs = () => {
-  const { activeTab, setActiveTab, plans, currentUser } = useApp();
+  const { activeTab, setActiveTab, plans, currentUser, waves, hasWavedAt } = useApp();
+
+  // Calculate incoming waves directed at current user that haven't been waved back to yet
+  const incomingWavesCount = (waves || []).filter(w => 
+    w.toUserId === currentUser?.id && !hasWavedAt(w.fromUserId)
+  ).length;
 
   // Calculate unread or active badges
   const myCrewsCount = plans.filter(p => 
@@ -47,7 +52,13 @@ export const BottomTabs = () => {
         >
           <div className="relative">
             <Radio size={21} className={activeTab === 'radar' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            {incomingWavesCount > 0 ? (
+              <span className="absolute -top-1 -right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-[9px] px-1 py-0.2 rounded-full shadow-sm animate-bounce flex items-center gap-0.5">
+                👋 {incomingWavesCount}
+              </span>
+            ) : (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            )}
           </div>
           <span className="text-[10px] tracking-tight">Radar</span>
         </button>
