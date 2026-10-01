@@ -448,6 +448,35 @@ export const AppProvider = ({ children }) => {
 
           if (formattedPlans.length > 0) {
             setPlans(formattedPlans);
+
+            // Dynamically populate radar members from plan hosts in the same city
+            const planCandidates = cloudPlans
+              .filter(cp => cp.host_id && cp.host_id !== currentUser.id)
+              .map(cp => ({
+                id: cp.host_id,
+                name: 'Verified Host',
+                avatar: DEFAULT_AVATARS[Math.abs(cp.host_id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length],
+                role: 'Meetup Host',
+                company: cp.neighborhood || cp.city || 'SquadIn',
+                city: cp.city || selectedCity,
+                interests: [cp.category_label || '☕ Hangout'],
+                primaryActivity: cp.category_label || '☕ Hangout',
+                primaryCat: cp.category || 'cafe',
+                phoneVerified: true,
+                idVerified: true,
+                karmaScore: 5.0,
+                distanceKm: 2.3,
+                latOffset: (Math.random() * 0.02 - 0.01),
+                lngOffset: (Math.random() * 0.02 - 0.01)
+              }));
+
+            if (planCandidates.length > 0) {
+              setRadarMembers(prev => {
+                const map = new Map();
+                [...prev, ...planCandidates].forEach(m => map.set(m.id, m));
+                return Array.from(map.values());
+              });
+            }
           }
         }
       } catch (err) {
