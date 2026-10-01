@@ -335,11 +335,6 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Trigger once on mount
-  useEffect(() => {
-    requestLiveLocation().catch(() => {});
-  }, []);
-
   // Save to LocalStorage
   useEffect(() => {
     localStorage.setItem('squadin_plans', JSON.stringify(plans));
