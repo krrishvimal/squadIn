@@ -215,12 +215,14 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
       } catch (e) {}
       if (isSupabaseConfigured && supabase) {
-        supabase.from('profiles').upsert({
-          id: currentUser.id,
-          name: currentUser.name || 'Verified Member',
-          avatar: currentUser.avatar,
-          city: city
-        }, { onConflict: 'id' }).catch(() => {});
+        try {
+          supabase.from('profiles').upsert({
+            id: currentUser.id,
+            name: currentUser.name || 'Verified Member',
+            avatar: currentUser.avatar,
+            city: city
+          }, { onConflict: 'id' }).then(() => {}, () => {});
+        } catch (e) {}
       }
     }
   };
@@ -299,15 +301,17 @@ export const AppProvider = ({ children }) => {
     
     // Also try to sync wave to Supabase for cross-device visibility
     if (isSupabaseConfigured && supabase) {
-      supabase.from('messages').insert({
-        plan_id: 'waves',
-        user_id: currentUser.id,
-        user_name: currentUser.name,
-        user_avatar: currentUser.avatar,
-        text: `👋 Wave to ${toUserId}`,
-        type: 'wave',
-        target_user_id: toUserId
-      }).catch(() => {});
+      try {
+        supabase.from('messages').insert({
+          plan_id: 'waves',
+          user_id: currentUser.id,
+          user_name: currentUser.name,
+          user_avatar: currentUser.avatar,
+          text: `👋 Wave to ${toUserId}`,
+          type: 'wave',
+          target_user_id: toUserId
+        }).then(() => {}, () => {});
+      } catch (e) {}
     }
     
     confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
@@ -845,7 +849,7 @@ export const AppProvider = ({ children }) => {
     // Cloud Database Persistence
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('plans').upsert(mapPlanToRow(newPlan), { onConflict: 'id' }).catch(() => {});
+        await supabase.from('plans').upsert(mapPlanToRow(newPlan), { onConflict: 'id' });
       } catch (err) {
         // Safe local fallback
       }
