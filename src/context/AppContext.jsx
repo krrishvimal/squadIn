@@ -333,25 +333,67 @@ export const AppProvider = ({ children }) => {
     return hasWavedAt(userId) && hasReceivedWaveFrom(userId);
   };
 
-  // Reusable function to request live GPS coordinates on demand
+  // Helper for IP-based geolocation fallback (Swiggy / Google Maps standard)
+  const fallbackToIpLocation = (safetyTimer, resolve) => {
+    fetch('https://ipapi.co/json/')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (safetyTimer) clearTimeout(safetyTimer);
+        setIsLocating(false);
+        if (data && (data.latitude || data.city)) {
+          if (data.latitude && data.longitude) {
+            setUserCoords({
+              lat: data.latitude,
+              lng: data.longitude,
+              isRealGPS: false
+            });
+            const closest = detectClosestCity(data.latitude, data.longitude);
+            if (closest) {
+              setSelectedCity(closest);
+              resolve({ lat: data.latitude, lng: data.longitude, city: closest });
+              return;
+            }
+          }
+          if (data.city) {
+            const lower = data.city.toLowerCase();
+            const match = INDIAN_CITIES.find(c => 
+              c.name.toLowerCase() === lower || 
+              c.aliases.some(a => lower.includes(a))
+            );
+            if (match) {
+              setSelectedCity(match.name);
+              resolve({ city: match.name });
+              return;
+            }
+          }
+        }
+        resolve({ city: selectedCity });
+      })
+      .catch(() => {
+        if (safetyTimer) clearTimeout(safetyTimer);
+        setIsLocating(false);
+        resolve({ city: selectedCity });
+      });
+  };
+
+  // Hybrid Location Engine (Google Maps / Swiggy production standard)
   const requestLiveLocation = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      setIsLocating(true);
+
+      // Safety fallback timer (12 seconds)
+      const safetyTimer = setTimeout(() => {
+        fallbackToIpLocation(null, resolve);
+      }, 12000);
+
       if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your device browser.');
-        reject('Not supported');
+        fallbackToIpLocation(safetyTimer, resolve);
         return;
       }
 
-      setIsLocating(true);
-
-      // Safety fallback: Never leave icon spinning indefinitely
-      const safetyTimer = setTimeout(() => {
-        setIsLocating(false);
-      }, 5000);
-
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          clearTimeout(safetyTimer);
+          if (safetyTimer) clearTimeout(safetyTimer);
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           setUserCoords({
@@ -366,7 +408,6 @@ export const AppProvider = ({ children }) => {
             setSelectedCity(closest);
           }
 
-          // Stop spinning icon immediately
           setIsLocating(false);
           resolve({ lat, lng, city: closest });
 
@@ -392,12 +433,10 @@ export const AppProvider = ({ children }) => {
             .catch(() => {});
         },
         (err) => {
-          clearTimeout(safetyTimer);
-          setIsLocating(false);
-          console.warn('Geolocation notice:', err);
-          reject(err);
+          console.warn('GPS notice (falling back to IP location):', err);
+          fallbackToIpLocation(safetyTimer, resolve);
         },
-        { enableHighAccuracy: true, timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
     });
   };
