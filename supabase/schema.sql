@@ -21,6 +21,14 @@ create table if not exists public.profiles (
   created_at timestamp with time zone default now()
 );
 
+-- Add missing columns to existing profiles table if it already exists
+do $$ begin
+  alter table public.profiles add column if not exists id_verified boolean default false;
+  alter table public.profiles add column if not exists linkedin_verified boolean default false;
+  alter table public.profiles add column if not exists work_email_verified boolean default false;
+  alter table public.profiles add column if not exists phone_verified boolean default false;
+exception when others then null; end $$;
+
 -- 2. PLANS TABLE (IRL Activities & Meetups)
 create table if not exists public.plans (
   id text primary key,
@@ -76,6 +84,16 @@ create table if not exists public.messages (
   created_at timestamp with time zone default now()
 );
 
+-- Add missing columns to existing messages table if it already exists
+do $$ begin
+  alter table public.messages add column if not exists target_user_id text;
+  alter table public.messages add column if not exists type text default 'text';
+  alter table public.messages add column if not exists user_id text;
+  alter table public.messages add column if not exists user_name text;
+  alter table public.messages add column if not exists user_avatar text;
+  alter table public.messages add column if not exists text text;
+exception when others then null; end $$;
+
 -- 5. REPORTS TABLE (Safety & Moderation)
 create table if not exists public.reports (
   id uuid primary key default gen_random_uuid(),
@@ -94,7 +112,7 @@ alter table public.plan_requests enable row level security;
 alter table public.messages enable row level security;
 alter table public.reports enable row level security;
 
--- Permissive policies for social discovery & realtime collaboration
+-- 7. CLEAN & RE-CREATE POLICIES (Idempotent Safe Run)
 drop policy if exists "Allow all profiles read" on public.profiles;
 drop policy if exists "Allow profile upsert" on public.profiles;
 create policy "Allow all profiles read" on public.profiles for select using (true);
@@ -118,7 +136,7 @@ create policy "Allow message insert" on public.messages for all using (true);
 drop policy if exists "Allow reports insert" on public.reports;
 create policy "Allow reports insert" on public.reports for insert with check (true);
 
--- 7. ENABLE SUPABASE REALTIME WEBSOCKET SUBSCRIPTIONS
+-- 8. ENABLE SUPABASE REALTIME WEBSOCKET SUBSCRIPTIONS
 begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime;
