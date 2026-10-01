@@ -40,7 +40,14 @@ export const Navbar = () => {
             
             {/* City Switcher & GPS Auto-Locate */}
             <div className="flex items-center gap-1 text-stone-500 text-[11px] font-medium">
-              <MapPin size={11} className="text-amber-600 flex-shrink-0" />
+              <button
+                onClick={() => requestLiveLocation()}
+                disabled={isLocating}
+                className="p-0.5 rounded-md hover:bg-amber-100/60 text-amber-600 hover:text-amber-700 transition-all flex-shrink-0 active:scale-95 cursor-pointer"
+                title="Tap to auto-detect my city via GPS"
+              >
+                <MapPin size={12} className={isLocating ? "animate-spin text-amber-600" : "text-amber-600 hover:scale-110 transition-transform"} />
+              </button>
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
@@ -53,7 +60,7 @@ export const Navbar = () => {
               <button
                 onClick={() => requestLiveLocation()}
                 disabled={isLocating}
-                className="p-0.5 rounded-md hover:bg-stone-200 text-stone-400 hover:text-amber-700 transition-colors flex-shrink-0"
+                className="p-0.5 rounded-md hover:bg-stone-200 text-stone-400 hover:text-amber-700 transition-colors flex-shrink-0 cursor-pointer"
                 title="Auto-detect my current city via GPS"
               >
                 <Navigation size={10} className={isLocating ? "animate-spin text-amber-600" : userCoords.isRealGPS ? "text-amber-600" : "text-stone-400"} />

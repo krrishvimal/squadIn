@@ -130,25 +130,26 @@ export const MapLocationViewer = ({
       </div>
 
       {/* Interactive visual mini-map */}
-      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 z-0">
-        <div ref={mapContainerRef} className="w-full h-full" />
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative block w-full h-44 rounded-xl overflow-hidden border border-stone-200 z-0 group cursor-pointer"
+        title="Tap to open venue directions in Google Maps"
+      >
+        <div ref={mapContainerRef} className="w-full h-full pointer-events-none" />
         
         {/* Click to open maps floating banner */}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute bottom-2 left-2 right-2 z-[400] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200 shadow-sm flex items-center justify-between hover:bg-stone-50 transition-colors"
-        >
+        <div className="absolute bottom-2 left-2 right-2 z-[400] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200 shadow-sm flex items-center justify-between group-hover:bg-stone-50 transition-colors">
           <div className="truncate text-left pr-2">
             <div className="text-[11px] font-extrabold text-espresso truncate">{venueName}</div>
             <div className="text-[10px] text-stone-500 truncate">{neighborhood}</div>
           </div>
-          <span className="text-[10px] font-bold text-blue-600 flex-shrink-0">
+          <span className="text-[10px] font-bold text-blue-600 flex-shrink-0 group-hover:underline">
             Open in Google Maps ↗
           </span>
-        </a>
-      </div>
+        </div>
+      </a>
     </div>
   );
 };
