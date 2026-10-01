@@ -314,6 +314,11 @@ export const AppProvider = ({ children }) => {
         (err) => {
           setIsLocating(false);
           console.warn('Geolocation notice:', err);
+          if (err.code === 1) { // PERMISSION_DENIED
+            alert('Location access is blocked by your browser. Please select your city manually from the dropdown or enable location permissions in browser site settings.');
+          } else if (err.code === 3) { // TIMEOUT
+            console.info('GPS request timed out, using fallback city center.');
+          }
           reject(err);
         },
         { enableHighAccuracy: true, timeout: 8000 }
