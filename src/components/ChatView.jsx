@@ -36,6 +36,7 @@ export const ChatView = () => {
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [sosContent, setSosContent] = useState('');
   const [copiedSOS, setCopiedSOS] = useState(false);
+  const messagesEndRef = useRef(null);
 
   const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
 
