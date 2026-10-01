@@ -267,6 +267,60 @@ export const AppProvider = ({ children }) => {
   const [invitedUserIds, setInvitedUserIds] = useState([]);
   const [selectedRadarUser, setSelectedRadarUser] = useState(null);
 
+  // Wave feature state - for lightweight "interested" signals on Radar
+  const [waves, setWaves] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('squadin_waves') || '[]'); } catch { return []; }
+  });
+
+  // Persist waves to localStorage
+  useEffect(() => {
+    localStorage.setItem('squadin_waves', JSON.stringify(waves));
+  }, [waves]);
+
+  // Send a wave to another user
+  const sendWave = (toUserId) => {
+    const newWave = {
+      fromUserId: currentUser.id,
+      toUserId,
+      timestamp: new Date().toISOString()
+    };
+    setWaves(prev => {
+      // Don't duplicate waves to the same user
+      if (prev.some(w => w.fromUserId === currentUser.id && w.toUserId === toUserId)) return prev;
+      return [...prev, newWave];
+    });
+    
+    // Also try to sync wave to Supabase for cross-device visibility
+    if (isSupabaseConfigured && supabase) {
+      supabase.from('messages').insert({
+        plan_id: 'waves',
+        user_id: currentUser.id,
+        user_name: currentUser.name,
+        user_avatar: currentUser.avatar,
+        text: `👋 Wave to ${toUserId}`,
+        type: 'wave',
+        target_user_id: toUserId
+      }).catch(() => {});
+    }
+    
+    confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+  };
+
+  // Check if current user has waved at a specific user
+  const hasWavedAt = (userId) => {
+    return waves.some(w => w.fromUserId === currentUser?.id && w.toUserId === userId);
+  };
+
+  // Check if another user has waved at current user (from cloud messages)
+  const hasReceivedWaveFrom = (userId) => {
+    return waves.some(w => w.fromUserId === userId && w.toUserId === currentUser?.id);
+  };
+
+  // Check for mutual wave (both waved at each other)
+  const isMutualWave = (userId) => {
+    return hasWavedAt(userId) && hasReceivedWaveFrom(userId);
+  };
+
   // Reusable function to request live GPS coordinates on demand
   const requestLiveLocation = () => {
     return new Promise((resolve, reject) => {
@@ -444,6 +498,24 @@ export const AppProvider = ({ children }) => {
             .from('messages')
             .select('*')
             .order('created_at', { ascending: true });
+
+          // After fetching cloud messages, extract waves
+          if (cloudMessages) {
+            const waveMessages = cloudMessages.filter(m => m.plan_id === 'waves' || m.type === 'wave');
+            if (waveMessages.length > 0) {
+              setWaves(prev => {
+                const existing = new Set(prev.map(w => `${w.fromUserId}-${w.toUserId}`));
+                const newWaves = waveMessages
+                  .filter(m => !existing.has(`${m.user_id}-${m.target_user_id}`))
+                  .map(m => ({
+                    fromUserId: m.user_id,
+                    toUserId: m.target_user_id,
+                    timestamp: m.created_at || new Date().toISOString()
+                  }));
+                return [...prev, ...newWaves];
+              });
+            }
+          }
 
           // Fetch join requests
           let cloudRequests = [];
@@ -1210,7 +1282,12 @@ export const AppProvider = ({ children }) => {
         hostUpdateCapacity,
         sendMessage,
         triggerEmergencySOS,
-        submitKarmaReview
+        submitKarmaReview,
+        waves,
+        sendWave,
+        hasWavedAt,
+        hasReceivedWaveFrom,
+        isMutualWave
       }}
     >
       {children}

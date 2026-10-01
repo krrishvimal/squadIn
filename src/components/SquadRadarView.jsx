@@ -58,7 +58,11 @@ export const SquadRadarView = () => {
     isLocating,
     requestLiveLocation,
     setShowCreateModal,
-    requireVerification
+    requireVerification,
+    sendWave,
+    hasWavedAt,
+    hasReceivedWaveFrom,
+    isMutualWave
   } = useApp();
 
   const [selectedCat, setSelectedCat] = useState('all');
@@ -380,6 +384,11 @@ export const SquadRadarView = () => {
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center border border-white text-[9px] font-extrabold">
                       ✓
                     </div>
+                    {hasWavedAt(member.id) && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-violet-500 rounded-full flex items-center justify-center text-[8px] shadow-lg">
+                        👋
+                      </div>
+                    )}
                   </div>
 
                   {/* Name & Dynamic Distance Tag */}
@@ -560,6 +569,37 @@ export const SquadRadarView = () => {
                   <span className="text-stone-500 font-medium">Location Area:</span>
                   <span className="font-bold text-stone-800">📍 {activeCandidate.neighborhood}</span>
                 </div>
+              </div>
+
+              {/* Wave Action — lightweight connection without needing a plan */}
+              <div className="mb-3">
+                {isMutualWave(activeCandidate.id) ? (
+                  // Mutual wave! Show match state
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center">
+                    <div className="text-2xl mb-1">🤝</div>
+                    <p className="text-emerald-400 font-bold text-sm">It's a Match!</p>
+                    <p className="text-emerald-300/70 text-xs mt-1">You both waved! Start a conversation about weekend plans.</p>
+                  </div>
+                ) : hasWavedAt(activeCandidate.id) ? (
+                  // Already waved, waiting
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center">
+                    <p className="text-amber-400 font-semibold text-sm">👋 Wave Sent!</p>
+                    <p className="text-amber-300/60 text-xs mt-0.5">Waiting for {activeCandidate.name} to wave back</p>
+                  </div>
+                ) : (
+                  // Can wave
+                  <button
+                    onClick={() => {
+                      requireVerification(() => {
+                        sendWave(activeCandidate.id);
+                      }, 'radar_invite');
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-400 hover:to-indigo-400 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 transition-all active:scale-[0.98]"
+                  >
+                    <span className="text-lg">👋</span>
+                    <span>Wave — Show Interest</span>
+                  </button>
+                )}
               </div>
 
               {/* Recruitment / Invite to Crew Box */}
