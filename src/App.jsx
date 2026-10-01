@@ -51,7 +51,9 @@ export function App() {
     showOnboardingModal,
     setShowOnboardingModal,
     onboardingReason,
-    requireVerification
+    requireVerification,
+    toastMessage,
+    setToastMessage
   } = useApp();
 
   const [showPwaBanner, setShowPwaBanner] = useState(true);
@@ -86,8 +88,21 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24 text-espresso">
+    <div className="min-h-screen bg-[#FDFBF7] pb-24 text-espresso relative">
       
+      {/* Realtime Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-stone-900/95 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl border border-amber-500/50 flex items-center gap-2 animate-bounce backdrop-blur-md max-w-sm text-center">
+          <span>{toastMessage}</span>
+          <button 
+            onClick={() => setToastMessage(null)}
+            className="p-1 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors flex-shrink-0"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
+
       {/* Top Navigation */}
       <Navbar />
 

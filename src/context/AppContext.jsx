@@ -234,6 +234,14 @@ export const AppProvider = ({ children }) => {
   const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [reportingUser, setReportingUser] = useState(null); // { user, planId }
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => prev === msg ? null : prev);
+    }, 5000);
+  };
   const [showOnboardingModal, setShowOnboardingModal] = useState(() => {
     // Auto-show on first visit, but not if already onboarded or previously skipped
     return localStorage.getItem('squadin_onboarded') !== 'true' && localStorage.getItem('squadin_skip_initial') !== 'true';
@@ -618,19 +626,27 @@ export const AppProvider = ({ children }) => {
             // Extract host
             if (cp.host_id && cp.host_id !== currentUser.id && !planUserIds.has(cp.host_id)) {
               planUserIds.add(cp.host_id);
+              const matchedProfile = (cloudProfiles || []).find(p => p.id === cp.host_id);
+              const hostName = (matchedProfile && matchedProfile.name && matchedProfile.name !== 'Verified Member')
+                ? matchedProfile.name
+                : (cp.host_name && cp.host_name !== 'Verified Member' ? cp.host_name : 'Verified Host');
+              const hostAvatar = (matchedProfile && matchedProfile.avatar)
+                ? matchedProfile.avatar
+                : (cp.host_avatar || DEFAULT_AVATARS[Math.abs(cp.host_id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length]);
+
               planCandidates.push({
                 id: cp.host_id,
-                name: 'Verified Host',
-                avatar: DEFAULT_AVATARS[Math.abs(cp.host_id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length],
-                role: 'Meetup Host',
-                company: cp.neighborhood || cp.city || 'SquadIn',
+                name: hostName,
+                avatar: hostAvatar,
+                role: matchedProfile?.role || 'Meetup Host',
+                company: matchedProfile?.company || cp.neighborhood || cp.city || 'SquadIn',
                 city: cp.city || selectedCity,
                 interests: [cp.category_label || '☕ Hangout'],
                 primaryActivity: cp.category_label || '☕ Hangout',
                 primaryCat: cp.category || 'cafe',
                 phoneVerified: true,
                 idVerified: true,
-                karmaScore: 5.0,
+                karmaScore: matchedProfile?.karma_score || 5.0,
                 distanceKm: 2.3,
                 latOffset: (Math.random() * 0.02 - 0.01),
                 lngOffset: (Math.random() * 0.02 - 0.01)
@@ -642,19 +658,27 @@ export const AppProvider = ({ children }) => {
             members.forEach(memberId => {
               if (memberId && memberId !== currentUser.id && memberId !== cp.host_id && !planUserIds.has(memberId)) {
                 planUserIds.add(memberId);
+                const matchedProfile = (cloudProfiles || []).find(p => p.id === memberId);
+                const memberName = (matchedProfile && matchedProfile.name && matchedProfile.name !== 'Verified Member')
+                  ? matchedProfile.name
+                  : 'Verified Member';
+                const memberAvatar = (matchedProfile && matchedProfile.avatar)
+                  ? matchedProfile.avatar
+                  : DEFAULT_AVATARS[Math.abs(memberId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length];
+
                 planCandidates.push({
                   id: memberId,
-                  name: 'Verified Member',
-                  avatar: DEFAULT_AVATARS[Math.abs(memberId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length],
-                  role: 'Weekend Explorer',
-                  company: cp.city || 'SquadIn',
+                  name: memberName,
+                  avatar: memberAvatar,
+                  role: matchedProfile?.role || 'Weekend Explorer',
+                  company: matchedProfile?.company || cp.city || 'SquadIn',
                   city: cp.city || selectedCity,
                   interests: [cp.category_label || '☕ Hangout'],
                   primaryActivity: cp.category_label || '☕ Hangout',
                   primaryCat: cp.category || 'cafe',
                   phoneVerified: true,
                   idVerified: true,
-                  karmaScore: 5.0,
+                  karmaScore: matchedProfile?.karma_score || 5.0,
                   distanceKm: 3.5,
                   latOffset: (Math.random() * 0.03 - 0.015),
                   lngOffset: (Math.random() * 0.03 - 0.015)
@@ -779,6 +803,12 @@ export const AppProvider = ({ children }) => {
             if (p.id === req.plan_id) {
               const exists = p.pendingRequests.some(r => r.userId === req.user_id);
               if (exists) return p;
+
+              // Trigger toast notification if current user is the host of this plan
+              if (p.hostId === currentUser?.id) {
+                showToast(`🎉 ${req.user_name || 'A member'} requested to join your meetup: "${p.title}"!`);
+              }
+
               return {
                 ...p,
                 pendingRequests: [
@@ -1372,7 +1402,10 @@ export const AppProvider = ({ children }) => {
         sendWave,
         hasWavedAt,
         hasReceivedWaveFrom,
-        isMutualWave
+        isMutualWave,
+        toastMessage,
+        setToastMessage,
+        showToast
       }}
     >
       {children}
