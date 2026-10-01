@@ -37,10 +37,10 @@ export const ChatView = () => {
   const [sosContent, setSosContent] = useState('');
   const [copiedSOS, setCopiedSOS] = useState(false);
 
-  const messagesEndRef = useRef(null);
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
 
   // Find active plan
-  const activePlan = plans.find(p => p.id === activeChatPlanId);
+  const activePlan = plans.find(p => normId(p.id) === normId(activeChatPlanId));
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,7 +74,7 @@ export const ChatView = () => {
 
   // If no specific chat selected, show all user's chats list
   if (!activePlan) {
-    const userPlans = plans.filter(p => p.acceptedMembers.includes(currentUser.id));
+    const userPlans = plans.filter(p => p.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id)));
     const activeUnlocked = userPlans.filter(p => p.status === 'LOCKED_CHAT_ACTIVE');
     const waitingLocked = userPlans.filter(p => p.status === 'OPEN');
 
@@ -162,7 +162,7 @@ export const ChatView = () => {
   }
 
   // Active Plan is OPEN (Locked state)
-  const isHost = activePlan.hostId === currentUser.id;
+  const isHost = normId(activePlan.hostId) === normId(currentUser?.id);
   const isUnlocked = activePlan.status === 'LOCKED_CHAT_ACTIVE';
 
   if (!isUnlocked) {
@@ -320,7 +320,7 @@ export const ChatView = () => {
             );
           }
 
-          const isMe = msg.senderId === currentUser.id;
+          const isMe = normId(msg.senderId) === normId(currentUser?.id);
           const sender = getUserById(msg.senderId);
 
           return (

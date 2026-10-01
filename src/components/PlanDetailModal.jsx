@@ -52,14 +52,16 @@ export const PlanDetailModal = () => {
 
   if (!selectedPlanForDetail) return null;
 
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+
   // Reactively track the latest plan state from context
-  const plan = plans.find(p => p.id === selectedPlanForDetail.id) || selectedPlanForDetail;
+  const plan = plans.find(p => normId(p.id) === normId(selectedPlanForDetail.id)) || selectedPlanForDetail;
   const host = getUserById(plan.hostId);
-  const isHost = plan.hostId === currentUser.id;
-  const isMember = plan.acceptedMembers.includes(currentUser.id);
-  const isPending = plan.pendingRequests?.some(r => r.userId === currentUser.id);
+  const isHost = normId(plan.hostId) === normId(currentUser?.id);
+  const isMember = plan.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id));
+  const isPending = plan.pendingRequests?.some(r => normId(r.userId) === normId(currentUser?.id));
   const isUnlocked = plan.status === 'LOCKED_CHAT_ACTIVE';
-  const spotsLeft = Math.max(0, plan.targetCapacity - plan.acceptedMembers.length);
+  const spotsLeft = Math.max(0, plan.targetCapacity - (plan.acceptedMembers?.length || 0));
 
   const handleClose = () => {
     setSelectedPlanForDetail(null);

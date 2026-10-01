@@ -7,9 +7,11 @@ export const MyCrewsView = () => {
   const { plans, currentUser, setShowCreateModal } = useApp();
   const [subTab, setSubTab] = useState('hosting'); // 'hosting', 'joined', 'pending'
 
-  const hostingPlans = plans.filter(p => p.hostId === currentUser.id);
-  const joinedPlans = plans.filter(p => p.hostId !== currentUser.id && p.acceptedMembers.includes(currentUser.id));
-  const pendingPlans = plans.filter(p => p.pendingRequests?.some(r => r.userId === currentUser.id));
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+
+  const hostingPlans = plans.filter(p => normId(p.hostId) === normId(currentUser?.id));
+  const joinedPlans = plans.filter(p => normId(p.hostId) !== normId(currentUser?.id) && p.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id)));
+  const pendingPlans = plans.filter(p => p.pendingRequests?.some(r => normId(r.userId) === normId(currentUser?.id)));
 
   // Count total pending requests for plans I host
   const pendingRequestsCount = hostingPlans.reduce((acc, p) => acc + (p.pendingRequests?.length || 0), 0);

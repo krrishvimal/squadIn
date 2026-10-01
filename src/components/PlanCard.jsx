@@ -12,12 +12,13 @@ export const PlanCard = ({ plan }) => {
     setActiveTab
   } = useApp();
 
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
   const host = getUserById(plan.hostId);
-  const isHost = plan.hostId === currentUser.id;
-  const isMember = plan.acceptedMembers.includes(currentUser.id);
-  const isPending = plan.pendingRequests?.some(r => r.userId === currentUser.id);
+  const isHost = normId(plan.hostId) === normId(currentUser?.id);
+  const isMember = plan.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id));
+  const isPending = plan.pendingRequests?.some(r => normId(r.userId) === normId(currentUser?.id));
   const isUnlocked = plan.status === 'LOCKED_CHAT_ACTIVE';
-  const spotsLeft = Math.max(0, plan.targetCapacity - plan.acceptedMembers.length);
+  const spotsLeft = Math.max(0, plan.targetCapacity - (plan.acceptedMembers?.length || 0));
   const distanceStr = getPlanDistance(plan);
 
   const handleCardClick = () => {

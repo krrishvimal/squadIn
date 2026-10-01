@@ -5,23 +5,25 @@ import { Compass, Radio, Users, MessageSquare, User } from 'lucide-react';
 export const BottomTabs = () => {
   const { activeTab, setActiveTab, plans, currentUser, waves, hasWavedAt } = useApp();
 
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+
   // Calculate incoming waves directed at current user that haven't been waved back to yet
   const incomingWavesCount = (waves || []).filter(w => 
-    w.toUserId === currentUser?.id && !hasWavedAt(w.fromUserId)
+    normId(w.toUserId) === normId(currentUser?.id) && !hasWavedAt(w.fromUserId)
   ).length;
 
   // Calculate unread or active badges
   const myCrewsCount = plans.filter(p => 
-    p.hostId === currentUser.id || p.acceptedMembers.includes(currentUser.id)
+    normId(p.hostId) === normId(currentUser?.id) || p.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id))
   ).length;
 
   const unlockedChatsCount = plans.filter(p => 
-    p.status === 'LOCKED_CHAT_ACTIVE' && p.acceptedMembers.includes(currentUser.id)
+    p.status === 'LOCKED_CHAT_ACTIVE' && p.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id))
   ).length;
 
   // Pending requests for plans I host
   const pendingRequestsCount = plans
-    .filter(p => p.hostId === currentUser.id)
+    .filter(p => normId(p.hostId) === normId(currentUser?.id))
     .reduce((acc, p) => acc + (p.pendingRequests?.length || 0), 0);
 
   return (
