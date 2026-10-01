@@ -134,7 +134,7 @@ export const AppProvider = ({ children }) => {
     const newId = getOrCreateUserId();
     const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const chosenAvatar = DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length];
-    const initialCity = localStorage.getItem('squadin_selected_city') || 'Delhi-NCR';
+    const initialCity = localStorage.getItem('squadin_selected_city') || INDIAN_CITIES[0].name;
     const newUser = {
       ...CURRENT_USER,
       id: newId,
