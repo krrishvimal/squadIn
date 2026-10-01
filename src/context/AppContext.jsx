@@ -288,6 +288,7 @@ export const AppProvider = ({ children }) => {
 
   // Send a wave to another user
   const sendWave = (toUserId) => {
+    if (!toUserId || toUserId === currentUser?.id) return;
     const newWave = {
       fromUserId: currentUser.id,
       toUserId,
@@ -518,12 +519,17 @@ export const AppProvider = ({ children }) => {
               setWaves(prev => {
                 const existing = new Set(prev.map(w => `${w.fromUserId}-${w.toUserId}`));
                 const newWaves = waveMessages
-                  .filter(m => !existing.has(`${m.user_id}-${m.target_user_id}`))
-                  .map(m => ({
-                    fromUserId: m.user_id,
-                    toUserId: m.target_user_id,
-                    timestamp: m.created_at || new Date().toISOString()
-                  }));
+                  .map(m => {
+                    const targetId = m.target_user_id || (m.text && m.text.includes('Wave to ') ? m.text.split('Wave to ')[1]?.trim() : null);
+                    if (!m.user_id || !targetId) return null;
+                    return {
+                      fromUserId: m.user_id,
+                      toUserId: targetId,
+                      timestamp: m.created_at || new Date().toISOString()
+                    };
+                  })
+                  .filter(Boolean)
+                  .filter(w => !existing.has(`${w.fromUserId}-${w.toUserId}`));
                 return [...prev, ...newWaves];
               });
             }
@@ -661,15 +667,23 @@ export const AppProvider = ({ children }) => {
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         if (payload.new?.plan_id === 'waves' || payload.new?.type === 'wave') {
+          const targetId = payload.new.target_user_id || (payload.new.text && payload.new.text.includes('Wave to ') ? payload.new.text.split('Wave to ')[1]?.trim() : null);
+          if (!payload.new.user_id || !targetId) return;
+
           const incomingWave = {
             fromUserId: payload.new.user_id,
-            toUserId: payload.new.target_user_id,
+            toUserId: targetId,
             timestamp: payload.new.created_at || new Date().toISOString()
           };
           setWaves(prev => {
             if (prev.some(w => w.fromUserId === incomingWave.fromUserId && w.toUserId === incomingWave.toUserId)) return prev;
             return [...prev, incomingWave];
           });
+
+          // If this wave is sent to current user & forms a mutual match -> trigger celebration!
+          if (incomingWave.toUserId === currentUser?.id) {
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+          }
           return;
         }
 
