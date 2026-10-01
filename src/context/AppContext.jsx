@@ -232,12 +232,13 @@ export const AppProvider = ({ children }) => {
   const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
   const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
 
-  // Progressive Verification Check: True only if user has real name and verification
+  // Verification gate: only requires a real name + completed onboarding
+  // Phone/Selfie/LinkedIn are optional trust badges that boost visibility, not gates
   const isUserVerified = Boolean(
     currentUser?.name &&
     currentUser?.name.trim() !== '' &&
     currentUser?.name !== 'Verified Member' &&
-    (currentUser?.phoneVerified || currentUser?.idVerified || localStorage.getItem('squadin_onboarded') === 'true')
+    localStorage.getItem('squadin_onboarded') === 'true'
   );
 
   // High-intent action gatekeeper: allows action if verified, otherwise prompts 30-sec verification modal

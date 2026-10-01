@@ -38,7 +38,8 @@ export const PlanDetailModal = () => {
   } = useApp();
 
   const [joinNote, setJoinNote] = useState('');
-  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [showOptionalNote, setShowOptionalNote] = useState(false);
+  const [joinRequestSent, setJoinRequestSent] = useState(false);
 
   useEffect(() => {
     if (selectedPlanForDetail) {
@@ -64,11 +65,7 @@ export const PlanDetailModal = () => {
     setSelectedPlanForDetail(null);
   };
 
-  const handleSendRequest = () => {
-    requestToJoinPlan(plan.id, joinNote || 'Hey! Excited to join your crew.');
-    setShowJoinInput(false);
-    setJoinNote('');
-  };
+  // Removed handleSendRequest as we now use inline handlers for one-tap join and optional note
 
   const handleOpenChat = () => {
     setActiveChatPlanId(plan.id);
@@ -358,38 +355,53 @@ export const PlanDetailModal = () => {
                 </>
               )}
             </button>
-          ) : isPending ? (
-            <div className="text-center py-2 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 font-bold text-xs flex items-center justify-center gap-1.5">
-              <AlertCircle size={15} className="text-amber-600" />
-              <span>Join Request Sent! Waiting for Host ({host.name}) to accept.</span>
-            </div>
-          ) : showJoinInput ? (
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={joinNote}
-                onChange={(e) => setJoinNote(e.target.value)}
-                placeholder="Add a quick note for the host (e.g. 'Hey, excited for coffee!')..."
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-amber-500 bg-stone-50"
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSendRequest}
-                  className="flex-1 py-2.5 bg-espresso text-cream font-bold text-xs rounded-xl hover:bg-stone-800 transition-colors"
-                >
-                  Send Request to Host
-                </button>
-                <button
-                  onClick={() => setShowJoinInput(false)}
-                  className="px-4 py-2.5 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-200"
-                >
-                  Cancel
-                </button>
+          ) : isPending || joinRequestSent ? (
+            <div className="flex flex-col gap-2">
+              <div className="text-center py-2 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                <span>✅ Join Request Sent! Waiting for host to accept.</span>
               </div>
+              
+              {!showOptionalNote ? (
+                <button
+                  onClick={() => setShowOptionalNote(true)}
+                  className="text-[11px] text-stone-500 hover:text-stone-700 font-medium text-center transition-colors py-1 flex items-center justify-center gap-1.5 mx-auto"
+                >
+                  <span>💬 Add a note for the host (optional)</span>
+                </button>
+              ) : (
+                <div className="space-y-2 mt-1 animate-fade-in">
+                  <textarea
+                    value={joinNote}
+                    onChange={(e) => setJoinNote(e.target.value)}
+                    placeholder="Add a quick note for the host (e.g. 'Hey, excited for coffee!')..."
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-500 bg-stone-50 resize-none h-16"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        requestToJoinPlan(plan.id, joinNote);
+                        setShowOptionalNote(false);
+                      }}
+                      className="flex-1 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition-colors"
+                    >
+                      Send Note
+                    </button>
+                    <button
+                      onClick={() => setShowOptionalNote(false)}
+                      className="px-4 py-2 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button
-              onClick={() => requireVerification(() => setShowJoinInput(true), 'join_plan')}
+              onClick={() => requireVerification(() => {
+                requestToJoinPlan(plan.id, '');
+                setJoinRequestSent(true);
+              }, 'join_plan')}
               className="w-full py-3 bg-espresso hover:bg-stone-800 text-cream rounded-2xl font-extrabold text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
             >
               <span>Request to Join Crew</span>
