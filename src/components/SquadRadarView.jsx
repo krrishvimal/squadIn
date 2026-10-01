@@ -179,7 +179,10 @@ export const SquadRadarView = () => {
             Discover Verified Members Nearby
           </h1>
           <p className="text-xs text-stone-300 max-w-md leading-relaxed">
-            These members in <strong className="text-amber-300">{selectedCity}</strong> are looking for a weekend crew. Tap any profile to invite them to your plan!
+            <strong className="text-amber-300">{filteredMembers.length}</strong> members in <strong className="text-amber-300">{selectedCity}</strong> are looking for a weekend crew. Tap any profile to invite them to your plan!
+            {radarMembers.length > 0 && radarMembers.length !== filteredMembers.length && (
+              <span className="text-stone-400"> ({radarMembers.length} total across all cities)</span>
+            )}
           </p>
         </div>
 

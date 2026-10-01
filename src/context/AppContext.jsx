@@ -353,54 +353,83 @@ export const AppProvider = ({ children }) => {
       try {
         // Automatically sync current user profile to cloud so other active users see them on Radar
         if (currentUser?.id) {
+          // Try full payload first, then progressively smaller if schema doesn't match
+          const fullPayload = {
+            id: currentUser.id,
+            name: currentUser.name || 'Verified Member',
+            avatar: currentUser.avatar,
+            bio: currentUser.bio || 'Excited to meet new people and explore weekend activities!',
+            city: currentUser.city || selectedCity,
+            role: currentUser.role || 'Member',
+            company: currentUser.company || 'SquadIn'
+          };
+
+          let profileSynced = false;
           try {
-            const profilePayload = {
-              id: currentUser.id,
-              name: currentUser.name || 'Verified Member',
-              avatar: currentUser.avatar,
-              bio: currentUser.bio || 'Excited to meet new people and explore weekend activities!',
-              city: currentUser.city || selectedCity,
-              role: currentUser.role || 'Member',
-              company: currentUser.company || 'SquadIn'
-            };
-            await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' }).catch(() => {});
+            const { error } = await supabase.from('profiles').upsert(fullPayload, { onConflict: 'id' });
+            if (!error) {
+              profileSynced = true;
+              console.info('✅ Profile synced to cloud (full payload)');
+            } else {
+              console.warn('⚠️ Full profile upsert failed:', error.message);
+              // Try minimal payload
+              const minPayload = { id: currentUser.id, name: currentUser.name || 'Verified Member' };
+              const { error: minError } = await supabase.from('profiles').upsert(minPayload, { onConflict: 'id' });
+              if (!minError) {
+                profileSynced = true;
+                console.info('✅ Profile synced to cloud (minimal payload)');
+              } else {
+                console.warn('⚠️ Minimal profile upsert also failed:', minError.message, '— Radar will use plans-based discovery.');
+              }
+            }
           } catch (e) {
-            // Graceful fallback for local offline / custom schema
+            console.warn('⚠️ Profile sync exception:', e);
           }
         }
 
         // Fetch profiles for allUsers and Radar
-        const { data: cloudProfiles } = await supabase.from('profiles').select('*');
-        if (cloudProfiles && cloudProfiles.length > 0) {
-          const userProfiles = cloudProfiles.map(p => ({
-            id: p.id,
-            name: p.name || 'Verified Member',
-            avatar: p.avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
-            role: p.role || 'Member',
-            company: p.company || 'SquadIn',
-            city: p.city || 'Pune',
-            interests: p.interests || [],
-            phoneVerified: Boolean(p.phone_verified),
-            workEmailVerified: Boolean(p.work_email_verified),
-            linkedin_verified: Boolean(p.linkedin_verified),
-            idVerified: Boolean(p.id_verified || p.phone_verified),
-            karmaScore: p.karma_score || 5.0
-          }));
+        let hasCloudProfiles = false;
+        try {
+          const { data: cloudProfiles, error: profilesError } = await supabase.from('profiles').select('*');
+          if (!profilesError && cloudProfiles && cloudProfiles.length > 0) {
+            hasCloudProfiles = true;
+            console.info(`✅ Fetched ${cloudProfiles.length} cloud profiles`);
 
-          setAllUsers(prev => {
-            const map = new Map();
-            [...prev, ...userProfiles].forEach(u => map.set(u.id, u));
-            return Array.from(map.values());
-          });
+            const userProfiles = cloudProfiles.map(p => ({
+              id: p.id,
+              name: p.name || 'Verified Member',
+              avatar: p.avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
+              role: p.role || 'Member',
+              company: p.company || 'SquadIn',
+              city: p.city || selectedCity,
+              interests: p.interests || [],
+              phoneVerified: Boolean(p.phone_verified),
+              workEmailVerified: Boolean(p.work_email_verified),
+              linkedin_verified: Boolean(p.linkedin_verified),
+              idVerified: Boolean(p.id_verified || p.phone_verified),
+              karmaScore: p.karma_score || 5.0
+            }));
 
-          // Set radar members for other users
-          const radarCandidates = cloudProfiles
-            .filter(p => p.id !== currentUser.id)
-            .map(p => mapProfileToRadarMember(p));
+            setAllUsers(prev => {
+              const map = new Map();
+              [...prev, ...userProfiles].forEach(u => map.set(u.id, u));
+              return Array.from(map.values());
+            });
 
-          if (radarCandidates.length > 0) {
-            setRadarMembers(radarCandidates);
+            // Set radar members for other users
+            const radarCandidates = cloudProfiles
+              .filter(p => p.id !== currentUser.id)
+              .map(p => mapProfileToRadarMember(p));
+
+            if (radarCandidates.length > 0) {
+              setRadarMembers(radarCandidates);
+              console.info(`✅ Radar populated with ${radarCandidates.length} members from profiles`);
+            }
+          } else {
+            if (profilesError) console.warn('⚠️ Profiles fetch error:', profilesError.message);
           }
+        } catch (e) {
+          console.warn('⚠️ Profiles fetch exception:', e);
         }
 
         // Fetch plans
@@ -448,11 +477,18 @@ export const AppProvider = ({ children }) => {
 
           if (formattedPlans.length > 0) {
             setPlans(formattedPlans);
+          }
 
-            // Dynamically populate radar members from plan hosts in the same city
-            const planCandidates = cloudPlans
-              .filter(cp => cp.host_id && cp.host_id !== currentUser.id)
-              .map(cp => ({
+          // ALWAYS populate radar members from ALL plan participants (hosts + members)
+          // This is the reliable fallback when profiles table doesn't work
+          const planUserIds = new Set();
+          const planCandidates = [];
+
+          cloudPlans.forEach(cp => {
+            // Extract host
+            if (cp.host_id && cp.host_id !== currentUser.id && !planUserIds.has(cp.host_id)) {
+              planUserIds.add(cp.host_id);
+              planCandidates.push({
                 id: cp.host_id,
                 name: 'Verified Host',
                 avatar: DEFAULT_AVATARS[Math.abs(cp.host_id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length],
@@ -468,15 +504,42 @@ export const AppProvider = ({ children }) => {
                 distanceKm: 2.3,
                 latOffset: (Math.random() * 0.02 - 0.01),
                 lngOffset: (Math.random() * 0.02 - 0.01)
-              }));
-
-            if (planCandidates.length > 0) {
-              setRadarMembers(prev => {
-                const map = new Map();
-                [...prev, ...planCandidates].forEach(m => map.set(m.id, m));
-                return Array.from(map.values());
               });
             }
+
+            // Extract accepted members
+            const members = cp.accepted_members || [];
+            members.forEach(memberId => {
+              if (memberId && memberId !== currentUser.id && memberId !== cp.host_id && !planUserIds.has(memberId)) {
+                planUserIds.add(memberId);
+                planCandidates.push({
+                  id: memberId,
+                  name: 'Verified Member',
+                  avatar: DEFAULT_AVATARS[Math.abs(memberId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % DEFAULT_AVATARS.length],
+                  role: 'Weekend Explorer',
+                  company: cp.city || 'SquadIn',
+                  city: cp.city || selectedCity,
+                  interests: [cp.category_label || '☕ Hangout'],
+                  primaryActivity: cp.category_label || '☕ Hangout',
+                  primaryCat: cp.category || 'cafe',
+                  phoneVerified: true,
+                  idVerified: true,
+                  karmaScore: 5.0,
+                  distanceKm: 3.5,
+                  latOffset: (Math.random() * 0.03 - 0.015),
+                  lngOffset: (Math.random() * 0.03 - 0.015)
+                });
+              }
+            });
+          });
+
+          if (planCandidates.length > 0) {
+            setRadarMembers(prev => {
+              const map = new Map();
+              [...prev, ...planCandidates].forEach(m => map.set(m.id, m));
+              return Array.from(map.values());
+            });
+            console.info(`✅ Radar populated with ${planCandidates.length} members from plans`);
           }
         }
       } catch (err) {
@@ -623,7 +686,7 @@ export const AppProvider = ({ children }) => {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('profiles').upsert({
+        const { error } = await supabase.from('profiles').upsert({
           id: updated.id,
           name: updated.name,
           avatar: updated.avatar,
@@ -631,9 +694,21 @@ export const AppProvider = ({ children }) => {
           city: updated.city || selectedCity,
           role: updated.role,
           company: updated.company
-        }, { onConflict: 'id' }).catch(() => {});
+        }, { onConflict: 'id' });
+        if (error) {
+          console.warn('⚠️ Profile update upsert failed:', error.message);
+          // Try minimal
+          const { error: minErr } = await supabase.from('profiles').upsert({
+            id: updated.id,
+            name: updated.name
+          }, { onConflict: 'id' });
+          if (minErr) console.warn('⚠️ Minimal profile update also failed:', minErr.message);
+          else console.info('✅ Profile updated (minimal payload)');
+        } else {
+          console.info('✅ Profile updated in cloud');
+        }
       } catch (e) {
-        // Safe fallback
+        console.warn('⚠️ Profile update exception:', e);
       }
     }
   };
