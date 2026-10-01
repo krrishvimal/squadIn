@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { VerificationModal } from './VerificationModal';
 import { OnboardingModal } from './OnboardingModal';
-import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail, Edit3 } from 'lucide-react';
+import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail, Edit3, Camera } from 'lucide-react';
 
 export const ProfileView = () => {
   const { currentUser, setShowGuidelinesModal, isUserVerified, setShowOnboardingModal, setOnboardingReason } = useApp();
@@ -19,6 +19,10 @@ export const ProfileView = () => {
     setOnboardingReason('profile');
     setShowOnboardingModal(true);
   };
+
+  const trustScore = (currentUser.phoneVerified ? 50 : 0) + 
+                     (currentUser.idVerified ? 30 : 0) + 
+                     (currentUser.linkedInVerified ? 20 : 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
@@ -129,70 +133,98 @@ export const ProfileView = () => {
       </div>
 
       {/* VERIFICATION & CREDENTIALS ACTION HUB */}
-      <div className="bg-white rounded-3xl border border-stone-200 p-5 space-y-3 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xs font-extrabold text-espresso uppercase tracking-wider">Identity & Trust Badges</h3>
-            <p className="text-[10px] text-stone-500">Industry-standard authentication required for host trust</p>
+      <div className="bg-stone-900 rounded-3xl border border-stone-800 p-5 space-y-4 shadow-sm">
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Trust Score</span>
+            <span className="text-sm font-extrabold text-amber-400">{trustScore}%</span>
           </div>
-          <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-            Trust Level: High
-          </span>
+          <div className="w-full h-2 bg-stone-800 rounded-full overflow-hidden">
+            <div 
+              className={`h-full rounded-full transition-all duration-700 ${trustScore === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gradient-to-r from-amber-500 to-amber-400'}`}
+              style={{ width: `${trustScore}%` }}
+            />
+          </div>
+          {trustScore < 100 && (
+            <p className="text-[10px] text-stone-500 mt-1">Complete verifications below to boost your trust score</p>
+          )}
+          {trustScore === 100 && (
+            <p className="text-[10px] text-emerald-400 mt-1 font-semibold">✨ Fully Trusted Member — Maximum visibility on Radar</p>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-          {/* 1. Phone OTP */}
-          <button
-            onClick={() => openVerification('phone')}
-            className="p-3 rounded-2xl border border-stone-200 hover:border-amber-400 hover:bg-amber-50/50 text-left transition-all flex flex-col justify-between"
-          >
+        <div className="space-y-2">
+          {/* Phone OTP */}
+          <div className={`p-3 rounded-xl border ${currentUser.phoneVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
             <div className="flex items-center justify-between">
-              <Smartphone size={16} className="text-amber-600" />
-              <CheckCircle2 size={13} className="text-emerald-600" />
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.phoneVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  <Smartphone size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Phone OTP</p>
+                  <p className="text-[10px] text-stone-500">10-Digit Mobile SMS</p>
+                </div>
+              </div>
+              <div className="text-right">
+                {currentUser.phoneVerified ? (
+                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                ) : (
+                  <button onClick={() => openVerification('phone')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                    +50% Trust
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="mt-2">
-              <div className="text-xs font-bold text-stone-800">Phone OTP (+91)</div>
-              <div className="text-[10px] text-stone-400">10-Digit Mobile SMS</div>
-            </div>
-          </button>
+          </div>
 
-          {/* 2. LinkedIn */}
-          <button
-            onClick={() => openVerification('linkedin')}
-            className="p-3 rounded-2xl border border-stone-200 hover:border-blue-400 hover:bg-blue-50/50 text-left transition-all flex flex-col justify-between"
-          >
+          {/* Live Selfie */}
+          <div className={`p-3 rounded-xl border ${currentUser.idVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-[#0A66C2]">in</span>
-              {currentUser.linkedInVerified ? (
-                <CheckCircle2 size={13} className="text-emerald-600" />
-              ) : (
-                <span className="text-[9px] font-extrabold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">Connect</span>
-              )}
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.idVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  <Camera size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Live Selfie</p>
+                  <p className="text-[10px] text-stone-500">Front-camera Verification</p>
+                </div>
+              </div>
+              <div className="text-right">
+                {currentUser.idVerified ? (
+                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                ) : (
+                  <button onClick={() => openVerification('selfie')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                    +30% Trust
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="mt-2">
-              <div className="text-xs font-bold text-stone-800">LinkedIn OAuth</div>
-              <div className="text-[10px] text-stone-400">Professional Identity</div>
-            </div>
-          </button>
+          </div>
 
-          {/* 3. Work Email */}
-          <button
-            onClick={() => openVerification('work_email')}
-            className="p-3 rounded-2xl border border-stone-200 hover:border-emerald-400 hover:bg-emerald-50/50 text-left transition-all flex flex-col justify-between"
-          >
+          {/* LinkedIn */}
+          <div className={`p-3 rounded-xl border ${currentUser.linkedInVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
             <div className="flex items-center justify-between">
-              <Mail size={16} className="text-emerald-600" />
-              {currentUser.workEmailVerified ? (
-                <CheckCircle2 size={13} className="text-emerald-600" />
-              ) : (
-                <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Verify</span>
-              )}
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.linkedInVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  <ExternalLink size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">LinkedIn</p>
+                  <p className="text-[10px] text-stone-500">Professional Identity</p>
+                </div>
+              </div>
+              <div className="text-right">
+                {currentUser.linkedInVerified ? (
+                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                ) : (
+                  <button onClick={() => openVerification('linkedin')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                    +20% Trust
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="mt-2">
-              <div className="text-xs font-bold text-stone-800">Corporate Email</div>
-              <div className="text-[10px] text-stone-400">Workplace Verification</div>
-            </div>
-          </button>
+          </div>
         </div>
       </div>
 

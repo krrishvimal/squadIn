@@ -220,6 +220,16 @@ export const PlanDetailModal = () => {
                       <div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-bold text-stone-800">{member.name}</span>
+                          {(member.phoneVerified || member.idVerified) ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold">
+                              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-700/50 border border-stone-600 text-stone-400 text-[9px] font-bold">
+                              New Member
+                            </span>
+                          )}
                           {isMemberHost && (
                             <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-extrabold text-[9px] uppercase">
                               Host
@@ -268,8 +278,18 @@ export const PlanDetailModal = () => {
                           <div className="flex items-center gap-2">
                             <img src={applicant.avatar} className="w-8 h-8 rounded-full object-cover" />
                             <div>
-                              <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                              <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
                                 <span>{applicant.name}</span>
+                                {(applicant.phoneVerified || applicant.idVerified) ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold">
+                                    <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                                    Verified
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-700/50 border border-stone-600 text-stone-400 text-[9px] font-bold">
+                                    New Member
+                                  </span>
+                                )}
                                 {applicant.idVerified && (
                                   <span className="px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 text-[9px] font-extrabold flex items-center gap-0.5 border border-blue-200">
                                     <ShieldCheck size={10} className="text-blue-600" />

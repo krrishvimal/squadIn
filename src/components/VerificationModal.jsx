@@ -128,7 +128,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
               <ShieldCheck size={18} />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-espresso">Verification & Trust Engine</h2>
+              <h2 className="text-base font-extrabold text-espresso">Boost Your Trust Score</h2>
               <p className="text-[10px] text-stone-500 font-medium">Industry-standard authentication & verified badges</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
             }`}
           >
             <Smartphone size={13} />
-            <span>1. Phone OTP</span>
+            <span>1. Phone (+50%)</span>
             {isPhoneVerified && <span className="text-emerald-600">✓</span>}
           </button>
 
@@ -164,7 +164,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
             }`}
           >
             <Camera size={13} />
-            <span>2. Live Face ID</span>
+            <span>2. Selfie (+30%)</span>
             {currentUser?.idVerified && <span className="text-emerald-600">✓</span>}
           </button>
 
@@ -177,7 +177,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
             }`}
           >
             <ExternalLink size={13} />
-            <span>3. LinkedIn</span>
+            <span>3. LinkedIn (+20%)</span>
             {isLinkedInVerified && <span className="text-blue-600">✓</span>}
           </button>
 
@@ -190,7 +190,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
             }`}
           >
             <Mail size={13} />
-            <span>4. Work Email</span>
+            <span>4. Work Email (+10%)</span>
             {isWorkVerified && <span className="text-emerald-600">✓</span>}
           </button>
         </div>
