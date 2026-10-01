@@ -5,7 +5,7 @@
 
 -- 1. PROFILES TABLE (Verified Users)
 create table if not exists public.profiles (
-  id text primary key, -- user id or auth.uid()
+  id text primary key,
   name text not null,
   avatar text,
   bio text,
@@ -15,6 +15,7 @@ create table if not exists public.profiles (
   phone_verified boolean default false,
   work_email_verified boolean default false,
   linkedin_verified boolean default false,
+  id_verified boolean default false,
   karma_score numeric(3,1) default 5.0,
   phone_number text,
   created_at timestamp with time zone default now()
@@ -26,7 +27,9 @@ create table if not exists public.plans (
   title text not null,
   category text not null default 'cafe',
   category_label text not null default 'Hangout',
-  host_id text not null references public.profiles(id) on delete cascade,
+  host_id text not null,
+  host_name text,
+  host_avatar text,
   city text not null default 'Bangalore',
   venue_name text not null,
   venue_lat double precision,
@@ -46,51 +49,82 @@ create table if not exists public.plans (
 -- 3. PLAN JOIN REQUESTS TABLE (Curation Engine)
 create table if not exists public.plan_requests (
   id uuid primary key default gen_random_uuid(),
-  plan_id text not null references public.plans(id) on delete cascade,
-  user_id text not null references public.profiles(id) on delete cascade,
+  plan_id text not null,
+  user_id text not null,
+  user_name text,
+  user_avatar text,
   message text default '',
   status text default 'PENDING', -- 'PENDING' | 'ACCEPTED' | 'REJECTED'
   requested_at timestamp with time zone default now(),
   unique(plan_id, user_id)
 );
 
--- 4. MESSAGES TABLE (Realtime Group Chat)
+-- 4. MESSAGES TABLE (Realtime Group Chat & Waves)
 create table if not exists public.messages (
-  id text primary key,
-  plan_id text not null references public.plans(id) on delete cascade,
-  sender_id text references public.profiles(id) on delete set null,
-  content text not null,
-  timestamp text not null,
+  id text primary key default gen_random_uuid()::text,
+  plan_id text not null default 'general',
+  sender_id text,
+  user_id text,
+  user_name text,
+  user_avatar text,
+  target_user_id text,
+  type text default 'text', -- 'text' | 'wave' | 'system'
+  text text,
+  content text,
+  timestamp text default now()::text,
   is_system boolean default false,
   created_at timestamp with time zone default now()
 );
 
--- 5. ENABLE ROW LEVEL SECURITY (RLS)
+-- 5. REPORTS TABLE (Safety & Moderation)
+create table if not exists public.reports (
+  id uuid primary key default gen_random_uuid(),
+  target_user_id text not null,
+  reporter_id text not null,
+  plan_id text,
+  reason text not null,
+  details text,
+  created_at timestamp with time zone default now()
+);
+
+-- 6. ENABLE ROW LEVEL SECURITY (RLS)
 alter table public.profiles enable row level security;
 alter table public.plans enable row level security;
 alter table public.plan_requests enable row level security;
 alter table public.messages enable row level security;
+alter table public.reports enable row level security;
 
--- Permissive policies for MVP public social discovery
+-- Permissive policies for social discovery & realtime collaboration
+drop policy if exists "Allow all profiles read" on public.profiles;
+drop policy if exists "Allow profile upsert" on public.profiles;
 create policy "Allow all profiles read" on public.profiles for select using (true);
 create policy "Allow profile upsert" on public.profiles for all using (true);
 
+drop policy if exists "Allow all plans read" on public.plans;
+drop policy if exists "Allow plan insert/update" on public.plans;
 create policy "Allow all plans read" on public.plans for select using (true);
 create policy "Allow plan insert/update" on public.plans for all using (true);
 
+drop policy if exists "Allow requests read" on public.plan_requests;
+drop policy if exists "Allow request create/update" on public.plan_requests;
 create policy "Allow requests read" on public.plan_requests for select using (true);
 create policy "Allow request create/update" on public.plan_requests for all using (true);
 
+drop policy if exists "Allow messages read" on public.messages;
+drop policy if exists "Allow message insert" on public.messages;
 create policy "Allow messages read" on public.messages for select using (true);
-create policy "Allow message insert" on public.messages for insert with check (true);
+create policy "Allow message insert" on public.messages for all using (true);
 
--- 6. ENABLE SUPABASE REALTIME WEBSOCKET SUBSCRIPTIONS
--- This allows real-time chat streaming and instant quorum unlock across devices
+drop policy if exists "Allow reports insert" on public.reports;
+create policy "Allow reports insert" on public.reports for insert with check (true);
+
+-- 7. ENABLE SUPABASE REALTIME WEBSOCKET SUBSCRIPTIONS
 begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime;
 commit;
 
+alter publication supabase_realtime add table public.profiles;
 alter publication supabase_realtime add table public.plans;
 alter publication supabase_realtime add table public.plan_requests;
 alter publication supabase_realtime add table public.messages;
