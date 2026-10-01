@@ -134,12 +134,13 @@ export const AppProvider = ({ children }) => {
     const newId = getOrCreateUserId();
     const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const chosenAvatar = DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length];
+    const initialCity = localStorage.getItem('squadin_selected_city') || 'Delhi-NCR';
     const newUser = {
       ...CURRENT_USER,
       id: newId,
       name: CURRENT_USER.name || 'Verified Member',
       avatar: chosenAvatar,
-      city: 'Pune',
+      city: initialCity,
       interests: ['☕ Specialty Coffee', '🍕 Food Walks']
     };
     try {
@@ -210,7 +211,12 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
       } catch (e) {}
       if (isSupabaseConfigured && supabase) {
-        supabase.from('profiles').update({ city }).eq('id', currentUser.id).then(() => {}).catch(() => {});
+        supabase.from('profiles').upsert({
+          id: currentUser.id,
+          name: currentUser.name || 'Verified Member',
+          avatar: currentUser.avatar,
+          city: city
+        }, { onConflict: 'id' }).catch(() => {});
       }
     }
   };
