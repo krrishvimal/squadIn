@@ -406,8 +406,9 @@ export const AppProvider = ({ children }) => {
     // 1. Fetch initial profiles, plans, messages, and join requests from Supabase
     const initCloudData = async () => {
       try {
-        // Automatically sync current user profile to cloud so other active users see them on Radar
-        if (currentUser?.id) {
+        // Only sync profile to cloud if user has completed onboarding (has a real name)
+        // This prevents ghost "Verified Member" entries from polluting the database
+        if (currentUser?.id && currentUser?.name && currentUser.name !== 'Verified Member' && localStorage.getItem('squadin_onboarded') === 'true') {
           // Try full payload first, then progressively smaller if schema doesn't match
           const fullPayload = {
             id: currentUser.id,
