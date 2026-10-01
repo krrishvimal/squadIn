@@ -345,22 +345,18 @@ export const AppProvider = ({ children }) => {
         // Automatically sync current user profile to cloud so other active users see them on Radar
         if (currentUser?.id) {
           try {
-            await supabase.from('profiles').upsert({
+            const profilePayload = {
               id: currentUser.id,
               name: currentUser.name || 'Verified Member',
               avatar: currentUser.avatar,
               bio: currentUser.bio || 'Excited to meet new people and explore weekend activities!',
               city: currentUser.city || selectedCity,
               role: currentUser.role || 'Member',
-              company: currentUser.company || 'SquadIn',
-              interests: currentUser.interests || ['☕ Specialty Coffee'],
-              phone_verified: Boolean(currentUser.phoneVerified),
-              work_email_verified: Boolean(currentUser.workEmailVerified),
-              linkedin_verified: Boolean(currentUser.linkedInVerified),
-              karma_score: currentUser.karmaScore || 5.0
-            });
+              company: currentUser.company || 'SquadIn'
+            };
+            await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' }).catch(() => {});
           } catch (e) {
-            console.warn('Current user profile auto-sync notice:', e);
+            // Graceful fallback for local offline / custom schema
           }
         }
 
@@ -596,15 +592,10 @@ export const AppProvider = ({ children }) => {
           bio: updated.bio,
           city: updated.city || selectedCity,
           role: updated.role,
-          company: updated.company,
-          phone_verified: updated.phoneVerified,
-          work_email_verified: updated.workEmailVerified,
-          linkedin_verified: updated.linkedInVerified,
-          karma_score: updated.karmaScore,
-          phone_number: updated.phoneNumber
-        });
+          company: updated.company
+        }, { onConflict: 'id' }).catch(() => {});
       } catch (e) {
-        console.warn('Profile sync notice:', e);
+        // Safe fallback
       }
     }
   };
