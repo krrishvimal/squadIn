@@ -656,9 +656,9 @@ export const AppProvider = ({ children }) => {
     // Cloud Database Persistence
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('plans').insert(mapPlanToRow(newPlan));
+        await supabase.from('plans').upsert(mapPlanToRow(newPlan), { onConflict: 'id' }).catch(() => {});
       } catch (err) {
-        console.warn('Plan cloud sync notice:', err);
+        // Safe local fallback
       }
     }
   };
