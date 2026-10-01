@@ -232,7 +232,10 @@ export const AppProvider = ({ children }) => {
   const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [reportingUser, setReportingUser] = useState(null); // { user, planId }
-  const [showOnboardingModal, setShowOnboardingModal] = useState(() => localStorage.getItem('squadin_onboarded') !== 'true');
+  const [showOnboardingModal, setShowOnboardingModal] = useState(() => {
+    // Auto-show on first visit, but not if already onboarded or previously skipped
+    return localStorage.getItem('squadin_onboarded') !== 'true' && localStorage.getItem('squadin_skip_initial') !== 'true';
+  });
   const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
   const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
 

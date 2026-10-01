@@ -63,12 +63,16 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
 
   const handleSkip = () => {
     if (name.trim()) {
+      // User entered a name but skipped — save their name and mark as onboarded
       updateCurrentUserProfile({
         ...(currentUser || {}),
         name: name.trim()
       });
+      localStorage.setItem('squadin_onboarded', 'true');
     }
-    localStorage.setItem('squadin_onboarded', 'true');
+    // If no name entered, just close — modal will reappear on next high-intent action
+    // via requireVerification gate, but won't auto-show on page load again
+    localStorage.setItem('squadin_skip_initial', 'true');
     onClose();
   };
 
