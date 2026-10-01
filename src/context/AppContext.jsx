@@ -155,8 +155,12 @@ export const AppProvider = ({ children }) => {
 
   // Strict: 100% clean plans array
   const [plans, setPlans] = useState(() => {
-    const saved = localStorage.getItem('squadin_plans');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('squadin_plans');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'radar', 'my_crews', 'chats', 'profile'
@@ -885,6 +889,13 @@ export const AppProvider = ({ children }) => {
 
   // 3. Host Accepts Request
   const acceptJoinRequest = async (planId, userId) => {
+    // Prevent over-filling the crew
+    const plan = plans.find(p => p.id === planId);
+    if (plan && plan.acceptedMembers && plan.acceptedMembers.length >= plan.targetCapacity) {
+      console.warn('Cannot accept: crew is already full');
+      return;
+    }
+
     let updatedPlanTarget = null;
 
     setPlans(prev => prev.map(p => {

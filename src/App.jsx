@@ -60,7 +60,7 @@ export function App() {
   useEffect(() => {
     const callbackResult = checkLinkedInCallback();
     if (callbackResult?.success) {
-      updateCurrentUserProfile({ linkedInVerified: true });
+      updateCurrentUserProfile({ linkedin_verified: true });
       confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }
   }, []);

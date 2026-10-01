@@ -38,7 +38,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
 
   // LinkedIn State
   const [isLinkedInConnecting, setIsLinkedInConnecting] = useState(false);
-  const [isLinkedInVerified, setIsLinkedInVerified] = useState(currentUser?.linkedInVerified || false);
+  const [isLinkedInVerified, setIsLinkedInVerified] = useState(currentUser?.linkedin_verified || false);
 
   // Synchronize state when modal opens or props update
   useEffect(() => {
@@ -46,7 +46,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
       setActiveTab(initialTab);
       setIsPhoneVerified(Boolean(currentUser?.phoneVerified));
       setIsWorkVerified(Boolean(currentUser?.workEmailVerified));
-      setIsLinkedInVerified(Boolean(currentUser?.linkedInVerified));
+      setIsLinkedInVerified(Boolean(currentUser?.linkedin_verified));
     }
   }, [isOpen, initialTab, currentUser]);
 
@@ -101,7 +101,9 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
   // 4. Verify Work Email
   const handleVerifyWorkEmail = () => {
     setIsWorkVerified(true);
-    const domain = workEmail.split('@')[1].split('.')[0].toUpperCase();
+    const parts = workEmail.split('@');
+    if (parts.length < 2 || !parts[1].includes('.')) return;
+    const domain = parts[1].split('.')[0].toUpperCase();
     if (updateCurrentUserProfile) {
       updateCurrentUserProfile({
         workEmailVerified: true,

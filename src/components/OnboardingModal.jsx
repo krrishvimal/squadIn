@@ -4,8 +4,6 @@ import { INDIAN_CITIES } from '../venueData';
 import { X, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-// Keep the import for LiveSelfieCapture but don't render it here
-import { LiveSelfieCapture } from './LiveSelfieCapture';
 
 export const OnboardingModal = ({ isOpen, onClose, reason }) => {
   const { currentUser, updateCurrentUserProfile, selectedCity, setSelectedCity, onboardingReason } = useApp();

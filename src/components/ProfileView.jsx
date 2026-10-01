@@ -22,7 +22,7 @@ export const ProfileView = () => {
 
   const trustScore = (currentUser.phoneVerified ? 50 : 0) + 
                      (currentUser.idVerified ? 30 : 0) + 
-                     (currentUser.linkedInVerified ? 20 : 0);
+                     (currentUser.linkedin_verified ? 20 : 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
@@ -93,7 +93,7 @@ export const ProfileView = () => {
                   <ShieldCheck size={11} className="text-blue-600" />
                   <span>ID & Phone Verified</span>
                 </span>
-                {currentUser.linkedInVerified && (
+                {currentUser.linkedin_verified && (
                   <span className="px-2 py-0.5 rounded-full bg-[#0A66C2]/10 border border-[#0A66C2]/30 text-[#0A66C2] text-[10px] font-extrabold flex items-center gap-1">
                     <span>in</span>
                     <span>LinkedIn Connected</span>
@@ -203,10 +203,10 @@ export const ProfileView = () => {
           </div>
 
           {/* LinkedIn */}
-          <div className={`p-3 rounded-xl border ${currentUser.linkedInVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
+          <div className={`p-3 rounded-xl border ${currentUser.linkedin_verified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.linkedInVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.linkedin_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
                   <ExternalLink size={16} />
                 </div>
                 <div>
@@ -215,7 +215,7 @@ export const ProfileView = () => {
                 </div>
               </div>
               <div className="text-right">
-                {currentUser.linkedInVerified ? (
+                {currentUser.linkedin_verified ? (
                   <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
                 ) : (
                   <button onClick={() => openVerification('linkedin')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
