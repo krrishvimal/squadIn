@@ -276,8 +276,15 @@ export const AppProvider = ({ children }) => {
       }
 
       setIsLocating(true);
+
+      // Safety fallback: Never leave icon spinning indefinitely
+      const safetyTimer = setTimeout(() => {
+        setIsLocating(false);
+      }, 5000);
+
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
+        (pos) => {
+          clearTimeout(safetyTimer);
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           setUserCoords({
@@ -292,42 +299,38 @@ export const AppProvider = ({ children }) => {
             setSelectedCity(closest);
           }
 
-          // 2. Reverse geocode for fine city/neighborhood detection
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
-            if (res.ok) {
-              const data = await res.json();
-              const address = data.address || {};
-              const detectedName = address.city || address.town || address.state_district || address.county || address.state || '';
-              if (detectedName) {
-                const lower = detectedName.toLowerCase();
-                const match = INDIAN_CITIES.find(c => 
-                  c.name.toLowerCase() === lower || 
-                  c.aliases.some(a => lower.includes(a))
-                );
-                if (match) {
-                  setSelectedCity(match.name);
-                }
-              }
-            }
-          } catch (e) {
-            // closest city already assigned
-          }
-
+          // Stop spinning icon immediately
           setIsLocating(false);
           resolve({ lat, lng, city: closest });
+
+          // 2. Non-blocking background reverse geocoding for fine city detection
+          fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+              if (data && data.address) {
+                const address = data.address;
+                const detectedName = address.city || address.town || address.state_district || address.county || address.state || '';
+                if (detectedName) {
+                  const lower = detectedName.toLowerCase();
+                  const match = INDIAN_CITIES.find(c => 
+                    c.name.toLowerCase() === lower || 
+                    c.aliases.some(a => lower.includes(a))
+                  );
+                  if (match) {
+                    setSelectedCity(match.name);
+                  }
+                }
+              }
+            })
+            .catch(() => {});
         },
         (err) => {
+          clearTimeout(safetyTimer);
           setIsLocating(false);
           console.warn('Geolocation notice:', err);
-          if (err.code === 1) { // PERMISSION_DENIED
-            alert('Location access is blocked by your browser. Please select your city manually from the dropdown or enable location permissions in browser site settings.');
-          } else if (err.code === 3) { // TIMEOUT
-            console.info('GPS request timed out, using fallback city center.');
-          }
           reject(err);
         },
-        { enableHighAccuracy: true, timeout: 8000 }
+        { enableHighAccuracy: true, timeout: 5000 }
       );
     });
   };
