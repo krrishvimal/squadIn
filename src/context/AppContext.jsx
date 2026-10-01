@@ -228,7 +228,7 @@ export const AppProvider = ({ children }) => {
   const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [reportingUser, setReportingUser] = useState(null); // { user, planId }
-  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(() => localStorage.getItem('squadin_onboarded') !== 'true');
   const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
   const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
 
