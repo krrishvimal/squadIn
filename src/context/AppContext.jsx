@@ -294,17 +294,19 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('squadin_waves', JSON.stringify(waves));
   }, [waves]);
 
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+
   // Send a wave to another user
   const sendWave = (toUserId) => {
-    if (!toUserId || toUserId === currentUser?.id) return;
+    if (!toUserId || !currentUser?.id || normId(toUserId) === normId(currentUser.id)) return;
     const newWave = {
-      fromUserId: currentUser.id,
-      toUserId,
+      fromUserId: String(currentUser.id),
+      toUserId: String(toUserId),
       timestamp: new Date().toISOString()
     };
     setWaves(prev => {
       // Don't duplicate waves to the same user
-      if (prev.some(w => w.fromUserId === currentUser.id && w.toUserId === toUserId)) return prev;
+      if (prev.some(w => normId(w.fromUserId) === normId(currentUser.id) && normId(w.toUserId) === normId(toUserId))) return prev;
       return [...prev, newWave];
     });
     
@@ -313,31 +315,38 @@ export const AppProvider = ({ children }) => {
       try {
         supabase.from('messages').insert({
           plan_id: 'waves',
-          user_id: currentUser.id,
+          user_id: String(currentUser.id),
           user_name: currentUser.name,
           user_avatar: currentUser.avatar,
           text: `👋 Wave to ${toUserId}`,
           type: 'wave',
-          target_user_id: toUserId
+          target_user_id: String(toUserId)
         }).then(() => {}, () => {});
       } catch (e) {}
     }
     
-    confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+    confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
   };
 
   // Check if current user has waved at a specific user
   const hasWavedAt = (userId) => {
-    return waves.some(w => w.fromUserId === currentUser?.id && w.toUserId === userId);
+    if (!userId || !currentUser?.id) return false;
+    const cId = normId(currentUser.id);
+    const targetId = normId(userId);
+    return waves.some(w => normId(w.fromUserId) === cId && normId(w.toUserId) === targetId);
   };
 
   // Check if another user has waved at current user (from cloud messages)
   const hasReceivedWaveFrom = (userId) => {
-    return waves.some(w => w.fromUserId === userId && w.toUserId === currentUser?.id);
+    if (!userId || !currentUser?.id) return false;
+    const cId = normId(currentUser.id);
+    const senderId = normId(userId);
+    return waves.some(w => normId(w.fromUserId) === senderId && normId(w.toUserId) === cId);
   };
 
   // Check for mutual wave (both waved at each other)
   const isMutualWave = (userId) => {
+    if (!userId || !currentUser?.id) return false;
     return hasWavedAt(userId) && hasReceivedWaveFrom(userId);
   };
 

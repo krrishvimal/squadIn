@@ -580,22 +580,24 @@ export const SquadRadarView = () => {
               <div className="mb-3">
                 {isMutualWave(activeCandidate.id) ? (
                   // Mutual wave! Show match state
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-1">🤝</div>
-                    <p className="text-emerald-400 font-bold text-sm">It's a Match!</p>
-                    <p className="text-emerald-300/70 text-xs mt-1">You both waved! Start a conversation about weekend plans.</p>
+                  <div className="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-4 text-center shadow-md animate-fade-in">
+                    <div className="text-3xl mb-1 animate-bounce">🤝</div>
+                    <p className="text-emerald-950 font-black text-base tracking-tight">It's a Match!</p>
+                    <p className="text-emerald-800 font-bold text-xs mt-1">You both waved at each other! Start a conversation about weekend plans.</p>
                   </div>
                 ) : hasWavedAt(activeCandidate.id) ? (
                   // Already waved, waiting
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center">
-                    <p className="text-amber-400 font-semibold text-sm">👋 Wave Sent!</p>
-                    <p className="text-amber-300/60 text-xs mt-0.5">Waiting for {activeCandidate.name} to wave back</p>
+                  <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 text-center shadow-sm">
+                    <p className="text-amber-950 font-extrabold text-sm flex items-center justify-center gap-1.5">
+                      <span className="text-base">👋</span> Wave Sent!
+                    </p>
+                    <p className="text-amber-800 font-bold text-xs mt-0.5">Waiting for {activeCandidate.name} to wave back</p>
                   </div>
                 ) : hasReceivedWaveFrom(activeCandidate.id) ? (
                   // Someone waved at YOU! Prompt to wave back!
-                  <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-500/30 rounded-xl p-3.5 text-center space-y-2">
-                    <p className="text-emerald-400 font-bold text-sm flex items-center justify-center gap-1.5">
-                      <span>👋</span> {activeCandidate.name} waved at you!
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-500 rounded-2xl p-4 text-center space-y-2 shadow-lg animate-pulse">
+                    <p className="text-emerald-950 font-black text-sm flex items-center justify-center gap-1.5">
+                      <span className="text-lg animate-bounce">👋</span> {activeCandidate.name} waved at you!
                     </p>
                     <button
                       onClick={() => {
@@ -603,9 +605,10 @@ export const SquadRadarView = () => {
                           sendWave(activeCandidate.id);
                         }, 'radar_invite');
                       }}
-                      className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-sm rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98] animate-bounce"
+                      className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all active:scale-[0.98]"
                     >
-                      <span>👋 Wave Back to Match!</span>
+                      <span className="text-lg">👋</span>
+                      <span>Wave Back to Match!</span>
                     </button>
                   </div>
                 ) : (
@@ -616,7 +619,7 @@ export const SquadRadarView = () => {
                         sendWave(activeCandidate.id);
                       }, 'radar_invite');
                     }}
-                    className="w-full py-3 bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-400 hover:to-indigo-400 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 transition-all active:scale-[0.98]"
+                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/30 transition-all active:scale-[0.98]"
                   >
                     <span className="text-lg">👋</span>
                     <span>Wave — Show Interest</span>
