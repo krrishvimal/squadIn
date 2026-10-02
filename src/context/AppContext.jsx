@@ -254,6 +254,49 @@ export const AppProvider = ({ children }) => {
       setToastMessage(prev => prev === msg ? null : prev);
     }, 5000);
   };
+
+  // Browser Notification Engine (Notifies users when request is accepted or chat unlocks)
+  const [notificationPermission, setNotificationPermission] = useState(() => {
+    return typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default';
+  });
+
+  const requestNotificationPermission = async () => {
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          setNotificationPermission('granted');
+          return true;
+        }
+        if (Notification.permission !== 'denied') {
+          const res = await Notification.requestPermission();
+          setNotificationPermission(res);
+          return res === 'granted';
+        }
+      }
+    } catch (e) {
+      console.warn('Notification permission request notice:', e);
+    }
+    return false;
+  };
+
+  const sendBrowserNotification = (title, body, icon) => {
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        const notif = new Notification(title, {
+          body,
+          icon: icon || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          badge: '/favicon.ico',
+          tag: 'squadin-' + Date.now()
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      }
+    } catch (e) {
+      console.warn('Browser notification notice:', e);
+    }
+  };
   const [showOnboardingModal, setShowOnboardingModal] = useState(() => {
     // Auto-show on first visit, but not if already onboarded or previously skipped
     return appStorage.getItem('squadin_onboarded') !== 'true' && appStorage.getItem('squadin_skip_initial') !== 'true';
@@ -748,7 +791,13 @@ export const AppProvider = ({ children }) => {
               const isNowMember = updatedRow.accepted_members?.some(id => sameId(id, currentUser?.id));
               if (wasNotMember && isNowMember && !sameId(p.hostId, currentUser?.id)) {
                 showToast(`🎟️ You're in! Your request for "${p.title}" was accepted!`);
+                sendBrowserNotification("🎟️ You're in!", `Your request for "${p.title}" was accepted by the host!`);
                 confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+              }
+              const wasNotFull = p.status !== 'LOCKED_CHAT_ACTIVE';
+              const isNowFull = updatedRow.status === 'LOCKED_CHAT_ACTIVE';
+              if (wasNotFull && isNowFull && (isNowMember || sameId(p.hostId, currentUser?.id))) {
+                sendBrowserNotification("🎉 Crew Full & Chat Unlocked!", `Your crew for "${p.title}" is full! Say hi in the chat.`);
               }
               const cleanPending = (p.pendingRequests || []).filter(r => 
                 !(updatedRow.accepted_members || []).some(mId => sameId(mId, r.userId))
@@ -786,6 +835,7 @@ export const AppProvider = ({ children }) => {
           // If this wave is sent to current user & forms a mutual connection -> trigger squad-up celebration!
           if (incomingWave.toUserId === currentUser?.id) {
             confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+            sendBrowserNotification("👋 Someone waved at you!", `${payload.new.user_name || 'A nearby member'} showed interest on Squad Radar!`);
           }
           return;
         }
@@ -797,6 +847,13 @@ export const AppProvider = ({ children }) => {
           timestamp: payload.new.timestamp,
           isSystem: payload.new.is_system
         };
+
+        if (payload.new.sender_id && !sameId(payload.new.sender_id, currentUser?.id) && payload.new.plan_id !== activeChatPlanId) {
+          const matchedPlan = plans.find(p => p.id === payload.new.plan_id);
+          if (matchedPlan && matchedPlan.acceptedMembers?.some(id => sameId(id, currentUser?.id))) {
+            sendBrowserNotification(`💬 ${matchedPlan.title}`, newMsg.content);
+          }
+        }
 
         setPlans(prev => prev.map(p => {
           if (p.id === payload.new.plan_id) {
@@ -867,6 +924,7 @@ export const AppProvider = ({ children }) => {
 
               if (sameId(p.hostId, currentUser?.id)) {
                 showToast(`🎉 ${applicantName} requested to join your meetup: "${p.title}"!`);
+                sendBrowserNotification("🎉 New Join Request!", `${applicantName} requested to join your meetup: "${p.title}"`);
               }
 
               const existingReqs = p.pendingRequests || [];
@@ -956,10 +1014,55 @@ export const AppProvider = ({ children }) => {
 
     if (cloudEnabled && supabase) {
       try {
+        let avatarToSave = updated.avatar;
+
+        // If avatar is a captured selfie data URL, attempt upload to Supabase Storage bucket 'avatars'
+        if (updates.avatar && typeof updates.avatar === 'string' && updates.avatar.startsWith('data:image')) {
+          try {
+            const parts = updates.avatar.split(';base64,');
+            if (parts.length === 2) {
+              const mime = parts[0].split(':')[1] || 'image/jpeg';
+              const binary = atob(parts[1]);
+              const buffer = new Uint8Array(binary.length);
+              for (let i = 0; i < binary.length; i++) {
+                buffer[i] = binary.charCodeAt(i);
+              }
+              const blob = new Blob([buffer], { type: mime });
+              const fileName = `selfie_${updated.id}_${Date.now()}.jpg`;
+
+              const { data: uploadData, error: uploadErr } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, blob, {
+                  contentType: mime,
+                  upsert: true
+                });
+
+              if (!uploadErr && uploadData) {
+                const { data: pubData } = supabase.storage
+                  .from('avatars')
+                  .getPublicUrl(fileName);
+
+                if (pubData?.publicUrl) {
+                  avatarToSave = pubData.publicUrl;
+                  // Update local state with the clean cloud storage URL
+                  setCurrentUser(prev => {
+                    const next = { ...prev, avatar: avatarToSave };
+                    try { appStorage.setItem('squadin_current_user', JSON.stringify(next)); } catch (e) {}
+                    return next;
+                  });
+                  setAllUsers(users => users.map(u => u.id === targetId ? { ...u, avatar: avatarToSave } : u));
+                }
+              }
+            }
+          } catch (stErr) {
+            console.warn('Supabase storage upload notice, keeping local selfie image:', stErr);
+          }
+        }
+
         const { error } = await supabase.from('profiles').upsert({
           id: updated.id,
           name: updated.name,
-          avatar: updated.avatar,
+          avatar: avatarToSave,
           bio: updated.bio,
           city: updated.city || selectedCity,
           role: updated.role,
@@ -1254,6 +1357,130 @@ export const AppProvider = ({ children }) => {
           .eq('user_id', userId);
       } catch (err) {
         console.warn('Reject request cloud sync notice:', err);
+      }
+    }
+  };
+
+  // 5. Member Leaves Crew (Handles No-Shows & Flakes)
+  const leavePlan = async (planId) => {
+    const plan = plans.find(p => sameId(p.id, planId));
+    if (!plan) return;
+    if (normId(plan.hostId) === normId(currentUser.id)) {
+      console.warn('Host cannot leave their own plan');
+      return;
+    }
+    if (!plan.acceptedMembers?.some(id => sameId(id, currentUser.id))) {
+      return;
+    }
+
+    const sysMsg = {
+      id: `msg_sys_${Date.now()}`,
+      senderId: 'SYSTEM',
+      content: `👋 ${currentUser.name || 'A member'} had to leave the crew. 1 spot reopened!`,
+      timestamp: 'Just now',
+      isSystem: true
+    };
+
+    let updatedTarget = null;
+    setPlans(prev => prev.map(p => {
+      if (!sameId(p.id, planId)) return p;
+      const newAccepted = (p.acceptedMembers || []).filter(id => !sameId(id, currentUser.id));
+      const updated = {
+        ...p,
+        acceptedMembers: newAccepted,
+        status: newAccepted.length >= p.targetCapacity ? 'LOCKED_CHAT_ACTIVE' : 'OPEN',
+        messages: [...(p.messages || []), sysMsg]
+      };
+      updatedTarget = updated;
+      return updated;
+    }));
+
+    showToast(`You have left "${plan.title}". The spot has been reopened.`);
+
+    if (cloudEnabled && supabase && updatedTarget) {
+      try {
+        await supabase
+          .from('plans')
+          .update({
+            accepted_members: updatedTarget.acceptedMembers,
+            status: updatedTarget.status
+          })
+          .eq('id', planId);
+
+        await supabase.from('messages').insert({
+          id: sysMsg.id,
+          plan_id: planId,
+          sender_id: 'SYSTEM',
+          content: sysMsg.content,
+          type: 'system',
+          is_system: true
+        });
+      } catch (err) {
+        console.warn('Leave plan cloud sync notice:', err);
+      }
+    }
+  };
+
+  // 6. Host Removes Member (Flake / No-Show Replacement)
+  const removeMemberFromPlan = async (planId, targetUserId) => {
+    const plan = plans.find(p => sameId(p.id, planId));
+    if (!plan) return;
+    if (normId(plan.hostId) !== normId(currentUser.id)) {
+      console.warn('Unauthorized: Only the host can remove members');
+      return;
+    }
+    if (normId(targetUserId) === normId(currentUser.id)) {
+      console.warn('Host cannot remove themselves');
+      return;
+    }
+
+    const removedUser = allUsers.find(u => sameId(u.id, targetUserId));
+    const removedName = removedUser?.name || 'A member';
+
+    const sysMsg = {
+      id: `msg_sys_${Date.now()}`,
+      senderId: 'SYSTEM',
+      content: `Host removed ${removedName} from the crew. 1 spot reopened!`,
+      timestamp: 'Just now',
+      isSystem: true
+    };
+
+    let updatedTarget = null;
+    setPlans(prev => prev.map(p => {
+      if (!sameId(p.id, planId)) return p;
+      const newAccepted = (p.acceptedMembers || []).filter(id => !sameId(id, targetUserId));
+      const updated = {
+        ...p,
+        acceptedMembers: newAccepted,
+        status: newAccepted.length >= p.targetCapacity ? 'LOCKED_CHAT_ACTIVE' : 'OPEN',
+        messages: [...(p.messages || []), sysMsg]
+      };
+      updatedTarget = updated;
+      return updated;
+    }));
+
+    showToast(`${removedName} was removed. Spot reopened for new applicants.`);
+
+    if (cloudEnabled && supabase && updatedTarget) {
+      try {
+        await supabase
+          .from('plans')
+          .update({
+            accepted_members: updatedTarget.acceptedMembers,
+            status: updatedTarget.status
+          })
+          .eq('id', planId);
+
+        await supabase.from('messages').insert({
+          id: sysMsg.id,
+          plan_id: planId,
+          sender_id: 'SYSTEM',
+          content: sysMsg.content,
+          type: 'system',
+          is_system: true
+        });
+      } catch (err) {
+        console.warn('Remove member cloud sync notice:', err);
       }
     }
   };
@@ -1586,6 +1813,8 @@ export const AppProvider = ({ children }) => {
         requestToJoinPlan,
         acceptJoinRequest,
         rejectJoinRequest,
+        leavePlan,
+        removeMemberFromPlan,
         sendMessage,
         triggerEmergencySOS,
         submitKarmaReview,
@@ -1596,7 +1825,10 @@ export const AppProvider = ({ children }) => {
         isMutualWave,
         toastMessage,
         setToastMessage,
-        showToast
+        showToast,
+        notificationPermission,
+        requestNotificationPermission,
+        sendBrowserNotification
       }}
     >
       {children}

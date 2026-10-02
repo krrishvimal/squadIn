@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
-import { LiveSelfieCapture } from './LiveSelfieCapture';
 import { Sheet, ActivityArt } from './DesignKit';
+
+const LiveSelfieCapture = React.lazy(() => import('./LiveSelfieCapture').then(m => ({ default: m.LiveSelfieCapture })));
+
 
 export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => {
   const { currentUser, updateCurrentUserProfile } = useApp();
@@ -294,16 +296,18 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
           {/* TAB 2: LIVE SELFIE ID */}
           {activeTab === 'selfie' && (
             <div className="space-y-4 animate-fade-in">
-              <LiveSelfieCapture
-                currentAvatar={currentUser?.avatar}
-                isVerified={Boolean(currentUser?.idVerified)}
-                onPhotoCaptured={(photo) => {
-                  updateCurrentUserProfile({
-                    avatar: photo,
-                    idVerified: true
-                  });
-                }}
-              />
+              <React.Suspense fallback={<div className="p-8 text-center text-xs text-stone-400">Loading camera module...</div>}>
+                <LiveSelfieCapture
+                  currentAvatar={currentUser?.avatar}
+                  isVerified={Boolean(currentUser?.idVerified)}
+                  onPhotoCaptured={(photo) => {
+                    updateCurrentUserProfile({
+                      avatar: photo,
+                      idVerified: true
+                    });
+                  }}
+                />
+              </React.Suspense>
 
               <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200 text-xs space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-amber-900">

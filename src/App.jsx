@@ -11,13 +11,16 @@ import { ChatView } from './components/ChatView';
 import { MyCrewsView } from './components/MyCrewsView';
 import { ProfileView } from './components/ProfileView';
 import { SquadRadarView } from './components/SquadRadarView';
-import { KarmaReviewModal } from './components/KarmaReviewModal';
-import { ReportUserModal } from './components/ReportUserModal';
-import { CommunityGuidelinesModal } from './components/CommunityGuidelinesModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { ActivityArt, CityPicker, EmptyState, CATEGORIES } from './components/DesignKit';
 import { checkLinkedInCallback } from './lib/linkedinAuth';
 import { IS_DESIGN_PREVIEW } from './designPreview';
+
+const KarmaReviewModal = React.lazy(() => import('./components/KarmaReviewModal').then(m => ({ default: m.KarmaReviewModal })));
+const ReportUserModal = React.lazy(() => import('./components/ReportUserModal').then(m => ({ default: m.ReportUserModal })));
+const CommunityGuidelinesModal = React.lazy(() => import('./components/CommunityGuidelinesModal').then(m => ({ default: m.CommunityGuidelinesModal })));
+
+
 
 export function App() {
   const app = useApp();
@@ -62,9 +65,12 @@ export function App() {
       <BottomTabs />
     </div>
     {toastMessage && <div className="toast" role="status"><span>{toastMessage}</span><button className="icon-button" onClick={() => setToastMessage(null)} aria-label="Dismiss notification"><X size={16} /></button></div>}
-    <PlanDetailModal /><CreatePlanModal /><KarmaReviewModal />
-    <CommunityGuidelinesModal isOpen={showGuidelinesModal} onClose={() => setShowGuidelinesModal(false)} />
-    <ReportUserModal isOpen={Boolean(reportingUser)} targetUser={reportingUser?.user} planId={reportingUser?.planId} onClose={() => setReportingUser(null)} />
+    <PlanDetailModal /><CreatePlanModal />
+    <React.Suspense fallback={null}>
+      <KarmaReviewModal />
+      <CommunityGuidelinesModal isOpen={showGuidelinesModal} onClose={() => setShowGuidelinesModal(false)} />
+      <ReportUserModal isOpen={Boolean(reportingUser)} targetUser={reportingUser?.user} planId={reportingUser?.planId} onClose={() => setReportingUser(null)} />
+    </React.Suspense>
     <OnboardingModal isOpen={showOnboardingModal} onClose={() => setShowOnboardingModal(false)} reason={onboardingReason} />
   </div>;
 }
