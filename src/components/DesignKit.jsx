@@ -15,7 +15,7 @@ export const CATEGORIES = [
 export const categoryFor = (id) => CATEGORIES.find(c => c.id === id || c.full === id) || CATEGORIES[6];
 export const sameId = (a, b) => a != null && b != null && String(a).toLowerCase().trim() === String(b).toLowerCase().trim();
 export const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
-export const trustScore = (user) => (user?.phoneVerified ? 50 : 0) + (user?.idVerified ? 30 : 0) + (user?.linkedin_verified ? 20 : 0);
+export const trustScore = (user) => ((user?.phoneVerified || user?.phone_verified) ? 50 : 0) + ((user?.idVerified || user?.id_verified) ? 30 : 0) + ((user?.linkedin_verified || user?.linkedinVerified) ? 20 : 0);
 
 // Original vector doodles: sharp at every size, with the ink-and-pastel look of the references.
 export function ActivityArt({ type = 'cafe', className = '', size = 64 }) {

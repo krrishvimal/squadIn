@@ -34,11 +34,11 @@ const mapProfileToRadarMember = (p) => {
     interests: p.interests || [primaryActivity],
     primaryActivity: primaryActivity,
     primaryCat: primaryCat,
-    phoneVerified: Boolean(p.phone_verified),
-    workEmailVerified: Boolean(p.work_email_verified),
-    linkedin_verified: Boolean(p.linkedin_verified),
-    idVerified: Boolean(p.id_verified || p.phone_verified),
-    karmaScore: p.karma_score || 5.0,
+    phoneVerified: Boolean(p.phone_verified || p.phoneVerified),
+    workEmailVerified: Boolean(p.work_email_verified || p.workEmailVerified),
+    linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
+    idVerified: Boolean(p.id_verified || p.idVerified),
+    karmaScore: p.karma_score || p.karmaScore || 5.0,
     distanceKm: 1.8,
     latOffset: (Math.random() * 0.03 - 0.015),
     lngOffset: (Math.random() * 0.03 - 0.015)
@@ -492,7 +492,12 @@ export const AppProvider = ({ children }) => {
             bio: currentUser.bio || 'Excited to meet new people and explore weekend activities!',
             city: currentUser.city || selectedCity,
             role: currentUser.role || 'Member',
-            company: currentUser.company || 'SquadIn'
+            company: currentUser.company || 'SquadIn',
+            phone_verified: Boolean(currentUser.phoneVerified),
+            id_verified: Boolean(currentUser.idVerified),
+            work_email_verified: Boolean(currentUser.workEmailVerified),
+            linkedin_verified: Boolean(currentUser.linkedin_verified),
+            karma_score: currentUser.karmaScore || 5.0
           };
 
           let profileSynced = false;
@@ -535,11 +540,11 @@ export const AppProvider = ({ children }) => {
               city: p.city || selectedCity,
               bio: p.bio || '',
               interests: p.interests || [],
-              phoneVerified: Boolean(p.phone_verified),
-              workEmailVerified: Boolean(p.work_email_verified),
-              linkedin_verified: Boolean(p.linkedin_verified),
-              idVerified: Boolean(p.id_verified || p.phone_verified),
-              karmaScore: p.karma_score || 5.0
+              phoneVerified: Boolean(p.phone_verified || p.phoneVerified),
+              workEmailVerified: Boolean(p.work_email_verified || p.workEmailVerified),
+              linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
+              idVerified: Boolean(p.id_verified || p.idVerified),
+              karmaScore: p.karma_score || p.karmaScore || 5.0
             }));
 
             setAllUsers(prev => {
@@ -818,7 +823,13 @@ export const AppProvider = ({ children }) => {
               role: updatedProfile.role,
               company: updatedProfile.company,
               city: updatedProfile.city,
-              interests: updatedProfile.interests || []
+              bio: updatedProfile.bio || '',
+              interests: updatedProfile.interests || [],
+              phoneVerified: Boolean(updatedProfile.phone_verified),
+              idVerified: Boolean(updatedProfile.id_verified),
+              workEmailVerified: Boolean(updatedProfile.work_email_verified),
+              linkedin_verified: Boolean(updatedProfile.linkedin_verified),
+              karmaScore: updatedProfile.karma_score || 5.0
             }, ...prev.filter(u => u.id !== updatedProfile.id)]);
           }
         }
@@ -948,7 +959,12 @@ export const AppProvider = ({ children }) => {
           bio: updated.bio,
           city: updated.city || selectedCity,
           role: updated.role,
-          company: updated.company
+          company: updated.company,
+          phone_verified: Boolean(updated.phoneVerified),
+          id_verified: Boolean(updated.idVerified),
+          work_email_verified: Boolean(updated.workEmailVerified),
+          linkedin_verified: Boolean(updated.linkedin_verified),
+          karma_score: updated.karmaScore || 5.0
         }, { onConflict: 'id' });
         if (error) {
           console.warn('⚠️ Profile update upsert failed:', error.message);
@@ -1020,6 +1036,18 @@ export const AppProvider = ({ children }) => {
     // Cloud Database Persistence
     if (cloudEnabled && supabase) {
       try {
+        await supabase.from('profiles').upsert({
+          id: currentUser.id,
+          name: currentUser.name || 'Member',
+          avatar: currentUser.avatar,
+          city: currentUser.city || selectedCity,
+          bio: currentUser.bio || '',
+          phone_verified: Boolean(currentUser.phoneVerified),
+          id_verified: Boolean(currentUser.idVerified),
+          work_email_verified: Boolean(currentUser.workEmailVerified),
+          linkedin_verified: Boolean(currentUser.linkedin_verified),
+          karma_score: currentUser.karmaScore || 5.0
+        }, { onConflict: 'id' });
         await supabase.from('plans').upsert(mapPlanToRow(newPlan), { onConflict: 'id' });
       } catch (err) {
         // Safe local fallback
@@ -1074,7 +1102,13 @@ export const AppProvider = ({ children }) => {
           id: currentUser.id,
           name: currentUser.name || 'Member',
           avatar: currentUser.avatar,
-          city: currentUser.city || selectedCity
+          city: currentUser.city || selectedCity,
+          bio: currentUser.bio || '',
+          phone_verified: Boolean(currentUser.phoneVerified),
+          id_verified: Boolean(currentUser.idVerified),
+          work_email_verified: Boolean(currentUser.workEmailVerified),
+          linkedin_verified: Boolean(currentUser.linkedin_verified),
+          karma_score: currentUser.karmaScore || 5.0
         }, { onConflict: 'id' });
 
         // 2. Upsert request with exact schema columns (no user_name/user_avatar column mismatch)
@@ -1517,10 +1551,17 @@ export const AppProvider = ({ children }) => {
         if (userIds.length > 0) {
           const { data: profData } = await supabase.from('profiles').select('*').in('id', userIds);
           if (profData) {
-            profs = profData;
+            profs = profData.map(p => ({
+              ...p,
+              phoneVerified: Boolean(p.phone_verified),
+              idVerified: Boolean(p.id_verified),
+              workEmailVerified: Boolean(p.work_email_verified),
+              linkedin_verified: Boolean(p.linkedin_verified),
+              karmaScore: p.karma_score || 5.0
+            }));
             setAllUsers(prev => {
               const map = new Map();
-              [...prev, ...profData].forEach(u => map.set(u.id, u));
+              [...prev, ...profs].forEach(u => map.set(u.id, u));
               return Array.from(map.values());
             });
           }
