@@ -232,36 +232,35 @@ export const SquadRadarView = () => {
           {/* Concentric Radar Distance Rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             {/* Outer Ring */}
-            <div className="w-[340px] h-[340px] rounded-full border-2 border-dashed border-amber-200/60 flex items-center justify-center relative">
-              <span className="absolute top-2 text-[9px] font-bold italic text-stone-400 tracking-wider">
-                {distanceFilter === 5 ? '~5 KM (NEIGHBORHOOD)' : distanceFilter === 15 ? '~15 KM (CITY HUBS)' : `~${selectedCity.toUpperCase()} (WHOLE CITY)`}
+            <div className="w-[340px] h-[340px] rounded-full border-2 border-dashed border-amber-300/80 flex items-center justify-center relative">
+              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-[9.5px] font-black italic text-stone-500 bg-[#FAF6EE] px-2 py-0.5 rounded-full border border-amber-200 shadow-xs whitespace-nowrap">
+                Quick Ride 🛺
               </span>
               
-              {/* Middle Ring */}
-              <div className="w-[230px] h-[230px] rounded-full border border-dashed border-amber-200/60 flex items-center justify-center relative">
-                <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] font-bold text-stone-400 italic whitespace-nowrap bg-[#FDFBF7] px-1.5">Quick Ride 🛺</span>
-                
-                {/* Inner Ring */}
-                <div className="w-[120px] h-[120px] rounded-full border border-dashed border-amber-200/60 flex items-center justify-center relative">
-                  <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] font-bold text-stone-400 italic whitespace-nowrap bg-[#FDFBF7] px-1.5">Walking Distance 🚶</span>
-                </div>
+              {/* Inner Ring */}
+              <div className="w-[200px] h-[200px] rounded-full border-2 border-dashed border-amber-300/80 flex items-center justify-center relative">
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] font-black italic text-stone-500 bg-[#FAF6EE] px-2 py-0.5 rounded-full border border-amber-200 shadow-xs whitespace-nowrap">
+                  Walking Distance 🚶
+                </span>
               </div>
             </div>
 
             {/* Scanning Radar Sweep Line */}
-            <div className="absolute w-[340px] h-[340px] rounded-full border-t-2 border-amber-400 animate-spin opacity-30 pointer-events-none" style={{ animationDuration: '8s' }} />
+            <div className="absolute w-[340px] h-[340px] rounded-full border-t-2 border-amber-400 animate-spin opacity-40 pointer-events-none" style={{ animationDuration: '8s' }} />
           </div>
 
           {/* Center Point: Host / You */}
           <div className="relative z-10 flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-amber-300 p-0.5 shadow-md ring-4 ring-amber-100">
+            <div className="w-13 h-13 rounded-full bg-gradient-to-tr from-amber-400 to-amber-300 p-0.5 shadow-md ring-4 ring-amber-200/80 border-2 border-stone-800">
               <img
                 src={currentUser.avatar}
                 alt="You"
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <span className="text-[10px] font-extrabold text-amber-600 mt-1">You 📍</span>
+            <div className="mt-1 px-2 py-0.5 rounded-full bg-stone-900 text-amber-300 text-[9.5px] font-black shadow-xs flex items-center gap-1 border border-stone-700">
+              <span>You are here 📍</span>
+            </div>
           </div>
 
           {/* Plotted Nearby Candidate Bubbles */}
