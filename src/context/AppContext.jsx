@@ -729,11 +729,18 @@ export const AppProvider = ({ children }) => {
           const newPlan = mapRowToPlan(payload.new, [], []);
           setPlans(prev => [newPlan, ...prev.filter(p => p.id !== newPlan.id)]);
         } else if (payload.eventType === 'UPDATE') {
+          const updatedRow = payload.new;
           setPlans(prev => prev.map(p => {
-            if (p.id === payload.new.id) {
+            if (sameId(p.id, updatedRow.id)) {
+              const wasNotMember = !p.acceptedMembers?.some(id => sameId(id, currentUser?.id));
+              const isNowMember = updatedRow.accepted_members?.some(id => sameId(id, currentUser?.id));
+              if (wasNotMember && isNowMember && !sameId(p.hostId, currentUser?.id)) {
+                showToast(`🎟️ You're in! Your request for "${p.title}" was accepted!`);
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+              }
               return {
                 ...p,
-                ...mapRowToPlan(payload.new, p.messages, p.pendingRequests)
+                ...mapRowToPlan(updatedRow, p.messages, p.pendingRequests)
               };
             }
             return p;
