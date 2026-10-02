@@ -10,6 +10,9 @@ const cloudEnabled = isSupabaseConfigured && !IS_DESIGN_PREVIEW;
 
 const AppContext = createContext();
 
+export const sameId = (a, b) => a != null && b != null && String(a).toLowerCase().trim() === String(b).toLowerCase().trim();
+export const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+
 // Helper to convert database profile row to radar member
 const mapProfileToRadarMember = (p) => {
   const primaryCat = (p.interests && p.interests.length > 0)
@@ -298,8 +301,6 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     appStorage.setItem('squadin_waves', JSON.stringify(waves));
   }, [waves]);
-
-  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
 
   // Send a wave to another user
   const sendWave = (toUserId) => {
