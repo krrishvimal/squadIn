@@ -48,7 +48,7 @@ export function OnboardingModal({ isOpen, onClose, reason }) {
         {[
           { id: 'female', label: 'Woman 👩' },
           { id: 'male', label: 'Man 👨' },
-          { id: 'other', label: 'Non-binary ✨' }
+          { id: 'other', label: 'Other ✧' }
         ].map(g => (
           <button
             type="button"
