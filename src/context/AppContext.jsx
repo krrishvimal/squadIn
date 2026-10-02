@@ -970,14 +970,21 @@ export const AppProvider = ({ children }) => {
 
   // 2. Request to Join Plan
   const requestToJoinPlan = async (planId, userMessage = 'Hey! Would love to join your crew.') => {
-    const existingRequest = plans.find(p => p.id === planId)?.pendingRequests?.some(r => r.userId === currentUser.id);
+    const targetPlan = plans.find(p => p.id === planId);
+    if (!targetPlan) return;
+    if (normId(targetPlan.hostId) === normId(currentUser.id)) {
+      console.warn('Host cannot request to join their own plan');
+      return;
+    }
+    const cleanMessage = String(userMessage || '').trim().slice(0, 500);
+    const existingRequest = targetPlan.pendingRequests?.some(r => r.userId === currentUser.id);
     if (existingRequest) {
-      if (!userMessage.trim()) return;
+      if (!cleanMessage) return;
       setPlans(prev => prev.map(p => p.id !== planId ? p : {
-        ...p, pendingRequests: p.pendingRequests.map(r => r.userId === currentUser.id ? { ...r, message: userMessage } : r)
+        ...p, pendingRequests: p.pendingRequests.map(r => r.userId === currentUser.id ? { ...r, message: cleanMessage } : r)
       }));
       if (cloudEnabled && supabase) {
-        await supabase.from('plan_requests').update({ message: userMessage }).eq('plan_id', planId).eq('user_id', currentUser.id);
+        await supabase.from('plan_requests').update({ message: cleanMessage }).eq('plan_id', planId).eq('user_id', currentUser.id);
       }
       return;
     }
@@ -995,7 +1002,7 @@ export const AppProvider = ({ children }) => {
             userName: currentUser.name || 'Member',
             userAvatar: currentUser.avatar,
             requestedAt: 'Just now',
-            message: userMessage
+            message: cleanMessage
           }
         ]
       };
@@ -1008,7 +1015,7 @@ export const AppProvider = ({ children }) => {
           user_id: currentUser.id,
           user_name: currentUser.name || 'Member',
           user_avatar: currentUser.avatar,
-          message: userMessage,
+          message: cleanMessage,
           status: 'PENDING'
         });
       } catch (err) {
@@ -1019,9 +1026,15 @@ export const AppProvider = ({ children }) => {
 
   // 3. Host Accepts Request
   const acceptJoinRequest = async (planId, userId) => {
-    // Prevent over-filling the crew
     const plan = plans.find(p => p.id === planId);
-    if (plan && plan.acceptedMembers && plan.acceptedMembers.length >= plan.targetCapacity) {
+    if (!plan) return;
+    // Safety check: Only host can accept join requests
+    if (normId(plan.hostId) !== normId(currentUser.id)) {
+      console.warn('Unauthorized: Only the host can accept requests');
+      return;
+    }
+    // Prevent over-filling the crew
+    if (plan.acceptedMembers && plan.acceptedMembers.length >= plan.targetCapacity) {
       console.warn('Cannot accept: crew is already full');
       return;
     }
@@ -1089,6 +1102,14 @@ export const AppProvider = ({ children }) => {
 
   // 4. Host Rejects Request
   const rejectJoinRequest = async (planId, userId) => {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+    // Safety check: Only host can reject join requests
+    if (normId(plan.hostId) !== normId(currentUser.id)) {
+      console.warn('Unauthorized: Only the host can reject requests');
+      return;
+    }
+
     setPlans(prev => prev.map(p => {
       if (p.id !== planId) return p;
       return {
@@ -1112,6 +1133,14 @@ export const AppProvider = ({ children }) => {
 
   // 5. Host Early Unlock
   const hostEarlyUnlockPlan = async (planId) => {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+    // Safety check: Only host can unlock early
+    if (normId(plan.hostId) !== normId(currentUser.id)) {
+      console.warn('Unauthorized: Only the host can early unlock');
+      return;
+    }
+
     let updatedPlanTarget = null;
 
     setPlans(prev => prev.map(p => {
@@ -1158,6 +1187,14 @@ export const AppProvider = ({ children }) => {
 
   // 6. Host Expands Capacity (+1 free)
   const hostUpdateCapacity = async (planId, delta) => {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+    // Safety check: Only host can update capacity
+    if (normId(plan.hostId) !== normId(currentUser.id)) {
+      console.warn('Unauthorized: Only the host can update capacity');
+      return;
+    }
+
     let updatedTarget = null;
 
     setPlans(prev => prev.map(p => {
@@ -1189,12 +1226,28 @@ export const AppProvider = ({ children }) => {
 
   // 7. Send Chat Message
   const sendMessage = async (planId, content) => {
-    if (!content.trim()) return;
+    if (!content || !content.trim()) return;
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+
+    // Safety checks:
+    // 1. Sender must be an accepted member of this crew
+    if (!plan.acceptedMembers?.some(id => normId(id) === normId(currentUser.id))) {
+      console.warn('Blocked: Only accepted crew members can send messages');
+      return;
+    }
+    // 2. Chat must be unlocked
+    if (plan.status !== 'LOCKED_CHAT_ACTIVE') {
+      console.warn('Blocked: Chat is locked until crew reaches quorum');
+      return;
+    }
+
+    const cleanContent = content.trim().slice(0, 2000);
 
     const newMsg = {
       id: `msg_${Date.now()}`,
       senderId: currentUser.id,
-      content: content.trim(),
+      content: cleanContent,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 

@@ -81,7 +81,10 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
     if (entered === generatedOtp || entered.length === 6) {
       setIsPhoneVerified(true);
       if (updateCurrentUserProfile) {
-        updateCurrentUserProfile({ phoneVerified: true, phoneNumber: `+91 ${phoneNumber}` });
+        const masked = phoneNumber.length >= 4
+          ? `+91 ******${phoneNumber.slice(-4)}`
+          : '+91 Verified';
+        updateCurrentUserProfile({ phoneVerified: true, phoneNumber: masked });
       }
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     } else {
