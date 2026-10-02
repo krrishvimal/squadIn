@@ -29,6 +29,7 @@ const mapProfileToRadarMember = (p) => {
     role: p.role || 'Member',
     company: p.company || 'SquadIn',
     city: p.city || 'Pune',
+    bio: p.bio || '',
     gender: p.gender || 'unspecified',
     interests: p.interests || [primaryActivity],
     primaryActivity: primaryActivity,
@@ -532,6 +533,7 @@ export const AppProvider = ({ children }) => {
               role: p.role || 'Member',
               company: p.company || 'SquadIn',
               city: p.city || selectedCity,
+              bio: p.bio || '',
               interests: p.interests || [],
               phoneVerified: Boolean(p.phone_verified),
               workEmailVerified: Boolean(p.work_email_verified),
@@ -975,6 +977,7 @@ export const AppProvider = ({ children }) => {
       company: currentUser.id === userId ? currentUser.company : 'Member',
       workEmailVerified: true,
       idVerified: true,
+      bio: currentUser.id === userId ? (currentUser.bio || '') : '',
       karmaScore: 5.0
     };
   };
