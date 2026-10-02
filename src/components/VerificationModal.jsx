@@ -16,6 +16,7 @@ import {
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';
 import { LiveSelfieCapture } from './LiveSelfieCapture';
+import { Sheet, ActivityArt } from './DesignKit';
 
 export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => {
   const { currentUser, updateCurrentUserProfile } = useApp();
@@ -120,8 +121,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="bg-[#FAF6EE] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-stone-800">
+    <Sheet title="Boost your trust score" onClose={onClose} className="verification-sheet">
         
         {/* Header matching Screen 1 */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-stone-200/80 bg-white sticky top-0 z-10">
@@ -131,7 +131,9 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 font-black transition-colors cursor-pointer"
+            className="hidden"
+            aria-hidden="true"
+            tabIndex={-1}
           >
             <X size={16} className="stroke-[3]" />
           </button>
@@ -185,10 +187,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
               {/* Screen 1 Center Cartoon Illustration */}
               <div className="flex flex-col items-center justify-center pt-1 pb-2">
                 <div className="w-20 h-20 bg-amber-100/80 rounded-full flex items-center justify-center relative border border-amber-200">
-                  <span className="text-4xl filter drop-shadow-xs">📱</span>
-                  <div className="absolute bottom-1 right-1 w-6 h-6 bg-amber-400 rounded-full border-2 border-stone-900 flex items-center justify-center text-xs font-black text-stone-900 shadow-xs">
-                    ✓
-                  </div>
+                  <ActivityArt type="phone" size={86} />
                 </div>
               </div>
 
@@ -476,7 +475,6 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
           </button>
         </div>
 
-      </div>
-    </div>
+    </Sheet>
   );
 };

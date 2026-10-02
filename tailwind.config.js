@@ -20,12 +20,12 @@ export default {
           900: '#78350f',
         },
         espresso: '#1A1816',
-        cream: '#FDFBF7',
+        cream: '#fff9eb',
         surface: '#FFFFFF',
         accentEmerald: '#059669',
       },
       fontFamily: {
-        sans: ['Fredoka', 'Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Nunito', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       boxShadow: {
         'card': '0 2px 12px -2px rgba(0, 0, 0, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.04)',

@@ -1,0 +1,29 @@
+// Opt-in fixtures stay entirely local: no reads or writes to the production database.
+export const IS_DESIGN_PREVIEW = new URLSearchParams(window.location.search).get('preview') === 'design';
+export const appStorage = {
+  getItem: key => {
+    const value = localStorage.getItem(IS_DESIGN_PREVIEW ? `design_${key}` : key);
+    if (IS_DESIGN_PREVIEW && key === 'squadin_onboarded' && value === null) return 'true';
+    return value;
+  },
+  setItem: (key, value) => localStorage.setItem(IS_DESIGN_PREVIEW ? `design_${key}` : key, value),
+  removeItem: key => localStorage.removeItem(IS_DESIGN_PREVIEW ? `design_${key}` : key),
+};
+
+export const PREVIEW_USER = { id: 'preview_krrish', name: 'Krrish', avatar: '/illustrations/member-1.svg', city: 'Bengaluru', phoneVerified: true, idVerified: true, linkedin_verified: false, karmaScore: 4.8, meetupsAttended: 3, bio: 'Always up for a good coffee, a little adventure, and meeting my kind of people.', interests: ['☕ Specialty Coffee', '🥾 Weekend Treks', '🎵 Concerts & Gigs', '🎭 Standup Comedy'] };
+export const PREVIEW_MEMBERS = [
+  { id: 'preview_priya', name: 'Priya', gender: 'female', primaryCat: 'cafe', interests: ['☕ Specialty Coffee', '🏺 Pottery & Art'], phoneVerified: true, idVerified: true, linkedin_verified: true, karmaScore: 4.8, distanceKm: 1.2, neighborhood: 'Indiranagar', bio: 'Collecting little coffee spots and big weekend memories.' },
+  { id: 'preview_arjun', name: 'Arjun', gender: 'male', primaryCat: 'hike', interests: ['🥾 Weekend Treks', '☕ Specialty Coffee'], phoneVerified: true, idVerified: true, karmaScore: 4.9, distanceKm: 2.3, neighborhood: 'Koramangala', bio: 'Weekend explorer looking for cafe buddies and trekking partners.' },
+  { id: 'preview_meera', name: 'Meera', gender: 'female', primaryCat: 'arts', interests: ['🏺 Pottery & Art', '🎵 Concerts & Gigs'], phoneVerified: true, idVerified: true, karmaScore: 4.7, distanceKm: 3.1, neighborhood: 'HSR Layout', bio: 'A little art, a little music, and a lot of good company.' },
+  { id: 'preview_rohan', name: 'Rohan', gender: 'male', primaryCat: 'sports', interests: ['🏸 Badminton', '🏃 Running 5K'], phoneVerified: true, karmaScore: 4.8, distanceKm: 4.2, neighborhood: 'Jayanagar', bio: 'Morning badminton. Evening filter coffee. Who is in?' },
+  { id: 'preview_isha', name: 'Isha', gender: 'female', primaryCat: 'concert', interests: ['🎵 Concerts & Gigs', '🎭 Standup Comedy'], phoneVerified: true, idVerified: true, karmaScore: 4.9, distanceKm: 1.7, neighborhood: 'Ulsoor', bio: 'Here for live music and people who laugh at the same things.' },
+  { id: 'preview_kabir', name: 'Kabir', gender: 'male', primaryCat: 'comedy', interests: ['🎭 Standup Comedy', '☕ Specialty Coffee'], phoneVerified: true, karmaScore: 4.6, distanceKm: 5.5, neighborhood: 'Whitefield', bio: 'New in the city. Finding my crew one weekend at a time.' },
+].map((member, index) => ({ ...member, avatar: `/illustrations/member-${index + 2}.svg`, city: 'Bengaluru', primaryActivity: member.interests[0] }));
+const crew = ['preview_priya', 'preview_arjun', 'preview_meera', 'preview_rohan'];
+const base = { city: 'Bengaluru', targetCapacity: 6, status: 'OPEN', womenOnly: false, isVerifiedVenue: false, venueType: 'Public cafe', venueLat: 12.9784, venueLng: 77.6408, acceptedMembers: crew, pendingRequests: [], messages: [] };
+export const PREVIEW_PLANS = [
+  { ...base, id: 'preview_cafe', title: 'Sunday Cafe Crawl in Indiranagar', category: 'cafe', categoryLabel: 'Cafe & Dinner', hostId: 'preview_priya', venueName: 'Third Wave Coffee, 12th Main', neighborhood: 'Indiranagar', dateText: 'Sun, Oct 4 · 5:00 PM', description: 'Three lovely cafes, one easy afternoon. We’ll start at Third Wave, swap favourite coffee orders, and wander to our next little spot. Come as you are — your first coffee is a great conversation starter.' },
+  { ...base, id: 'preview_hike', title: 'A little escape to Nandi Hills', category: 'hike', categoryLabel: 'Treks & Walks', hostId: 'preview_arjun', venueName: 'Nandi Hills public entrance', neighborhood: 'Nandi Hills', dateText: 'Sat, Oct 3 · 6:00 AM', description: 'Sunrise, fresh air, and a slow walk with a small crew. Meet at the public entrance. Bring water, comfy shoes, and your best road-trip playlist.', acceptedMembers: ['preview_arjun', 'preview_krrish', 'preview_isha', 'preview_rohan'], status: 'LOCKED_CHAT_ACTIVE', messages: [{ id: 'preview_msg_1', senderId: 'preview_arjun', content: 'Hey crew! Excited for Saturday ☀️ Shall we meet by the entrance at 6?', timestamp: '4:30 PM' }, { id: 'preview_msg_2', senderId: 'preview_krrish', content: 'Sounds good! I’ll bring an extra flask of coffee ☕', timestamp: '4:32 PM' }] },
+  { ...base, id: 'preview_music', title: 'Live music & a little dancing', category: 'concert', categoryLabel: 'Concerts & Gigs', hostId: 'preview_isha', venueName: 'Fandom at Gilly’s Redefined', neighborhood: 'Koramangala', dateText: 'Sat, Oct 3 · 8:00 PM', acceptedMembers: ['preview_isha', 'preview_meera', 'preview_priya'], womenOnly: true, description: 'A girls’ evening of live music and good energy. We’ll meet outside the venue and head in together. Event tickets are purchased separately.' },
+  { ...base, id: 'preview_host', title: 'Saturday coffee & conversations', category: 'cafe', categoryLabel: 'Cafe & Dinner', hostId: 'preview_krrish', venueName: 'Blue Tokai Coffee Roasters', neighborhood: 'Koramangala', dateText: 'Sat, Oct 3 · 10:00 AM', acceptedMembers: ['preview_krrish', 'preview_priya', 'preview_isha', 'preview_rohan'], pendingRequests: [{ userId: 'preview_arjun', userName: 'Arjun', message: 'Love cafes! Count me in 🙌' }, { userId: 'preview_meera', userName: 'Meera', message: 'New to this neighbourhood. Would love to meet the crew!' }], description: 'An unhurried morning over coffee. A small table, some new faces, and absolutely no awkward icebreakers.' },
+];

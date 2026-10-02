@@ -1,178 +1,23 @@
 import React from 'react';
+import { MapPin, CalendarDays, BadgeCheck, MessageCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { Calendar, MapPin, ShieldCheck, Briefcase, Star, Users, Lock, MessageSquare, CheckCircle2, Navigation } from 'lucide-react';
-
-export const PlanCard = ({ plan }) => {
-  const {
-    getUserById,
-    getPlanDistance,
-    currentUser,
-    setSelectedPlanForDetail,
-    setActiveChatPlanId,
-    setActiveTab
-  } = useApp();
-
-  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
+import { ActivityArt, Avatar, AvatarStack, SpotMeter, categoryFor, sameId, trustScore } from './DesignKit';
+export function PlanCard({ plan, crew = false, index = 0 }) {
+  const { getUserById, getPlanDistance, currentUser, setSelectedPlanForDetail, setActiveChatPlanId, setActiveTab, requestToJoinPlan, requireVerification } = useApp();
+  const cat = categoryFor(plan.category);
   const host = getUserById(plan.hostId);
-  const isHost = normId(plan.hostId) === normId(currentUser?.id);
-  const isMember = plan.acceptedMembers?.some(mId => normId(mId) === normId(currentUser?.id));
-  const isPending = plan.pendingRequests?.some(r => normId(r.userId) === normId(currentUser?.id));
-  const isUnlocked = plan.status === 'LOCKED_CHAT_ACTIVE';
-  const spotsLeft = Math.max(0, plan.targetCapacity - (plan.acceptedMembers?.length || 0));
-  const distanceStr = getPlanDistance(plan);
-
-  const handleCardClick = () => {
-    setSelectedPlanForDetail(plan);
-  };
-
-  const handleChatClick = (e) => {
+  const isHost = sameId(plan.hostId, currentUser.id);
+  const isMember = plan.acceptedMembers?.some(id => sameId(id, currentUser.id));
+  const isPending = plan.pendingRequests?.some(r => sameId(r.userId, currentUser.id));
+  const filled = plan.acceptedMembers?.length || 0;
+  const full = filled >= plan.targetCapacity;
+  const openDetail = () => setSelectedPlanForDetail(plan);
+  const openChat = () => { setActiveChatPlanId(plan.id); setActiveTab('chats'); };
+  const join = e => {
     e.stopPropagation();
-    setActiveChatPlanId(plan.id);
-    setActiveTab('chats');
+    if (isHost || isMember || isPending) return openDetail();
+    requireVerification(() => { requestToJoinPlan(plan.id, ''); openDetail(); }, 'join_plan');
   };
-
-  const getCategoryCardStyle = (cat) => {
-    const map = {
-      'Cafe & Dinner': { bg: 'bg-[#EDE9FE]', leftBg: 'bg-[#DDD6FE]/80', border: 'border-[#C4B5FD]', text: 'text-[#5B21B6]', tag: 'bg-[#DDD6FE] text-[#5B21B6]', bar: 'bg-[#8B5CF6]', emoji: '☕', short: 'Cafe' },
-      'cafe': { bg: 'bg-[#EDE9FE]', leftBg: 'bg-[#DDD6FE]/80', border: 'border-[#C4B5FD]', text: 'text-[#5B21B6]', tag: 'bg-[#DDD6FE] text-[#5B21B6]', bar: 'bg-[#8B5CF6]', emoji: '☕', short: 'Cafe' },
-      'Sports & Run': { bg: 'bg-[#D1FAE5]', leftBg: 'bg-[#A7F3D0]/80', border: 'border-[#6EE7B7]', text: 'text-[#065F46]', tag: 'bg-[#A7F3D0] text-[#065F46]', bar: 'bg-[#10B981]', emoji: '⚽', short: 'Sports' },
-      'sports': { bg: 'bg-[#D1FAE5]', leftBg: 'bg-[#A7F3D0]/80', border: 'border-[#6EE7B7]', text: 'text-[#065F46]', tag: 'bg-[#A7F3D0] text-[#065F46]', bar: 'bg-[#10B981]', emoji: '⚽', short: 'Sports' },
-      'Concerts & Gigs': { bg: 'bg-[#FFEDD5]', leftBg: 'bg-[#FED7AA]/80', border: 'border-[#FDBA74]', text: 'text-[#9A3412]', tag: 'bg-[#FED7AA] text-[#9A3412]', bar: 'bg-[#F97316]', emoji: '🎸', short: 'Concert' },
-      'concert': { bg: 'bg-[#FFEDD5]', leftBg: 'bg-[#FED7AA]/80', border: 'border-[#FDBA74]', text: 'text-[#9A3412]', tag: 'bg-[#FED7AA] text-[#9A3412]', bar: 'bg-[#F97316]', emoji: '🎸', short: 'Concert' },
-      'Standup & Comedy': { bg: 'bg-[#FEF9C3]', leftBg: 'bg-[#FDE047]/70', border: 'border-[#FACC15]', text: 'text-[#854D0E]', tag: 'bg-[#FDE047] text-[#854D0E]', bar: 'bg-[#EAB308]', emoji: '😂', short: 'Comedy' },
-      'comedy': { bg: 'bg-[#FEF9C3]', leftBg: 'bg-[#FDE047]/70', border: 'border-[#FACC15]', text: 'text-[#854D0E]', tag: 'bg-[#FDE047] text-[#854D0E]', bar: 'bg-[#EAB308]', emoji: '😂', short: 'Comedy' },
-      'Workshops': { bg: 'bg-[#FCE7F3]', leftBg: 'bg-[#FBCFE8]/80', border: 'border-[#F472B6]', text: 'text-[#9D174D]', tag: 'bg-[#FBCFE8] text-[#9D174D]', bar: 'bg-[#EC4899]', emoji: '🎨', short: 'Workshop' },
-      'arts': { bg: 'bg-[#FCE7F3]', leftBg: 'bg-[#FBCFE8]/80', border: 'border-[#F472B6]', text: 'text-[#9D174D]', tag: 'bg-[#FBCFE8] text-[#9D174D]', bar: 'bg-[#EC4899]', emoji: '🎨', short: 'Workshop' },
-      'Treks & Walks': { bg: 'bg-[#ECFCCB]', leftBg: 'bg-[#D9F99D]/80', border: 'border-[#BEF264]', text: 'text-[#3F6212]', tag: 'bg-[#D9F99D] text-[#3F6212]', bar: 'bg-[#84CC16]', emoji: '🥾', short: 'Trek' },
-      'hike': { bg: 'bg-[#ECFCCB]', leftBg: 'bg-[#D9F99D]/80', border: 'border-[#BEF264]', text: 'text-[#3F6212]', tag: 'bg-[#D9F99D] text-[#3F6212]', bar: 'bg-[#84CC16]', emoji: '🥾', short: 'Trek' },
-      'other': { bg: 'bg-[#FFE4E6]', leftBg: 'bg-[#FECDD3]/80', border: 'border-[#FDA4AF]', text: 'text-[#9F1239]', tag: 'bg-[#FECDD3] text-[#9F1239]', bar: 'bg-[#F43F5E]', emoji: '✨', short: 'Squad' }
-    };
-    return map[cat] || { bg: 'bg-[#FFFBEB]', leftBg: 'bg-[#FDE68A]/80', border: 'border-[#FCD34D]', text: 'text-[#92400E]', tag: 'bg-[#FDE68A] text-[#92400E]', bar: 'bg-[#F59E0B]', emoji: '✨', short: 'Meetup' };
-  };
-
-  const catVal = plan.categoryLabel || plan.category;
-  const style = getCategoryCardStyle(catVal);
-  const acceptedCount = (plan.acceptedMembers?.length || 0);
-  const totalCapacity = plan.targetCapacity || 6;
-  const fillPercent = Math.min(100, Math.max(12, (acceptedCount / totalCapacity) * 100));
-
-  return (
-    <div
-      onClick={handleCardClick}
-      className={`${style.bg} border-2 border-stone-800 rounded-3xl shadow-[3px_4px_0px_#1c1917] hover:shadow-[4px_6px_0px_#1c1917] hover:-translate-y-0.5 transition-all cursor-pointer overflow-hidden flex flex-row relative group`}
-    >
-      {/* Left Section: Illustrated Category Badge (Mockup Match) */}
-      <div className={`w-22 sm:w-26 ${style.leftBg} border-r-2 border-stone-800 flex flex-col items-center justify-center p-3 flex-shrink-0 text-center relative`}>
-        <span className="text-3xl sm:text-4xl filter drop-shadow-sm mb-1">{style.emoji}</span>
-        <span className="text-[11px] sm:text-xs font-black text-stone-900 tracking-tight">{style.short}</span>
-        
-        {/* Ticket notch hole */}
-        <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#FAF6EE] border-l-2 border-stone-800" />
-      </div>
-
-      {/* Right Section: Card Details */}
-      <div className="flex-1 p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
-        
-        {/* Tags Row */}
-        <div>
-          <div className="flex items-center gap-1.5 flex-wrap mb-1">
-            <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-black border border-stone-800 ${style.tag}`}>
-              {catVal}
-            </span>
-            {plan.womenOnly && (
-              <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-rose-200 border border-stone-800 text-rose-900">
-                🚺 Women-Only
-              </span>
-            )}
-            {distanceStr && (
-              <span className="text-[9.5px] font-black text-stone-600 ml-auto flex items-center gap-0.5">
-                📍 {distanceStr}
-              </span>
-            )}
-          </div>
-
-          {/* Title */}
-          <h3 className="text-base sm:text-lg font-black text-stone-900 leading-tight mb-2 truncate group-hover:text-amber-800 transition-colors">
-            {plan.title}
-          </h3>
-        </div>
-
-        {/* Progress Bar & Spots Left (Mockup Match) */}
-        <div className="space-y-1 my-1">
-          <div className="w-full h-2.5 bg-white/90 rounded-full border border-stone-800 overflow-hidden p-0.5">
-            <div
-              className={`h-full rounded-full ${style.bar} transition-all duration-500`}
-              style={{ width: `${fillPercent}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-[10px] font-black text-stone-700">
-            <span className="truncate max-w-[130px]">📅 {plan.dateText}</span>
-            <span className="text-stone-900 bg-white/70 px-1.5 py-0.2 rounded-md border border-stone-700">
-              {acceptedCount}/{totalCapacity} spots filled
-            </span>
-          </div>
-        </div>
-
-        {/* Bottom Row: Host Avatar + Action Button */}
-        <div className="flex items-center justify-between pt-2 border-t border-stone-800/15">
-          {/* Host Info */}
-          <div className="flex items-center gap-1.5 min-w-0">
-            <div className="relative flex-shrink-0">
-              <div className="w-7 h-7 rounded-full border-2 border-stone-800 overflow-hidden shadow-xs">
-                <img src={host.avatar} alt={host.name} className="w-full h-full object-cover" />
-              </div>
-              {host.idVerified && (
-                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-blue-500 rounded-full border border-stone-800 flex items-center justify-center text-[7.5px] text-white font-black">
-                  ✓
-                </span>
-              )}
-            </div>
-            <span className="text-xs font-black text-stone-800 truncate max-w-[85px]">
-              {host.name.split(' ')[0]}
-            </span>
-          </div>
-
-          {/* Action Button (Preserving all logic) */}
-          <div className="flex-shrink-0">
-            {isMember ? (
-              <button
-                onClick={handleChatClick}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black border-2 border-stone-800 shadow-[2px_2px_0px_#1c1917] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all ${
-                  isUnlocked
-                    ? 'bg-emerald-400 text-stone-900'
-                    : 'bg-emerald-200 text-stone-900'
-                }`}
-              >
-                {isUnlocked ? (
-                  <>
-                    <MessageSquare size={12} className="stroke-[3]" />
-                    <span>Chat</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock size={11} className="stroke-[3]" />
-                    <span>In Crew</span>
-                  </>
-                )}
-              </button>
-            ) : isPending ? (
-              <span className="px-2.5 py-1 rounded-xl bg-orange-200 text-stone-900 border-2 border-stone-800 text-[11px] font-black shadow-[1.5px_1.5px_0px_#1c1917]">
-                Pending
-              </span>
-            ) : (
-              <button
-                onClick={handleCardClick}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-stone-900 font-black text-xs border-2 border-stone-800 shadow-[2px_2px_0px_#1c1917] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1"
-              >
-                <span>Join Crew</span>
-                <span>🎟️</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-};
-
+  if (crew) return <article className="crew-ticket" style={{ '--ticket-color': isHost ? '#f6cd7d' : cat.color }}><button className="crew-ticket-heading" onClick={openDetail}><h3><ActivityArt type={cat.id} size={30} />{plan.title}</h3><p>{plan.neighborhood} · {plan.dateText}</p></button><div className="crew-ticket-members"><AvatarStack ids={plan.acceptedMembers} size={29} /><span className="pill pill-mint">{filled}/{plan.targetCapacity} confirmed ✓</span></div><div className="crew-ticket-actions">{isHost && <button className="button button-cream" onClick={openDetail}>📩 {plan.pendingRequests?.length || 0} Join Requests</button>}<button className="button button-cream" onClick={openChat}><MessageCircle size={15} />{plan.status === 'LOCKED_CHAT_ACTIVE' ? 'Crew Chat' : 'Waiting room'}</button></div><span className="ticket-perforation" /></article>;
+  return <article className={`plan-ticket ticket-tilt-${index % 3}`} style={{ '--ticket-color': cat.color }}><button className="plan-ticket-main" onClick={openDetail} aria-label={`View ${plan.title}`}><div className="ticket-art"><ActivityArt type={cat.id} size={80} /><span>{cat.label}</span></div><div className="ticket-content"><div className="ticket-tags"><span className="pill" style={{ background: cat.color }}>{cat.label}</span>{plan.womenOnly && <span className="pill pill-pink">Women only</span>}<span className="ticket-star">✧</span></div><h3>{plan.title}</h3><p className="ticket-meta"><MapPin size={12} />{plan.neighborhood || plan.city}<span>· {getPlanDistance(plan)}</span></p><p className="ticket-meta"><CalendarDays size={12} />{plan.dateText}</p></div></button><div className="ticket-bottom"><div className="ticket-host"><span className="host-avatar"><Avatar user={host} size={34} />{trustScore(host) > 0 && <BadgeCheck className="host-check" size={15} fill="#ffcf75" />}</span><div><span className="host-label">{isHost ? 'Hosted by you' : `With ${host.name?.split(' ')[0] || 'your host'}`}</span><SpotMeter filled={filled} total={plan.targetCapacity} /></div></div><div className="ticket-join"><span>{filled}/{plan.targetCapacity} spots</span><button className="button button-yellow" onClick={join} disabled={full && !isMember && !isHost && !isPending}>{isHost ? 'Manage Crew' : isMember ? 'Your Crew' : isPending ? 'Requested ✓' : full ? 'Crew Full' : 'Join Crew'}<span aria-hidden="true">🎟️</span></button></div></div></article>;
+}

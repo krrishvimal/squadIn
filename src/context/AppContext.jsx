@@ -4,6 +4,9 @@ import { CURRENT_USER, OTHER_USERS, INITIAL_PLANS } from '../userData';
 import { calculateDistanceKm, INDIAN_CITIES, detectClosestCity, PASSION_TO_CATEGORY_MAP } from '../venueData';
 import { NEARBY_RADAR_MEMBERS } from '../radarData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { IS_DESIGN_PREVIEW, PREVIEW_USER, PREVIEW_MEMBERS, PREVIEW_PLANS, appStorage } from '../designPreview';
+
+const cloudEnabled = isSupabaseConfigured && !IS_DESIGN_PREVIEW;
 
 const AppContext = createContext();
 
@@ -40,13 +43,13 @@ const mapProfileToRadarMember = (p) => {
 
 // Force wipe any old browser localStorage cache immediately on script execution
 try {
-  const version = localStorage.getItem('squadin_data_version');
+  const version = appStorage.getItem('squadin_data_version');
   if (version !== 'clean_v3') {
-    localStorage.removeItem('squadin_plans');
-    localStorage.removeItem('squadin_current_user');
-    localStorage.removeItem('squadin_onboarded');
-    localStorage.removeItem('squadin_blocked_users');
-    localStorage.setItem('squadin_data_version', 'clean_v3');
+    appStorage.removeItem('squadin_plans');
+    appStorage.removeItem('squadin_current_user');
+    appStorage.removeItem('squadin_onboarded');
+    appStorage.removeItem('squadin_blocked_users');
+    appStorage.setItem('squadin_data_version', 'clean_v3');
   }
 } catch (e) {
   // ignore
@@ -109,10 +112,10 @@ const DEFAULT_AVATARS = [
 
 const getOrCreateUserId = () => {
   try {
-    let id = localStorage.getItem('squadin_user_id');
+    let id = appStorage.getItem('squadin_user_id');
     if (!id || id === 'usr_guest') {
       id = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36).slice(-4);
-      localStorage.setItem('squadin_user_id', id);
+      appStorage.setItem('squadin_user_id', id);
     }
     return id;
   } catch {
@@ -122,8 +125,12 @@ const getOrCreateUserId = () => {
 
 export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
+    if (IS_DESIGN_PREVIEW) {
+      try { return JSON.parse(appStorage.getItem('squadin_current_user')) || PREVIEW_USER; }
+      catch { return PREVIEW_USER; }
+    }
     try {
-      const saved = localStorage.getItem('squadin_current_user');
+      const saved = appStorage.getItem('squadin_current_user');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.id && parsed.id !== 'usr_guest') {
@@ -134,7 +141,7 @@ export const AppProvider = ({ children }) => {
     const newId = getOrCreateUserId();
     const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const chosenAvatar = DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length];
-    const initialCity = localStorage.getItem('squadin_selected_city') || INDIAN_CITIES[0].name;
+    const initialCity = appStorage.getItem('squadin_selected_city') || INDIAN_CITIES[0].name;
     const newUser = {
       ...CURRENT_USER,
       id: newId,
@@ -144,20 +151,20 @@ export const AppProvider = ({ children }) => {
       interests: ['☕ Specialty Coffee', '🍕 Food Walks']
     };
     try {
-      localStorage.setItem('squadin_current_user', JSON.stringify(newUser));
+      appStorage.setItem('squadin_current_user', JSON.stringify(newUser));
     } catch {}
     return newUser;
   });
 
   const [allUsers, setAllUsers] = useState(() => {
-    return [currentUser, ...OTHER_USERS];
+    return [currentUser, ...(IS_DESIGN_PREVIEW ? PREVIEW_MEMBERS : OTHER_USERS)];
   });
 
   // Strict: 100% clean plans array
   const [plans, setPlans] = useState(() => {
     try {
-      const saved = localStorage.getItem('squadin_plans');
-      return saved ? JSON.parse(saved) : [];
+      const saved = appStorage.getItem('squadin_plans');
+      return saved ? JSON.parse(saved) : (IS_DESIGN_PREVIEW ? PREVIEW_PLANS : []);
     } catch {
       return [];
     }
@@ -171,7 +178,7 @@ export const AppProvider = ({ children }) => {
   const [karmaReviewPlan, setKarmaReviewPlan] = useState(null);
   const [selectedCity, setSelectedCityState] = useState(() => {
     try {
-      return localStorage.getItem('squadin_selected_city') || 'Pune';
+      return appStorage.getItem('squadin_selected_city') || (IS_DESIGN_PREVIEW ? 'Bengaluru' : 'Pune');
     } catch {
       return 'Pune';
     }
@@ -180,7 +187,7 @@ export const AppProvider = ({ children }) => {
   // User's Live GPS Coordinates (initialized to selected city center)
   const [userCoords, setUserCoords] = useState(() => {
     try {
-      const savedCity = localStorage.getItem('squadin_selected_city') || 'Pune';
+      const savedCity = appStorage.getItem('squadin_selected_city') || (IS_DESIGN_PREVIEW ? 'Bengaluru' : 'Pune');
       const cityObj = INDIAN_CITIES.find(c => c.name.toLowerCase() === savedCity.toLowerCase());
       if (cityObj) {
         return { lat: cityObj.lat, lng: cityObj.lng, isRealGPS: false };
@@ -193,7 +200,7 @@ export const AppProvider = ({ children }) => {
   const setSelectedCity = (city) => {
     setSelectedCityState(city);
     try {
-      localStorage.setItem('squadin_selected_city', city);
+      appStorage.setItem('squadin_selected_city', city);
     } catch (e) {}
 
     // Update userCoords to match selected city center when GPS is not currently active
@@ -212,9 +219,9 @@ export const AppProvider = ({ children }) => {
       const updatedUser = { ...currentUser, city };
       setCurrentUser(updatedUser);
       try {
-        localStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
+        appStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
       } catch (e) {}
-      if (isSupabaseConfigured && supabase) {
+      if (cloudEnabled && supabase) {
         try {
           supabase.from('profiles').upsert({
             id: currentUser.id,
@@ -231,7 +238,7 @@ export const AppProvider = ({ children }) => {
   const [womenOnlyFilter, setWomenOnlyFilter] = useState(false);
   const [sortByDistance, setSortByDistance] = useState(false);
   const [showPwaInstall, setShowPwaInstall] = useState(false);
-  const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
+  const [isCloudConnected, setIsCloudConnected] = useState(cloudEnabled);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [reportingUser, setReportingUser] = useState(null); // { user, planId }
   const [toastMessage, setToastMessage] = useState(null);
@@ -244,7 +251,7 @@ export const AppProvider = ({ children }) => {
   };
   const [showOnboardingModal, setShowOnboardingModal] = useState(() => {
     // Auto-show on first visit, but not if already onboarded or previously skipped
-    return localStorage.getItem('squadin_onboarded') !== 'true' && localStorage.getItem('squadin_skip_initial') !== 'true';
+    return appStorage.getItem('squadin_onboarded') !== 'true' && appStorage.getItem('squadin_skip_initial') !== 'true';
   });
   const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
   const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
@@ -255,7 +262,7 @@ export const AppProvider = ({ children }) => {
     currentUser?.name &&
     currentUser?.name.trim() !== '' &&
     currentUser?.name !== 'Verified Member' &&
-    localStorage.getItem('squadin_onboarded') === 'true'
+    appStorage.getItem('squadin_onboarded') === 'true'
   );
 
   // High-intent action gatekeeper: allows action if verified, otherwise prompts 30-sec verification modal
@@ -271,7 +278,7 @@ export const AppProvider = ({ children }) => {
   };
   const [blockedUserIds, setBlockedUserIds] = useState(() => {
     try {
-      const saved = localStorage.getItem('squadin_blocked_users');
+      const saved = appStorage.getItem('squadin_blocked_users');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -279,19 +286,19 @@ export const AppProvider = ({ children }) => {
   });
 
   // Radar State
-  const [radarMembers, setRadarMembers] = useState(NEARBY_RADAR_MEMBERS);
+  const [radarMembers, setRadarMembers] = useState(IS_DESIGN_PREVIEW ? PREVIEW_MEMBERS : NEARBY_RADAR_MEMBERS);
   const [isRadarBroadcastOn, setIsRadarBroadcastOn] = useState(true);
   const [invitedUserIds, setInvitedUserIds] = useState([]);
   const [selectedRadarUser, setSelectedRadarUser] = useState(null);
 
   // Wave feature state - for lightweight "interested" signals on Radar
   const [waves, setWaves] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('squadin_waves') || '[]'); } catch { return []; }
+    try { return JSON.parse(appStorage.getItem('squadin_waves') || (IS_DESIGN_PREVIEW ? '[{"fromUserId":"preview_arjun","toUserId":"preview_krrish"}]' : '[]')); } catch { return []; }
   });
 
   // Persist waves to localStorage
   useEffect(() => {
-    localStorage.setItem('squadin_waves', JSON.stringify(waves));
+    appStorage.setItem('squadin_waves', JSON.stringify(waves));
   }, [waves]);
 
   const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
@@ -311,7 +318,7 @@ export const AppProvider = ({ children }) => {
     });
     
     // Also try to sync wave to Supabase for cross-device visibility
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         supabase.from('messages').insert({
           plan_id: 'waves',
@@ -460,23 +467,23 @@ export const AppProvider = ({ children }) => {
 
   // Save to LocalStorage
   useEffect(() => {
-    localStorage.setItem('squadin_plans', JSON.stringify(plans));
+    appStorage.setItem('squadin_plans', JSON.stringify(plans));
   }, [plans]);
 
   useEffect(() => {
-    localStorage.setItem('squadin_current_user', JSON.stringify(currentUser));
+    appStorage.setItem('squadin_current_user', JSON.stringify(currentUser));
   }, [currentUser]);
 
   // SUPABASE REALTIME & DATABASE SYNC ENGINE
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
+    if (!cloudEnabled || !supabase) return;
 
     // 1. Fetch initial profiles, plans, messages, and join requests from Supabase
     const initCloudData = async () => {
       try {
         // Only sync profile to cloud if user has completed onboarding (has a real name)
         // This prevents ghost "Verified Member" entries from polluting the database
-        if (currentUser?.id && currentUser?.name && currentUser.name !== 'Verified Member' && localStorage.getItem('squadin_onboarded') === 'true') {
+        if (currentUser?.id && currentUser?.name && currentUser.name !== 'Verified Member' && appStorage.getItem('squadin_onboarded') === 'true') {
           // Try full payload first, then progressively smaller if schema doesn't match
           const fullPayload = {
             id: currentUser.id,
@@ -864,7 +871,7 @@ export const AppProvider = ({ children }) => {
     const updated = { ...currentUser, ...updates };
     setCurrentUser(updated);
     setAllUsers(users => users.map(u => u.id === currentUser.id ? updated : u));
-    localStorage.setItem('squadin_current_user', JSON.stringify(updated));
+    appStorage.setItem('squadin_current_user', JSON.stringify(updated));
 
     // If there was a pending high-intent action waiting for verification, execute it now
     if (pendingActionAfterAuth && typeof pendingActionAfterAuth === 'function') {
@@ -874,7 +881,7 @@ export const AppProvider = ({ children }) => {
       }, 300);
     }
 
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         const { error } = await supabase.from('profiles').upsert({
           id: updated.id,
@@ -952,7 +959,7 @@ export const AppProvider = ({ children }) => {
     });
 
     // Cloud Database Persistence
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         await supabase.from('plans').upsert(mapPlanToRow(newPlan), { onConflict: 'id' });
       } catch (err) {
@@ -963,6 +970,17 @@ export const AppProvider = ({ children }) => {
 
   // 2. Request to Join Plan
   const requestToJoinPlan = async (planId, userMessage = 'Hey! Would love to join your crew.') => {
+    const existingRequest = plans.find(p => p.id === planId)?.pendingRequests?.some(r => r.userId === currentUser.id);
+    if (existingRequest) {
+      if (!userMessage.trim()) return;
+      setPlans(prev => prev.map(p => p.id !== planId ? p : {
+        ...p, pendingRequests: p.pendingRequests.map(r => r.userId === currentUser.id ? { ...r, message: userMessage } : r)
+      }));
+      if (cloudEnabled && supabase) {
+        await supabase.from('plan_requests').update({ message: userMessage }).eq('plan_id', planId).eq('user_id', currentUser.id);
+      }
+      return;
+    }
     setPlans(prev => prev.map(p => {
       if (p.id !== planId) return p;
       if (p.acceptedMembers.includes(currentUser.id)) return p;
@@ -983,7 +1001,7 @@ export const AppProvider = ({ children }) => {
       };
     }));
 
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         await supabase.from('plan_requests').insert({
           plan_id: planId,
@@ -1048,7 +1066,7 @@ export const AppProvider = ({ children }) => {
       return updated;
     }));
 
-    if (isSupabaseConfigured && supabase && updatedPlanTarget) {
+    if (cloudEnabled && supabase && updatedPlanTarget) {
       try {
         await supabase
           .from('plans')
@@ -1079,7 +1097,7 @@ export const AppProvider = ({ children }) => {
       };
     }));
 
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         await supabase
           .from('plan_requests')
@@ -1123,7 +1141,7 @@ export const AppProvider = ({ children }) => {
       return updated;
     }));
 
-    if (isSupabaseConfigured && supabase && updatedPlanTarget) {
+    if (cloudEnabled && supabase && updatedPlanTarget) {
       try {
         await supabase
           .from('plans')
@@ -1154,7 +1172,7 @@ export const AppProvider = ({ children }) => {
       return updated;
     }));
 
-    if (isSupabaseConfigured && supabase && updatedTarget) {
+    if (cloudEnabled && supabase && updatedTarget) {
       try {
         await supabase
           .from('plans')
@@ -1188,7 +1206,7 @@ export const AppProvider = ({ children }) => {
       };
     }));
 
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         await supabase.from('messages').insert({
           id: newMsg.id,
@@ -1308,7 +1326,7 @@ export const AppProvider = ({ children }) => {
       if (prev.includes(userId)) return prev;
       const updated = [...prev, userId];
       try {
-        localStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
+        appStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
@@ -1318,14 +1336,14 @@ export const AppProvider = ({ children }) => {
     setBlockedUserIds(prev => {
       const updated = prev.filter(id => id !== userId);
       try {
-        localStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
+        appStorage.setItem('squadin_blocked_users', JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
   };
 
   const reportUser = async (reportData) => {
-    if (isSupabaseConfigured && supabase) {
+    if (cloudEnabled && supabase) {
       try {
         await supabase.from('reports').insert({
           target_user_id: reportData.targetUserId,
