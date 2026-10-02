@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarDays, MapPin, Star, Clock3, MessageCircle, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
+import { CalendarDays, MapPin, Star, MessageCircle, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ActivityArt, Avatar, AvatarStack, Sheet, categoryFor, sameId, normId, trustScore } from './DesignKit';
 export function PlanDetailModal() {

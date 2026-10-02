@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Send, Smile, ShieldAlert, Star, Flag, Info, Lock, MessageCircle, MapPin, Copy } from 'lucide-react';
+import { ChevronLeft, Send, Smile, ShieldAlert, Star, Flag, Info, Lock, Copy } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Avatar, AvatarStack, ActivityArt, EmptyState, Sheet, SpotMeter, sameId, categoryFor } from './DesignKit';
 export function ChatView() {

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Navigation, MapPin, ShieldCheck, Radio, ChevronDown, Plus } from 'lucide-react';
+import { Navigation, MapPin, ShieldCheck, ChevronDown } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { calculateDistanceKm, PASSION_TO_CATEGORY_MAP } from '../venueData';
 import { ActivityArt, Avatar, CityPicker, Sheet, EmptyState, CATEGORIES, categoryFor, trustScore, sameId } from './DesignKit';
-export { PASSION_TO_CATEGORY_MAP } from '../venueData';
 export function SquadRadarView() {
   const { radarMembers, selectedCity, isRadarBroadcastOn, setIsRadarBroadcastOn, sendCrewInvite, plans, currentUser, userCoords, isLocating, requestLiveLocation, setShowCreateModal, requireVerification, sendWave, hasWavedAt, hasReceivedWaveFrom, isMutualWave, blockedUserIds, getUserById, setActiveTab } = useApp();
   const [radius, setRadius] = useState(15);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Plus, Minus, ShieldCheck, CalendarDays, MapPin } from 'lucide-react';
+import { Plus, Minus, ShieldCheck, CalendarDays, MapPin } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ActivityArt, Sheet, CATEGORIES } from './DesignKit';
 
@@ -12,7 +12,7 @@ const nextSaturday = () => {
 };
 const TIMES = [{ label: '🌅 Morning', value: '10:00 AM' }, { label: '☀ Afternoon', value: '2:00 PM' }, { label: '🌇 Evening', value: '5:00 PM' }, { label: '☾ Night', value: '8:00 PM' }];
 export function CreatePlanModal() {
-  const { showCreateModal, setShowCreateModal, createPlan, selectedCity, currentUser, userCoords } = useApp();
+  const { showCreateModal, setShowCreateModal, createPlan, selectedCity, userCoords } = useApp();
   const [form, setForm] = useState({ 
     title: '', 
     venueName: '', 

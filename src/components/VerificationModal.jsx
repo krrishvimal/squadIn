@@ -3,15 +3,11 @@ import { useApp } from '../context/AppContext';
 import {
   ShieldCheck,
   CheckCircle2,
-  Smartphone,
   Briefcase,
   ExternalLink,
-  X,
   Mail,
   RefreshCw,
-  Sparkles,
-  Lock,
-  Camera
+  Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { initiateLinkedInLogin } from '../lib/linkedinAuth';

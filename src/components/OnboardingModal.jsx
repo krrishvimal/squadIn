@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { appStorage } from '../designPreview';
 import { ActivityArt, Brand, CityPicker, Sheet } from './DesignKit';
 export function OnboardingModal({ isOpen, onClose, reason }) {
-  const { currentUser, updateCurrentUserProfile, selectedCity, setSelectedCity } = useApp();
+  const { currentUser, updateCurrentUserProfile, selectedCity } = useApp();
   const [name, setName] = useState('');
   const [city, setCity] = useState(selectedCity);
   const [gender, setGender] = useState(currentUser?.gender || 'unspecified');
