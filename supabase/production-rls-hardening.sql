@@ -66,6 +66,12 @@ create policy "Plans update policy"
   using (true)
   with check (true);
 
+drop policy if exists "Plans delete policy" on public.plans;
+create policy "Plans delete policy" 
+  on public.plans for delete 
+  using (true);
+
+
 -- 6. PLAN REQUESTS RLS
 -- Privacy protection: Only the applicant and the plan host can read requests & join notes.
 drop policy if exists "Allow requests read" on public.plan_requests;
@@ -113,6 +119,11 @@ create policy "Messages insert policy"
     )
   );
 
+drop policy if exists "Messages delete policy" on public.messages;
+create policy "Messages delete policy" 
+  on public.messages for delete 
+  using (true);
+
 -- 8. REPORTS & HARASSMENT MODERATION (ZERO-LEAK PRIVACY)
 -- Anyone can submit a report, but reports are STRICTLY PRIVATE.
 -- Regular users can NEVER query or read abuse reports.
@@ -122,6 +133,14 @@ drop policy if exists "Reports insert policy" on public.reports;
 create policy "Reports insert policy" 
   on public.reports for insert 
   with check (target_user_id is not null and reason is not null);
+
+-- 9. REALTIME BROADCAST INTEGRITY FOR DELETIONS
+-- Ensures that when rows are deleted, Realtime payloads deliver the full row ID to other clients
+alter table public.profiles replica identity full;
+alter table public.plans replica identity full;
+alter table public.plan_requests replica identity full;
+alter table public.messages replica identity full;
+
 
 -- Note: No SELECT policy for public.reports.
 -- Only Supabase dashboard service role / admin key can view reports.
