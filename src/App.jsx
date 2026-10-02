@@ -11,7 +11,6 @@ import { ChatView } from './components/ChatView';
 import { MyCrewsView } from './components/MyCrewsView';
 import { ProfileView } from './components/ProfileView';
 import { SquadRadarView } from './components/SquadRadarView';
-import { OnboardingModal } from './components/OnboardingModal';
 import { ActivityArt, CityPicker, EmptyState, CATEGORIES } from './components/DesignKit';
 import { checkLinkedInCallback } from './lib/linkedinAuth';
 import { IS_DESIGN_PREVIEW } from './designPreview';
@@ -19,6 +18,7 @@ import { IS_DESIGN_PREVIEW } from './designPreview';
 const KarmaReviewModal = React.lazy(() => import('./components/KarmaReviewModal').then(m => ({ default: m.KarmaReviewModal })));
 const ReportUserModal = React.lazy(() => import('./components/ReportUserModal').then(m => ({ default: m.ReportUserModal })));
 const CommunityGuidelinesModal = React.lazy(() => import('./components/CommunityGuidelinesModal').then(m => ({ default: m.CommunityGuidelinesModal })));
+const OnboardingModal = React.lazy(() => import('./components/OnboardingModal').then(m => ({ default: m.OnboardingModal })));
 
 
 
@@ -75,8 +75,8 @@ export function App() {
       <KarmaReviewModal />
       <CommunityGuidelinesModal isOpen={showGuidelinesModal} onClose={() => setShowGuidelinesModal(false)} />
       <ReportUserModal isOpen={Boolean(reportingUser)} targetUser={reportingUser?.user} planId={reportingUser?.planId} onClose={() => setReportingUser(null)} />
+      <OnboardingModal isOpen={showOnboardingModal} onClose={() => setShowOnboardingModal(false)} reason={onboardingReason} />
     </React.Suspense>
-    <OnboardingModal isOpen={showOnboardingModal} onClose={() => setShowOnboardingModal(false)} reason={onboardingReason} />
   </div>;
 }
 export default App;

@@ -27,6 +27,7 @@ do $$ begin
   alter table public.profiles add column if not exists linkedin_verified boolean default false;
   alter table public.profiles add column if not exists work_email_verified boolean default false;
   alter table public.profiles add column if not exists phone_verified boolean default false;
+  alter table public.profiles add column if not exists gender text default 'unspecified';
 exception when others then null; end $$;
 
 -- 2. PLANS TABLE (IRL Activities & Meetups)
