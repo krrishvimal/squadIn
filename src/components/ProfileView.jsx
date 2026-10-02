@@ -5,7 +5,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { ShieldCheck, Briefcase, Star, Award, CheckCircle2, UserCheck, ShieldAlert, Heart, Smartphone, ExternalLink, Mail, Edit3, Camera } from 'lucide-react';
 
 export const ProfileView = () => {
-  const { currentUser, setShowGuidelinesModal, isUserVerified, setShowOnboardingModal, setOnboardingReason } = useApp();
+  const { currentUser, setShowGuidelinesModal, isUserVerified, setShowOnboardingModal, setOnboardingReason, plans } = useApp();
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [verifyTab, setVerifyTab] = useState('phone');
@@ -14,6 +14,8 @@ export const ProfileView = () => {
     setVerifyTab(tab);
     setShowVerifyModal(true);
   };
+
+  const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
 
   const handleStartVerification = () => {
     setOnboardingReason('profile');
@@ -70,7 +72,7 @@ export const ProfileView = () => {
               <img
                 src={currentUser.avatar}
                 alt={currentUser.name}
-                className="w-16 h-16 rounded-2xl object-cover border-2 border-stone-200"
+                className="w-16 h-16 rounded-2xl object-cover ring-4 ring-amber-300"
               />
               <span className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-0.5 rounded-full ring-2 ring-white">
                 <ShieldCheck size={14} />
@@ -117,18 +119,19 @@ export const ProfileView = () => {
           </p>
         </div>
 
-        {/* Interests */}
-        <div>
-          <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1.5">
-            Passions & Weekend Vibes
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {currentUser.interests?.map(tag => (
-              <span key={tag} className="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
-                {tag}
-              </span>
-            ))}
-          </div>
+        <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
+          <span className="inline-flex items-center gap-1 bg-white border border-stone-200 rounded-xl px-3 py-1.5 shadow-sm">
+            <span className="text-xs">🎉</span>
+            <span className="text-stone-700 text-xs font-bold">{plans?.filter(p => normId(p.hostId) === normId(currentUser?.id) && p.acceptedMembers?.length > 0).length || 0} weekends squaded</span>
+          </span>
+          <span className="inline-flex items-center gap-1 bg-white border border-stone-200 rounded-xl px-3 py-1.5 shadow-sm">
+            <span className="text-xs">⚡</span>
+            <span className="text-stone-700 text-xs font-bold">{plans?.filter(p => normId(p.hostId) === normId(currentUser?.id)).length || 0} crews hosted</span>
+          </span>
+          <span className="inline-flex items-center gap-1 bg-white border border-stone-200 rounded-xl px-3 py-1.5 shadow-sm">
+            <span className="text-xs">⭐</span>
+            <span className="text-stone-700 text-xs font-bold">{currentUser?.karmaScore?.toFixed(1) || '5.0'} karma</span>
+          </span>
         </div>
       </div>
 
@@ -153,24 +156,24 @@ export const ProfileView = () => {
           )}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {/* Phone OTP */}
-          <div className={`p-3 rounded-xl border ${currentUser.phoneVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
+          <div className={`p-3 rounded-2xl transition-all ${currentUser.phoneVerified ? 'bg-white border border-amber-300 ring-2 ring-amber-300 shadow-md shadow-amber-100' : 'bg-stone-50 border-2 border-dashed border-stone-300'}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.phoneVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  <Smartphone size={16} />
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${currentUser.phoneVerified ? 'bg-amber-100 text-amber-600' : 'bg-white text-stone-400 border border-stone-200'}`}>
+                  <Smartphone size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">Phone OTP</p>
-                  <p className="text-[10px] text-stone-500">10-Digit Mobile SMS</p>
+                  <p className="text-sm font-extrabold text-stone-900">Phone OTP</p>
+                  <p className="text-[10px] font-bold text-stone-500">10-Digit Mobile SMS</p>
                 </div>
               </div>
               <div className="text-right">
                 {currentUser.phoneVerified ? (
-                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg">✅ Earned</span>
                 ) : (
-                  <button onClick={() => openVerification('phone')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                  <button onClick={() => openVerification('phone')} className="text-xs font-extrabold text-amber-600 bg-amber-100 px-3 py-1.5 rounded-xl hover:bg-amber-200 shadow-sm transition-all">
                     +50% Trust
                   </button>
                 )}
@@ -179,22 +182,22 @@ export const ProfileView = () => {
           </div>
 
           {/* Live Selfie */}
-          <div className={`p-3 rounded-xl border ${currentUser.idVerified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
+          <div className={`p-3 rounded-2xl transition-all ${currentUser.idVerified ? 'bg-white border border-amber-300 ring-2 ring-amber-300 shadow-md shadow-amber-100' : 'bg-stone-50 border-2 border-dashed border-stone-300'}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.idVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  <Camera size={16} />
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${currentUser.idVerified ? 'bg-amber-100 text-amber-600' : 'bg-white text-stone-400 border border-stone-200'}`}>
+                  <Camera size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">Live Selfie</p>
-                  <p className="text-[10px] text-stone-500">Front-camera Verification</p>
+                  <p className="text-sm font-extrabold text-stone-900">Live Selfie</p>
+                  <p className="text-[10px] font-bold text-stone-500">Front-camera Verification</p>
                 </div>
               </div>
               <div className="text-right">
                 {currentUser.idVerified ? (
-                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg">✅ Earned</span>
                 ) : (
-                  <button onClick={() => openVerification('selfie')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                  <button onClick={() => openVerification('selfie')} className="text-xs font-extrabold text-amber-600 bg-amber-100 px-3 py-1.5 rounded-xl hover:bg-amber-200 shadow-sm transition-all">
                     +30% Trust
                   </button>
                 )}
@@ -203,22 +206,22 @@ export const ProfileView = () => {
           </div>
 
           {/* LinkedIn */}
-          <div className={`p-3 rounded-xl border ${currentUser.linkedin_verified ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-stone-700 bg-stone-800/50'} transition-all`}>
+          <div className={`p-3 rounded-2xl transition-all ${currentUser.linkedin_verified ? 'bg-white border border-amber-300 ring-2 ring-amber-300 shadow-md shadow-amber-100' : 'bg-stone-50 border-2 border-dashed border-stone-300'}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUser.linkedin_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  <ExternalLink size={16} />
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${currentUser.linkedin_verified ? 'bg-amber-100 text-amber-600' : 'bg-white text-stone-400 border border-stone-200'}`}>
+                  <ExternalLink size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">LinkedIn</p>
-                  <p className="text-[10px] text-stone-500">Professional Identity</p>
+                  <p className="text-sm font-extrabold text-stone-900">LinkedIn</p>
+                  <p className="text-[10px] font-bold text-stone-500">Professional Identity</p>
                 </div>
               </div>
               <div className="text-right">
                 {currentUser.linkedin_verified ? (
-                  <span className="text-xs font-bold text-emerald-400">✅ Verified</span>
+                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg">✅ Earned</span>
                 ) : (
-                  <button onClick={() => openVerification('linkedin')} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all">
+                  <button onClick={() => openVerification('linkedin')} className="text-xs font-extrabold text-amber-600 bg-amber-100 px-3 py-1.5 rounded-xl hover:bg-amber-200 shadow-sm transition-all">
                     +20% Trust
                   </button>
                 )}
@@ -227,6 +230,19 @@ export const ProfileView = () => {
           </div>
         </div>
       </div>
+
+      {currentUser?.interests && currentUser.interests.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-2">Weekend Passions</h4>
+          <div className="flex flex-wrap gap-2">
+            {currentUser.interests.map((interest, i) => (
+              <span key={i} className="bg-violet-50 text-violet-700 border border-violet-200 rounded-lg px-3 py-1.5 text-xs font-bold">
+                {interest}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* KARMA & RELIABILITY SCORE */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-3xl border border-amber-200 p-5 space-y-3 shadow-sm">

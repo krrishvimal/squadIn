@@ -135,23 +135,9 @@ export function App() {
             )}
 
             {/* Hero Welcome Banner */}
-            <div className="bg-[#FDFBF7] shadow-card border border-stone-100 rounded-3xl p-5 text-stone-900 shadow-md relative overflow-hidden">
-              <div className="relative z-10 space-y-1.5">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
-                  <Sparkles size={11} /> 100% Free · Real-World Crews
-                </span>
-                <h1 className="text-xl font-extrabold tracking-tight text-stone-900 leading-snug">
-                  Your Weekend Starts Here ☀️
-                </h1>
-                <p className="text-xs text-stone-500 max-w-md">
-                  Hosts set their crew size and accept applicants. Group chat unlocks when the crew is full!
-                </p>
-              </div>
-
-              {/* Floating aesthetic graphics */}
-              <div className="absolute -bottom-6 -right-6 text-7xl opacity-20 pointer-events-none select-none">
-                ☕🎭
-              </div>
+            <div className="px-4 pt-4 pb-2">
+              <h1 className="text-2xl font-extrabold text-stone-900 leading-tight">☀️ Your Weekend<br/>Starts Here</h1>
+              <p className="text-stone-500 text-sm font-medium mt-1">Find your crew for this weekend in {selectedCity}</p>
             </div>
 
             {/* Filters & Sorting */}

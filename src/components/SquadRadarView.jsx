@@ -179,15 +179,8 @@ export const SquadRadarView = () => {
             </button>
           </div>
 
-          <h1 className="text-xl font-extrabold text-stone-900 leading-tight">
-            🧭 Who's Around?
-          </h1>
-          <p className="text-sm text-stone-500 font-medium max-w-md leading-relaxed">
-            <strong className="text-amber-600">{filteredMembers.length}</strong> members in <strong className="text-amber-600">{selectedCity}</strong> are looking for a weekend crew. Tap any profile to invite them to your plan!
-            {radarMembers.length > 0 && radarMembers.length !== filteredMembers.length && (
-              <span className="text-stone-400"> ({radarMembers.length} total across all cities)</span>
-            )}
-          </p>
+          <h2 className="text-xl font-extrabold text-stone-900">🧭 Who's Around?</h2>
+          <p className="text-stone-500 text-sm font-medium mt-0.5">{filteredMembers.length} people nearby in {selectedCity}</p>
         </div>
 
         {/* Floating subtle aesthetic badge */}
@@ -288,27 +281,24 @@ export const SquadRadarView = () => {
 
       {/* RADAR CANVAS VIEW */}
       {viewMode === 'radar' && (
-        <div className="bg-[#FDFBF7] rounded-3xl p-4 border border-stone-200 shadow-sm relative min-h-[380px] flex items-center justify-center overflow-hidden">
+        <>
+          <div className="bg-[#FDFBF7] rounded-3xl p-4 border border-stone-200 shadow-sm relative min-h-[380px] flex items-center justify-center overflow-hidden">
           
           {/* Concentric Radar Distance Rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             {/* Outer Ring */}
-            <div className="w-[340px] h-[340px] rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
+            <div className="w-[340px] h-[340px] rounded-full border-2 border-dashed border-amber-200/60 flex items-center justify-center relative">
               <span className="absolute top-2 text-[9px] font-bold italic text-stone-400 tracking-wider">
                 {distanceFilter === 5 ? '~5 KM (NEIGHBORHOOD)' : distanceFilter === 15 ? '~15 KM (CITY HUBS)' : `~${selectedCity.toUpperCase()} (WHOLE CITY)`}
               </span>
               
               {/* Middle Ring */}
-              <div className="w-[230px] h-[230px] rounded-full border border-dashed border-amber-200 flex items-center justify-center">
-                <span className="absolute top-16 text-[9px] font-bold italic text-stone-400 tracking-wider">
-                  Quick Ride 🛺
-                </span>
+              <div className="w-[230px] h-[230px] rounded-full border border-dashed border-amber-200/60 flex items-center justify-center relative">
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] font-bold text-stone-400 italic whitespace-nowrap bg-[#FDFBF7] px-1.5">Quick Ride 🛺</span>
                 
                 {/* Inner Ring */}
-                <div className="w-[120px] h-[120px] rounded-full border border-dashed border-amber-200 flex items-center justify-center">
-                  <span className="absolute top-3 text-[9px] font-bold italic text-stone-400 tracking-wider">
-                    Walking Distance 🚶
-                  </span>
+                <div className="w-[120px] h-[120px] rounded-full border border-dashed border-amber-200/60 flex items-center justify-center relative">
+                  <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] font-bold text-stone-400 italic whitespace-nowrap bg-[#FDFBF7] px-1.5">Walking Distance 🚶</span>
                 </div>
               </div>
             </div>
@@ -326,9 +316,7 @@ export const SquadRadarView = () => {
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <div className="mt-1 px-2 py-0.5 rounded-full bg-white border border-stone-200 text-[9px] font-extrabold text-stone-800 shadow-sm">
-              You 📍
-            </div>
+            <span className="text-[10px] font-extrabold text-amber-600 mt-1">You 📍</span>
           </div>
 
           {/* Plotted Nearby Candidate Bubbles */}
@@ -401,7 +389,7 @@ export const SquadRadarView = () => {
                   </div>
 
                   {/* Name & Dynamic Distance Tag */}
-                  <div className="mt-1 px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-sm text-stone-800 text-[9px] font-bold shadow-sm flex items-center gap-1 whitespace-nowrap">
+                  <div className="mt-1 px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-sm text-[9px] font-bold text-stone-800 flex items-center gap-1 whitespace-nowrap shadow-sm border border-stone-100">
                     <span>{member.name.split(' ')[0]}</span>
                     <span className="text-amber-600 font-extrabold">· {liveDist}km</span>
                   </div>
@@ -421,6 +409,8 @@ export const SquadRadarView = () => {
             </div>
           )}
         </div>
+        <p className="text-center text-stone-400 text-xs font-medium mt-2">Tap a member to say hi 👋</p>
+        </>
       )}
 
       {/* LIST / GRID VIEW */}
