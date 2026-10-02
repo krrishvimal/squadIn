@@ -932,7 +932,13 @@ export const AppProvider = ({ children }) => {
     const profilesSubscription = supabase
       .channel('public:profiles')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
-        if (payload.new) {
+        if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setRadarMembers(prev => prev.filter(m => !sameId(m.id, deletedId)));
+            setAllUsers(prev => prev.filter(u => !sameId(u.id, deletedId)));
+          }
+        } else if (payload.new) {
           const updatedProfile = payload.new;
           if (updatedProfile.id !== currentUser.id) {
             const radarCandidate = mapProfileToRadarMember(updatedProfile);
@@ -960,7 +966,15 @@ export const AppProvider = ({ children }) => {
     const requestsSubscription = supabase
       .channel('public:plan_requests')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_requests' }, async (payload) => {
-        if (payload.eventType === 'INSERT' || (payload.eventType === 'UPDATE' && payload.new?.status === 'PENDING')) {
+        if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setPlans(prev => prev.map(p => ({
+              ...p,
+              pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.id, deletedId))
+            })));
+          }
+        } else if (payload.eventType === 'INSERT' || (payload.eventType === 'UPDATE' && payload.new?.status === 'PENDING')) {
           const req = payload.new;
           if (!req?.plan_id || !req?.user_id) return;
 
@@ -1563,6 +1577,176 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Logout User (Clears local session & resets to fresh guest)
+  const logoutUser = () => {
+    try {
+      appStorage.removeItem('squadin_onboarded');
+      appStorage.removeItem('squadin_waves');
+    } catch (e) {}
+
+    const newId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const chosenAvatar = DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length];
+    const city = selectedCity || INDIAN_CITIES[0].name;
+
+    const guestUser = {
+      id: newId,
+      name: '',
+      avatar: chosenAvatar,
+      city,
+      bio: '',
+      gender: 'unspecified',
+      interests: ['☕ Specialty Coffee', '🍕 Food Walks'],
+      phoneVerified: false,
+      idVerified: false,
+      linkedin_verified: false,
+      karmaScore: 5.0,
+      meetupsAttended: 0
+    };
+
+    setCurrentUser(guestUser);
+    try {
+      appStorage.setItem('squadin_current_user', JSON.stringify(guestUser));
+    } catch (e) {}
+
+    setWaves([]);
+    setActiveTab('explore');
+    showToast('Logged out successfully 👋');
+  };
+
+  // Delete Account & Cascade Purge
+  const deleteAccount = async () => {
+    const userId = currentUser?.id;
+    const userName = currentUser?.name || 'A member';
+    if (!userId) return;
+
+    // 1. Supabase cascade purge
+    if (cloudEnabled && supabase) {
+      try {
+        // a. Delete profile row
+        await supabase.from('profiles').delete().eq('id', userId);
+
+        // b. Delete join requests sent by this user
+        await supabase.from('plan_requests').delete().eq('user_id', userId);
+
+        // c. Delete messages / waves
+        await supabase.from('messages').delete().eq('sender_id', userId);
+        await supabase.from('messages').delete().eq('user_id', userId);
+        await supabase.from('messages').delete().eq('target_user_id', userId);
+
+        // d. Handle hosted plans vs joined plans (Peer-to-peer room model)
+        for (const p of plans) {
+          if (sameId(p.hostId, userId)) {
+            if (p.acceptedMembers && p.acceptedMembers.length > 0) {
+              // Room has members -> transfer room coordination to first member
+              const newHostId = p.acceptedMembers[0];
+              const remainingMembers = p.acceptedMembers.slice(1);
+              const newHostUser = allUsers.find(u => sameId(u.id, newHostId));
+              const newHostName = newHostUser?.name || 'Crew Member';
+              const newHostAvatar = newHostUser?.avatar || DEFAULT_AVATARS[0];
+
+              await supabase.from('plans').update({
+                host_id: newHostId,
+                host_name: newHostName,
+                host_avatar: newHostAvatar,
+                accepted_members: remainingMembers
+              }).eq('id', p.id);
+
+              await supabase.from('messages').insert({
+                plan_id: p.id,
+                sender_id: 'SYSTEM',
+                content: `👋 ${userName} left the crew. Room coordination has moved to ${newHostName}.`,
+                type: 'system',
+                is_system: true
+              });
+            } else {
+              // 0 members were in the room -> delete empty plan
+              await supabase.from('plans').delete().eq('id', p.id);
+              await supabase.from('plan_requests').delete().eq('plan_id', p.id);
+            }
+          } else if ((p.acceptedMembers || []).some(mId => sameId(mId, userId))) {
+            // User was a member in someone else's plan -> reopen spot
+            const updatedMembers = p.acceptedMembers.filter(mId => !sameId(mId, userId));
+            await supabase.from('plans').update({
+              accepted_members: updatedMembers,
+              status: 'OPEN'
+            }).eq('id', p.id);
+
+            await supabase.from('messages').insert({
+              plan_id: p.id,
+              sender_id: 'SYSTEM',
+              content: `👋 ${userName} left the crew. 1 spot has reopened!`,
+              type: 'system',
+              is_system: true
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Account deletion cloud notice:', err);
+      }
+    }
+
+    // 2. Update local state
+    setPlans(prev => prev.reduce((acc, p) => {
+      if (sameId(p.hostId, userId)) {
+        if (p.acceptedMembers && p.acceptedMembers.length > 0) {
+          const newHostId = p.acceptedMembers[0];
+          const newHostUser = allUsers.find(u => sameId(u.id, newHostId));
+          acc.push({
+            ...p,
+            hostId: newHostId,
+            hostName: newHostUser?.name || 'Crew Member',
+            hostAvatar: newHostUser?.avatar || DEFAULT_AVATARS[0],
+            acceptedMembers: p.acceptedMembers.slice(1)
+          });
+        }
+      } else {
+        const isMember = (p.acceptedMembers || []).some(mId => sameId(mId, userId));
+        acc.push({
+          ...p,
+          acceptedMembers: isMember ? p.acceptedMembers.filter(mId => !sameId(mId, userId)) : p.acceptedMembers,
+          pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.userId, userId))
+        });
+      }
+      return acc;
+    }, []));
+
+    setRadarMembers(prev => prev.filter(m => !sameId(m.id, userId)));
+    setAllUsers(prev => prev.filter(u => !sameId(u.id, userId)));
+
+    // 3. Clear local storage & reset to clean guest
+    try {
+      appStorage.removeItem('squadin_onboarded');
+      appStorage.removeItem('squadin_waves');
+      appStorage.removeItem('squadin_blocked_users');
+    } catch (e) {}
+
+    const newId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    const hash = newId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const guestUser = {
+      id: newId,
+      name: '',
+      avatar: DEFAULT_AVATARS[hash % DEFAULT_AVATARS.length],
+      city: selectedCity || INDIAN_CITIES[0].name,
+      bio: '',
+      gender: 'unspecified',
+      interests: ['☕ Specialty Coffee', '🍕 Food Walks'],
+      phoneVerified: false,
+      idVerified: false,
+      linkedin_verified: false,
+      karmaScore: 5.0,
+      meetupsAttended: 0
+    };
+
+    setCurrentUser(guestUser);
+    try {
+      appStorage.setItem('squadin_current_user', JSON.stringify(guestUser));
+    } catch (e) {}
+
+    setWaves([]);
+    setActiveTab('explore');
+    showToast('Account and personal data completely deleted.');
+  };
 
   // 7. Send Chat Message
   const sendMessage = async (planId, content) => {
@@ -1907,7 +2091,9 @@ export const AppProvider = ({ children }) => {
         sendBrowserNotification,
         unreadChatCount,
         markChatAsRead,
-        isPlanExpired
+        isPlanExpired,
+        logoutUser,
+        deleteAccount
       }}
     >
       {children}
