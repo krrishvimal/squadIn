@@ -347,7 +347,6 @@ export const AppProvider = ({ children }) => {
 
   // Radar State
   const [radarMembers, setRadarMembers] = useState(IS_DESIGN_PREVIEW ? PREVIEW_MEMBERS : NEARBY_RADAR_MEMBERS);
-  const [isRadarBroadcastOn, setIsRadarBroadcastOn] = useState(true);
   const [invitedUserIds, setInvitedUserIds] = useState([]);
   const [selectedRadarUser, setSelectedRadarUser] = useState(null);
 
@@ -1879,8 +1878,6 @@ export const AppProvider = ({ children }) => {
         reportUser,
         radarMembers,
         setRadarMembers,
-        isRadarBroadcastOn,
-        setIsRadarBroadcastOn,
         invitedUserIds,
         selectedRadarUser,
         setSelectedRadarUser,

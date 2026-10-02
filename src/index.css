@@ -150,7 +150,6 @@ button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}button,a{to
 .profile-safety{display:flex;justify-content:center;align-items:center;gap:7px;margin:25px auto 0;color:#a08868;font-size:10px}
 .passion-picker{padding:0 25px;display:flex;flex-direction:column;gap:11px}.passion-picker .button{justify-content:space-between;font-size:13px}.passion-done{width:calc(100% - 50px);margin:25px 25px 0}
 .radar-screen .screen-heading{margin-bottom:20px}.radar-toolbar{display:flex;align-items:center;gap:8px}
-.broadcast-toggle{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;color:#9e8c71}.broadcast-toggle i{width:6px;height:6px;border-radius:50%;background:#b8a58e}.broadcast-toggle.on i{background:#7ca583;box-shadow:0 0 0 3px #7ca58320}
 .radar-filters{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:18px 0 5px}.radius-switch{display:flex;border:1px solid #ddc9a5;border-radius:99px;padding:2px}.radius-switch button{padding:4px 9px;border-radius:99px;font-size:10px;white-space:nowrap}.radius-switch button.selected{background:#ffd58c}
 .radar-category{display:flex;align-items:center;gap:3px;font-size:10px}.radar-category select{appearance:none;font-size:10px;width:72px;background:transparent;outline:none}
 .radar-map{position:relative;aspect-ratio:1;width:calc(100% + 24px);margin:32px -12px 0;background:radial-gradient(circle,#fadd9366,#fff6e31a 62%,transparent 63%)}
@@ -322,7 +321,6 @@ body,.weekend-world{background:var(--paper)}
   .radius-switch button{font-size:12px;padding:6px 13px}
   .radar-category select{font-size:12px;width:108px}
   .radar-toolbar{max-width:480px}
-  .broadcast-toggle{font-size:12px}
   .radar-content{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:40px;align-items:start;margin-top:30px}
   .radar-map{width:100%;max-width:540px;margin:24px auto 15px}
   .radar-nearby{background:#fffdf5;border:1px solid #e1cfb0;border-radius:24px;padding:22px}
