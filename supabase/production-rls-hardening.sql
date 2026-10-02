@@ -119,6 +119,12 @@ create policy "Messages insert policy"
     )
   );
 
+drop policy if exists "Messages update policy" on public.messages;
+create policy "Messages update policy" 
+  on public.messages for update 
+  using (true)
+  with check (true);
+
 drop policy if exists "Messages delete policy" on public.messages;
 create policy "Messages delete policy" 
   on public.messages for delete 

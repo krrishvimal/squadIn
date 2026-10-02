@@ -36,7 +36,16 @@ export function ActivityArt({ type = 'cafe', className = '', size = 64 }) {
 export function Brand({ onClick }) {
   return <button className="brand" onClick={onClick} aria-label="SquadIn home"><span className="brand-spark">✧</span>SquadIn<span className="brand-spark little">✦</span></button>;
 }
+
 export function Avatar({ user, size = 40, className = '' }) {
+  const isDeleted = user?.isDeleted || user?.name === 'Deleted Member';
+  if (isDeleted) {
+    return (
+      <span className={`avatar avatar-deleted ${className}`} style={{ width: size, height: size, background: '#f1f5f9', border: '1px solid #cbd5e1', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#64748b' }}>
+        <span style={{ fontSize: `${Math.round(size * 0.45)}px`, lineHeight: 1 }}>👤</span>
+      </span>
+    );
+  }
   return <span className={`avatar ${className}`} style={{ width: size, height: size }}><img src={user?.avatar} alt={user?.name || 'Member'} onError={e => { e.currentTarget.style.display = 'none'; }} /><span className="avatar-fallback">{(user?.name || 'S').slice(0, 1)}</span></span>;
 }
 export function AvatarStack({ ids = [], size = 30 }) {

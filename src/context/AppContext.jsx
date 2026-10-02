@@ -1165,16 +1165,37 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Helper to find user by ID
+  // Helper to find user by ID (WhatsApp/Discord model: Deleted Member fallback)
   const getUserById = (userId) => {
-    return allUsers.find(u => u.id === userId) || {
+    if (!userId) {
+      return {
+        id: 'deleted',
+        name: 'Deleted Member',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        company: 'Former Member',
+        workEmailVerified: false,
+        idVerified: false,
+        isDeleted: true,
+        bio: '',
+        karmaScore: 5.0
+      };
+    }
+    const found = allUsers.find(u => sameId(u.id, userId));
+    if (found) return found;
+
+    if (currentUser?.id && sameId(currentUser.id, userId)) {
+      return currentUser;
+    }
+
+    return {
       id: userId,
-      name: currentUser.id === userId ? currentUser.name : 'Verified Member',
-      avatar: currentUser.id === userId ? currentUser.avatar : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-      company: currentUser.id === userId ? currentUser.company : 'Member',
-      workEmailVerified: true,
-      idVerified: true,
-      bio: currentUser.id === userId ? (currentUser.bio || '') : '',
+      name: 'Deleted Member',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      company: 'Former Member',
+      workEmailVerified: false,
+      idVerified: false,
+      isDeleted: true,
+      bio: '',
       karmaScore: 5.0
     };
   };
@@ -1629,12 +1650,30 @@ export const AppProvider = ({ children }) => {
         // b. Delete join requests sent by this user
         await supabase.from('plan_requests').delete().eq('user_id', userId);
 
-        // c. Delete messages / waves
-        await supabase.from('messages').delete().eq('sender_id', userId);
-        await supabase.from('messages').delete().eq('user_id', userId);
-        await supabase.from('messages').delete().eq('target_user_id', userId);
+        // c. Delete radar waves (1-on-1 private interest signals on Radar)
+        try {
+          await supabase.from('messages').delete().eq('plan_id', 'waves').eq('user_id', userId);
+          await supabase.from('messages').delete().eq('plan_id', 'waves').eq('target_user_id', userId);
+          await supabase.from('messages').delete().eq('type', 'wave').eq('user_id', userId);
+          await supabase.from('messages').delete().eq('type', 'wave').eq('target_user_id', userId);
+        } catch (wErr) {}
 
-        // d. Handle hosted plans vs joined plans (Peer-to-peer room model)
+        // d. WhatsApp/Discord style: Anonymize chat messages in rooms so group context doesn't break
+        try {
+          await supabase.from('messages').update({
+            user_name: 'Deleted Member',
+            user_avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
+          }).eq('sender_id', userId).neq('plan_id', 'waves');
+
+          await supabase.from('messages').update({
+            user_name: 'Deleted Member',
+            user_avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
+          }).eq('user_id', userId).neq('plan_id', 'waves');
+        } catch (mErr) {
+          console.warn('Message anonymization notice:', mErr);
+        }
+
+        // e. Handle hosted plans vs joined plans (Peer-to-peer room model)
         for (const p of plans) {
           if (sameId(p.hostId, userId)) {
             if (p.acceptedMembers && p.acceptedMembers.length > 0) {
@@ -1688,12 +1727,25 @@ export const AppProvider = ({ children }) => {
 
     // 2. Update local state
     setPlans(prev => prev.reduce((acc, p) => {
+      // Anonymize the deleted user's messages in this plan (WhatsApp/Discord style)
+      const updatedMessages = (p.messages || []).map(m => {
+        if (sameId(m.senderId, userId)) {
+          return {
+            ...m,
+            senderName: 'Deleted Member',
+            isDeletedUser: true
+          };
+        }
+        return m;
+      });
+
       if (sameId(p.hostId, userId)) {
         if (p.acceptedMembers && p.acceptedMembers.length > 0) {
           const newHostId = p.acceptedMembers[0];
           const newHostUser = allUsers.find(u => sameId(u.id, newHostId));
           acc.push({
             ...p,
+            messages: updatedMessages,
             hostId: newHostId,
             hostName: newHostUser?.name || 'Crew Member',
             hostAvatar: newHostUser?.avatar || DEFAULT_AVATARS[0],
@@ -1704,6 +1756,7 @@ export const AppProvider = ({ children }) => {
         const isMember = (p.acceptedMembers || []).some(mId => sameId(mId, userId));
         acc.push({
           ...p,
+          messages: updatedMessages,
           acceptedMembers: isMember ? p.acceptedMembers.filter(mId => !sameId(mId, userId)) : p.acceptedMembers,
           pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.userId, userId))
         });
