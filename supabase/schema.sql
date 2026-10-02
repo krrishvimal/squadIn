@@ -160,3 +160,72 @@ create policy "Public avatar read" on storage.objects for select using (bucket_i
 create policy "Allow avatar uploads" on storage.objects for insert with check (bucket_id = 'avatars');
 create policy "Allow avatar updates" on storage.objects for update using (bucket_id = 'avatars');
 
+-- Add date column to plans if not exists
+do $$ begin
+  alter table public.plans add column if not exists date text;
+exception when others then null; end $$;
+
+-- 10. ATOMIC QUORUM STORED PROCEDURE (Prevents Race Conditions in Crew Approvals)
+create or replace function public.accept_crew_applicant(
+  p_plan_id text,
+  p_user_id text,
+  p_host_id text
+)
+returns json
+language plpgsql
+security definer
+as $$
+declare
+  v_plan record;
+  v_current_count integer;
+  v_is_full boolean;
+  v_new_members text[];
+  v_new_status text;
+begin
+  -- 1. Lock the plan row for update
+  select * into v_plan from public.plans where id = p_plan_id for update;
+  if not found then
+    return json_build_object('success', false, 'error', 'Plan not found');
+  end if;
+
+  -- 2. Verify caller is host
+  if lower(trim(v_plan.host_id)) <> lower(trim(p_host_id)) then
+    return json_build_object('success', false, 'error', 'Unauthorized: Only host can accept applicants');
+  end if;
+
+  -- 3. Check capacity limit
+  v_current_count := coalesce(array_length(v_plan.accepted_members, 1), 0);
+  if not (p_user_id = any(v_plan.accepted_members)) and v_current_count >= v_plan.target_capacity then
+    return json_build_object('success', false, 'error', 'Crew is already at maximum capacity');
+  end if;
+
+  -- 4. Append member if not already present
+  if not (p_user_id = any(v_plan.accepted_members)) then
+    v_new_members := array_append(v_plan.accepted_members, p_user_id);
+  else
+    v_new_members := v_plan.accepted_members;
+  end if;
+
+  -- 5. Determine if quorum is met
+  v_is_full := coalesce(array_length(v_new_members, 1), 0) >= v_plan.target_capacity;
+  v_new_status := case when v_is_full then 'LOCKED_CHAT_ACTIVE' else v_plan.status end;
+
+  -- 6. Update plan atomically
+  update public.plans
+  set accepted_members = v_new_members,
+      status = v_new_status
+  where id = p_plan_id;
+
+  -- 7. Remove/accept plan request
+  delete from public.plan_requests
+  where plan_id = p_plan_id and user_id = p_user_id;
+
+  return json_build_object(
+    'success', true, 
+    'is_full', v_is_full, 
+    'status', v_new_status,
+    'member_count', coalesce(array_length(v_new_members, 1), 0)
+  );
+end;
+$$;
+

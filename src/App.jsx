@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { Plus, Navigation, ShieldCheck, X, Sun } from 'lucide-react';
-import { useApp } from './context/AppContext';
+import { useApp, isPlanExpired } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { BottomTabs } from './components/BottomTabs';
 import { PlanCard } from './components/PlanCard';
@@ -35,13 +35,18 @@ export function App() {
       confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }
   }, []);
-  let filteredPlans = plans.filter(plan => {
-    if (blockedUserIds?.includes(plan.hostId) || plan.status === 'COMPLETED') return false;
-    if (selectedCity && plan.city && plan.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
-    if (categoryFilter !== 'all' && plan.category !== categoryFilter) return false;
-    return !womenOnlyFilter || plan.womenOnly;
-  });
-  if (sortByDistance) filteredPlans = [...filteredPlans].sort((a, b) => (parseFloat(getPlanDistance(a)) || 99) - (parseFloat(getPlanDistance(b)) || 99));
+  const filteredPlans = useMemo(() => {
+    let result = plans.filter(plan => {
+      if (blockedUserIds?.includes(plan.hostId) || plan.status === 'COMPLETED' || isPlanExpired(plan)) return false;
+      if (selectedCity && plan.city && plan.city.toLowerCase() !== selectedCity.toLowerCase()) return false;
+      if (categoryFilter !== 'all' && plan.category !== categoryFilter) return false;
+      return !womenOnlyFilter || plan.womenOnly;
+    });
+    if (sortByDistance) {
+      result = [...result].sort((a, b) => (parseFloat(getPlanDistance(a)) || 99) - (parseFloat(getPlanDistance(b)) || 99));
+    }
+    return result;
+  }, [plans, blockedUserIds, selectedCity, categoryFilter, womenOnlyFilter, sortByDistance, getPlanDistance]);
   const post = () => requireVerification(() => setShowCreateModal(true), 'create_plan');
   return <div className="weekend-world">
     <div className={`app-shell tab-${activeTab}`}>

@@ -3,7 +3,7 @@ import { ChevronLeft, Send, Smile, ShieldAlert, Star, Flag, Info, Lock, MessageC
 import { useApp } from '../context/AppContext';
 import { Avatar, AvatarStack, ActivityArt, EmptyState, Sheet, SpotMeter, sameId, categoryFor } from './DesignKit';
 export function ChatView() {
-  const { plans, activeChatPlanId, setActiveChatPlanId, currentUser, getUserById, sendMessage, triggerEmergencySOS, setShowKarmaModal, setKarmaReviewPlan, setReportingUser, setSelectedPlanForDetail, setActiveTab } = useApp();
+  const { plans, activeChatPlanId, setActiveChatPlanId, currentUser, getUserById, sendMessage, triggerEmergencySOS, setShowKarmaModal, setKarmaReviewPlan, setReportingUser, setSelectedPlanForDetail, setActiveTab, markChatAsRead } = useApp();
   const [input, setInput] = useState('');
   const [emoji, setEmoji] = useState(false);
   const [sos, setSos] = useState(null);
@@ -13,7 +13,13 @@ export function ChatView() {
   const plan = plans.find(p => sameId(p.id, activeChatPlanId));
   const member = plan?.acceptedMembers?.some(id => sameId(id, currentUser.id));
   useEffect(() => { messageArea.current?.scrollTo({ top: messageArea.current.scrollHeight, behavior: 'smooth' }); }, [plan?.messages]);
-  useEffect(() => { setInput(''); setEmoji(false); }, [activeChatPlanId]);
+  useEffect(() => { 
+    setInput(''); 
+    setEmoji(false);
+    if (activeChatPlanId && markChatAsRead) {
+      markChatAsRead(activeChatPlanId);
+    }
+  }, [activeChatPlanId, plan?.messages?.length]);
   const userPlans = plans.filter(p => p.acceptedMembers?.some(id => sameId(id, currentUser.id)));
   if (!plan || !member) return <div className="screen chat-list-screen"><div className="screen-heading"><span className="eyebrow">THE WEEKEND STARTS WITH A HELLO</span><h1>💬 Crew Chats</h1><p>A little coordination. A lot to look forward to.</p></div>{userPlans.length ? <div className="chat-list">{userPlans.map(p => <button className="chat-list-item" key={p.id} onClick={() => setActiveChatPlanId(p.id)}><span className="chat-list-art" style={{ background: categoryFor(p.category).color }}><ActivityArt type={p.category} size={45} /></span><span><strong>{p.title}</strong><small>{p.venueName}</small><span className={`pill ${p.status === 'LOCKED_CHAT_ACTIVE' ? 'pill-mint' : 'pill-sand'}`}>{p.status === 'LOCKED_CHAT_ACTIVE' ? '💬 Chat unlocked' : `🔒 ${p.acceptedMembers.length}/${p.targetCapacity} confirmed`}</span></span><span className="chat-list-arrow">↗</span></button>)}</div> : <EmptyState title="Good conversations are coming" description="Join a crew first. When your little group is confirmed, your chat will open here." art="cafe" action={() => setActiveTab('explore')} actionLabel="Find your weekend crew" />}</div>;
   const unlocked = plan.status === 'LOCKED_CHAT_ACTIVE';

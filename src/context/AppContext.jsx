@@ -13,6 +13,19 @@ const AppContext = createContext();
 export const sameId = (a, b) => a != null && b != null && String(a).toLowerCase().trim() === String(b).toLowerCase().trim();
 export const normId = (id) => (id !== null && id !== undefined) ? String(id).trim().toLowerCase() : '';
 
+// Helper to check if a plan has passed its scheduled date
+export const isPlanExpired = (plan) => {
+  if (!plan) return false;
+  if (plan.status === 'COMPLETED') return true;
+  if (plan.date) {
+    const endOfDay = new Date(`${plan.date}T23:59:59`);
+    if (!isNaN(endOfDay.getTime()) && endOfDay < new Date()) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // Helper to convert database profile row to radar member
 const mapProfileToRadarMember = (p) => {
   const primaryCat = (p.interests && p.interests.length > 0)
@@ -71,6 +84,7 @@ const mapRowToPlan = (row, messages = [], requests = []) => ({
   venueLat: row.venue_lat,
   venueLng: row.venue_lng,
   neighborhood: row.neighborhood,
+  date: row.date,
   dateText: row.date_text,
   targetCapacity: row.target_capacity,
   status: row.status,
@@ -95,6 +109,7 @@ const mapPlanToRow = (plan) => ({
   venue_lat: plan.venueLat,
   venue_lng: plan.venueLng,
   neighborhood: plan.neighborhood,
+  date: plan.date,
   date_text: plan.dateText,
   target_capacity: plan.targetCapacity,
   status: plan.status,
@@ -399,6 +414,47 @@ export const AppProvider = ({ children }) => {
     if (!userId || !currentUser?.id) return false;
     return hasWavedAt(userId) && hasReceivedWaveFrom(userId);
   };
+
+  // Chat Read State tracking & Unread Badges
+  const [chatLastRead, setChatLastRead] = useState(() => {
+    try {
+      return JSON.parse(appStorage.getItem('squadin_chat_last_read') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const markChatAsRead = (planId) => {
+    if (!planId) return;
+    setChatLastRead(prev => {
+      const next = { ...prev, [planId]: Date.now() };
+      try {
+        appStorage.setItem('squadin_chat_last_read', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (activeTab === 'chats' && activeChatPlanId) {
+      markChatAsRead(activeChatPlanId);
+    }
+  }, [activeTab, activeChatPlanId]);
+
+  // Compute total unread chats where current user is a confirmed crew member
+  const unreadChatCount = plans.reduce((count, p) => {
+    const isMember = (p.acceptedMembers || []).some(mId => sameId(mId, currentUser?.id));
+    if (!isMember || p.status !== 'LOCKED_CHAT_ACTIVE') return count;
+    const lastRead = chatLastRead[p.id] || 0;
+    const hasUnread = (p.messages || []).some(m => {
+      if (sameId(m.senderId, currentUser?.id) || m.isSystem) return false;
+      const msgTime = typeof m.id === 'string' && m.id.startsWith('msg_')
+        ? parseInt(m.id.split('_')[1], 10) || 0
+        : 0;
+      return msgTime > lastRead || !lastRead;
+    });
+    return count + (hasUnread ? 1 : 0);
+  }, 0);
 
   // Helper for IP-based geolocation fallback (Swiggy / Google Maps standard)
   const fallbackToIpLocation = (safetyTimer, resolve) => {
@@ -799,6 +855,11 @@ export const AppProvider = ({ children }) => {
               if (wasNotFull && isNowFull && (isNowMember || sameId(p.hostId, currentUser?.id))) {
                 sendBrowserNotification("🎉 Crew Full & Chat Unlocked!", `Your crew for "${p.title}" is full! Say hi in the chat.`);
               }
+              const memberDropped = (p.acceptedMembers || []).length > (updatedRow.accepted_members || []).length;
+              if (memberDropped && sameId(p.hostId, currentUser?.id)) {
+                showToast(`⚠️ A member left "${p.title}". The spot has reopened!`);
+                sendBrowserNotification("Spot Reopened", `A member left your crew for "${p.title}". 1 spot has reopened.`);
+              }
               const cleanPending = (p.pendingRequests || []).filter(r => 
                 !(updatedRow.accepted_members || []).some(mId => sameId(mId, r.userId))
               );
@@ -1118,6 +1179,7 @@ export const AppProvider = ({ children }) => {
       venueLat: planData.venueLat ?? userCoords.lat,
       venueLng: planData.venueLng ?? userCoords.lng,
       neighborhood: planData.neighborhood || `${selectedCity}`,
+      date: planData.date || null,
       dateText: planData.dateText,
       targetCapacity: parseInt(planData.targetCapacity, 10) || 4,
       status: 'OPEN',
@@ -1297,27 +1359,44 @@ export const AppProvider = ({ children }) => {
 
     if (cloudEnabled && supabase && updatedPlanTarget) {
       try {
-        await supabase
-          .from('plans')
-          .update({
-            accepted_members: updatedPlanTarget.acceptedMembers,
-            status: updatedPlanTarget.status
-          })
-          .eq('id', planId);
+        let rpcSuccess = false;
+        try {
+          const { data: rpcRes, error: rpcErr } = await supabase.rpc('accept_crew_applicant', {
+            p_plan_id: planId,
+            p_user_id: userId,
+            p_host_id: currentUser.id
+          });
+          if (!rpcErr && rpcRes && rpcRes.success) {
+            rpcSuccess = true;
+          }
+        } catch (e) {
+          rpcSuccess = false;
+        }
 
-        // 1. Mark status as ACCEPTED first so realtime update reaches all clients cleanly
-        await supabase
-          .from('plan_requests')
-          .update({ status: 'ACCEPTED' })
-          .eq('plan_id', planId)
-          .eq('user_id', userId);
+        // Direct table update fallback if RPC function is not yet registered in Supabase
+        if (!rpcSuccess) {
+          await supabase
+            .from('plans')
+            .update({
+              accepted_members: updatedPlanTarget.acceptedMembers,
+              status: updatedPlanTarget.status
+            })
+            .eq('id', planId);
 
-        // 2. Remove the request row from database
-        await supabase
-          .from('plan_requests')
-          .delete()
-          .eq('plan_id', planId)
-          .eq('user_id', userId);
+          // 1. Mark status as ACCEPTED first so realtime update reaches all clients cleanly
+          await supabase
+            .from('plan_requests')
+            .update({ status: 'ACCEPTED' })
+            .eq('plan_id', planId)
+            .eq('user_id', userId);
+
+          // 2. Remove the request row from database
+          await supabase
+            .from('plan_requests')
+            .delete()
+            .eq('plan_id', planId)
+            .eq('user_id', userId);
+        }
       } catch (err) {
         console.warn('Accept request cloud sync notice:', err);
       }
@@ -1828,7 +1907,10 @@ export const AppProvider = ({ children }) => {
         showToast,
         notificationPermission,
         requestNotificationPermission,
-        sendBrowserNotification
+        sendBrowserNotification,
+        unreadChatCount,
+        markChatAsRead,
+        isPlanExpired
       }}
     >
       {children}
