@@ -73,5 +73,5 @@ export function Sheet({ children, onClose, title, className = '' }) {
     document.addEventListener('keydown', handleKey);
     return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', handleKey); previous?.focus(); };
   }, []);
-  return <div className="sheet-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}><section className={`sheet ${className}`} ref={panel} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title}><div className="sheet-handle" /><button className="icon-button sheet-close" onClick={onClose} aria-label="Close dialog"><X size={20} /></button>{children}</section></div>;
+  return <div className="sheet-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}><section className={`sheet ${className}`} ref={panel} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title}><div className="sheet-handle" onClick={onClose} style={{ cursor: 'pointer' }} title="Close dialog" /><button type="button" className="icon-button sheet-close" onClick={e => { e.preventDefault(); e.stopPropagation(); onClose(); }} aria-label="Close dialog"><X size={20} /></button>{children}</section></div>;
 }

@@ -55,7 +55,10 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 pb-2 sm:pb-0">
         
         {/* Mobile drag handle */}
@@ -73,8 +76,10 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
             </div>
           </div>
           <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500"
+            type="button"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500 cursor-pointer"
+            aria-label="Close report dialog"
           >
             <X size={16} />
           </button>

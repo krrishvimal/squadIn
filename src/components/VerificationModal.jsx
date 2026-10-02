@@ -129,19 +129,11 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
     <Sheet title="Boost your trust score" onClose={onClose} className="verification-sheet">
         
         {/* Header matching Screen 1 */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-stone-200/80 bg-white sticky top-0 z-10">
+        <div className="flex items-center justify-between px-6 pr-14 pt-5 pb-3 border-b border-stone-200/80 bg-white sticky top-0">
           <div className="flex items-center gap-2">
             <span className="text-xl">🛡️</span>
             <h2 className="text-lg font-black text-stone-900 tracking-tight">Boost Your Trust Score</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="hidden"
-            aria-hidden="true"
-            tabIndex={-1}
-          >
-            <X size={16} className="stroke-[3]" />
-          </button>
         </div>
 
         {/* Tab Switcher matching Screen 1 */}

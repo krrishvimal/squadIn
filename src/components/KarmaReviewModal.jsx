@@ -38,7 +38,10 @@ export const KarmaReviewModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+      onClick={e => { if (e.target === e.currentTarget) setShowKarmaModal(false); }}
+    >
       <div className="bg-white w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl border border-stone-200">
         
         {/* Header */}
@@ -53,10 +56,12 @@ export const KarmaReviewModal = () => {
             </div>
           </div>
           <button
-            onClick={() => setShowKarmaModal(false)}
-            className="w-7 h-7 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500"
+            type="button"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); setShowKarmaModal(false); }}
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500 cursor-pointer"
+            aria-label="Close vibe check"
           >
-            <X size={15} />
+            <X size={16} />
           </button>
         </div>
 
