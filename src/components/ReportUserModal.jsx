@@ -126,6 +126,7 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
                     }`}
                   >
                     <input
+                      id={`report-reason-${r.id}`}
                       type="radio"
                       name="reportReason"
                       value={r.id}
@@ -141,10 +142,12 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
 
             {/* Additional context input */}
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="report-details" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Additional Details (Optional):
               </label>
               <textarea
+                id="report-details"
+                name="reportDetails"
                 value={additionalDetails}
                 onChange={(e) => setAdditionalDetails(e.target.value)}
                 placeholder="Describe what happened to help us take immediate action..."
@@ -153,7 +156,7 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
             </div>
 
             {/* Block Option Toggle */}
-            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl flex items-center justify-between">
+            <label htmlFor="report-block-user" className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl flex items-center justify-between cursor-pointer">
               <div className="flex items-center gap-2">
                 <UserX size={16} className="text-amber-700" />
                 <div className="text-xs">
@@ -162,12 +165,14 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
                 </div>
               </div>
               <input
+                id="report-block-user"
+                name="blockUser"
                 type="checkbox"
                 checked={isBlocking}
                 onChange={(e) => setIsBlocking(e.target.checked)}
-                className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
+                className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 cursor-pointer"
               />
-            </div>
+            </label>
 
             {/* Submit Actions */}
             <div className="flex gap-2 pt-2">

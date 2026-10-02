@@ -46,9 +46,10 @@ export function AvatarStack({ ids = [], size = 30 }) {
 export function SpotMeter({ filled, total }) {
   return <span className="spot-dots" aria-label={`${filled} of ${total} spots filled`}>{Array.from({ length: total }, (_, i) => <i key={i} className={i < filled ? 'filled' : ''} />)}</span>;
 }
-export function CityPicker({ value, onChange }) {
+export function CityPicker({ value, onChange, id, name = "city" }) {
   const { selectedCity, setSelectedCity } = useApp();
-  return <span className="city-picker"><MapPin size={15} fill="#f49d87" /><select aria-label="Your city" value={value || selectedCity} onChange={e => (onChange || setSelectedCity)(e.target.value)}>{INDIAN_CITIES.map(c => <option key={c.name}>{c.name}</option>)}</select><ChevronDown size={14} /></span>;
+  const selectId = id || (value ? "city-picker-custom" : "city-picker-global");
+  return <span className="city-picker"><MapPin size={15} fill="#f49d87" /><select id={selectId} name={name} aria-label="Your city" value={value || selectedCity} onChange={e => (onChange || setSelectedCity)(e.target.value)}>{INDIAN_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}</select><ChevronDown size={14} /></span>;
 }
 export function EmptyState({ title = 'No crews yet!', description = 'Explore plans or post your own. Your people are out there.', action, actionLabel = 'Explore weekend plans', art = 'binoculars' }) {
   return <div className="empty-state"><div className="empty-illustration"><span className="empty-orbit" /><ActivityArt type={art} size={112} /><span className="empty-star">✧</span></div><h3>{title}</h3><p>{description}</p>{action && <button className="button button-yellow" onClick={action}>{actionLabel}<span>↗</span></button>}</div>;

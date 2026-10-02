@@ -196,7 +196,10 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                     🇮🇳 +91
                   </span>
                   <input
+                    id="verification-phone"
+                    name="phone"
                     type="tel"
+                    autoComplete="tel"
                     maxLength={10}
                     required
                     value={phoneNumber}
@@ -229,6 +232,8 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                         <input
                           key={idx}
                           id={`otp-box-${idx}`}
+                          name={`otp-${idx}`}
+                          autoComplete="one-time-code"
                           type="text"
                           maxLength={1}
                           value={digit}
@@ -398,7 +403,10 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                 {!isEmailOtpSent ? (
                   <form onSubmit={handleSendWorkEmailOtp} className="space-y-3 pt-1">
                     <input
+                      id="verification-work-email"
+                      name="workEmail"
                       type="email"
+                      autoComplete="email"
                       required
                       value={workEmail}
                       onChange={(e) => setWorkEmail(e.target.value)}
@@ -420,7 +428,10 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                     </div>
 
                     <input
+                      id="verification-work-email-otp"
+                      name="emailOtp"
                       type="text"
+                      autoComplete="one-time-code"
                       maxLength={6}
                       value={emailOtp}
                       onChange={(e) => setEmailOtp(e.target.value)}

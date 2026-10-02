@@ -89,6 +89,7 @@ export function CreatePlanModal() {
         <label htmlFor="plan-title">Plan Title</label>
         <input
           id="plan-title"
+          name="title"
           required
           maxLength={90}
           value={form.title}
@@ -124,6 +125,7 @@ export function CreatePlanModal() {
         </div>
         <input
           id="plan-venue"
+          name="venue"
           required
           maxLength={140}
           value={form.venueName}
@@ -152,6 +154,7 @@ export function CreatePlanModal() {
         </label>
         <input
           id="plan-neighborhood"
+          name="neighborhood"
           value={form.neighborhood}
           onChange={e => set('neighborhood', e.target.value)}
           placeholder="e.g. Indiranagar, Koramangala, Bandra..."
@@ -162,6 +165,7 @@ export function CreatePlanModal() {
           <CalendarDays size={17} />
           <input
             id="plan-date"
+            name="date"
             type="date"
             required
             min={new Date().toLocaleDateString('en-CA')}
@@ -217,7 +221,7 @@ export function CreatePlanModal() {
         </div>
 
         {/* Women-Only Crew Toggle */}
-        <label className="toggle-row" style={{ marginTop: '10px', padding: '10px 14px', background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+        <label htmlFor="plan-women-only" className="toggle-row" style={{ marginTop: '10px', padding: '10px 14px', background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
           <div>
             <span style={{ fontWeight: '700', fontSize: '13px', color: '#831843', display: 'flex', alignItems: 'center', gap: '6px' }}>
               🌷 Women-Only Crew
@@ -227,6 +231,8 @@ export function CreatePlanModal() {
             </small>
           </div>
           <input
+            id="plan-women-only"
+            name="womenOnly"
             type="checkbox"
             checked={form.womenOnly}
             onChange={e => set('womenOnly', e.target.checked)}
@@ -240,6 +246,7 @@ export function CreatePlanModal() {
         </label>
         <textarea
           id="plan-description"
+          name="description"
           rows={2}
           maxLength={1000}
           value={form.description}

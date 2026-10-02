@@ -142,6 +142,8 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
 
       {/* Hidden file input fallback for mobile front camera */}
       <input
+        id="selfie-file-input"
+        name="selfieFile"
         ref={fileInputRef}
         type="file"
         accept="image/*"

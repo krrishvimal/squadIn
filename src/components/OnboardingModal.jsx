@@ -36,10 +36,10 @@ export function OnboardingModal({ isOpen, onClose, reason }) {
     <ActivityArt type="cafe" className="onboarding-doodle doodle-coffee" size={68} /><ActivityArt type="hike" className="onboarding-doodle doodle-boot" size={65} />
     <form onSubmit={submit} className="onboarding-form">
       <label htmlFor="onboarding-name">What should we call you?</label>
-      <div className="input-with-icon"><span>👋</span><input id="onboarding-name" autoComplete="given-name" maxLength={40} required value={name} onChange={e => setName(e.target.value)} placeholder="Your name or nickname" /></div>
+      <div className="input-with-icon"><span>👋</span><input id="onboarding-name" name="name" autoComplete="name" maxLength={40} required value={name} onChange={e => setName(e.target.value)} placeholder="Your name or nickname" /></div>
       
-      <label>Your City</label>
-      <CityPicker value={city} onChange={setCity} />
+      <label htmlFor="onboarding-city">Your City</label>
+      <CityPicker id="onboarding-city" name="city" value={city} onChange={setCity} />
 
       <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginTop: '10px', marginBottom: '6px', color: '#4a3b2c' }}>
         Your Identity <span style={{ fontWeight: 'normal', color: '#8c7662', fontSize: '11px' }}>(helps unlock Women-Only spaces)</span>
