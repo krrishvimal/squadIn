@@ -93,54 +93,61 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
         </button>
 
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500 text-stone-900 font-extrabold text-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-amber-500/20">
+        <div className="px-6 pt-7 pb-3 text-center relative">
+          {/* Cute Doodle Logo Badge */}
+          <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-300 text-stone-900 font-extrabold text-3xl flex items-center justify-center mx-auto mb-3 shadow-md shadow-amber-300/40 border-2 border-amber-200">
             ✨
           </div>
-          <h2 className="text-2xl font-extrabold text-stone-900 mb-1">
+          <div className="inline-block px-3 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+            Welcome to SquadIn
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
             Find Your Weekend Crew
           </h2>
-          <p className="text-sm text-stone-500 font-medium">
-            Real plans. Real people. Real fun.
+          <p className="text-xs sm:text-sm text-stone-500 font-bold mt-1">
+            Real plans. Real people. Real fun ☀️
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5">
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
           <div>
-            <label className="block text-sm font-bold text-stone-700 mb-1.5">
-              Your Name
+            <label className="block text-xs font-extrabold text-stone-700 mb-1.5 uppercase tracking-wide">
+              What should we call you?
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-3 text-lg">👋</span>
+              <span className="absolute left-3.5 top-3.5 text-lg">👋</span>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="What should people call you?"
-                className="w-full p-3 pl-10 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-medium shadow-sm"
+                placeholder="Your name or nickname"
+                className="w-full p-3.5 pl-11 bg-white border-2 border-stone-200/90 rounded-2xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-bold text-sm shadow-xs"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-stone-700 mb-1.5">
+            <label className="block text-xs font-extrabold text-stone-700 mb-1.5 uppercase tracking-wide">
               Your City
             </label>
-            <select
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full p-3 bg-white border border-stone-200 rounded-xl text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-medium appearance-none cursor-pointer shadow-sm"
-            >
-              {INDIAN_CITIES.map(c => (
-                <option key={c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <span className="absolute left-3.5 top-3.5 text-lg">📍</span>
+              <select
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full p-3.5 pl-11 bg-white border-2 border-stone-200/90 rounded-2xl text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-bold text-sm appearance-none cursor-pointer shadow-xs"
+              >
+                {INDIAN_CITIES.map(c => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
           
-          <div className="text-center pt-2">
-             <p className="text-xs text-stone-400 font-medium">
+          <div className="text-center pt-1">
+             <p className="text-[11px] text-stone-400 font-bold">
                📱 Add phone number later for +50% trust boost
              </p>
           </div>
@@ -148,17 +155,17 @@ export const OnboardingModal = ({ isOpen, onClose, reason }) => {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-base rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+              className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-base rounded-2xl flex items-center justify-center gap-2 shadow-md border-b-4 border-amber-600 active:border-b-0 active:translate-y-1 transition-all cursor-pointer"
             >
               <span>{getSubmitText()}</span>
             </button>
           </div>
           
-          <div className="text-center mt-2">
+          <div className="text-center pt-1">
             <button
               type="button"
               onClick={handleSkip}
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors underline underline-offset-4"
+              className="text-xs text-stone-400 hover:text-stone-700 transition-colors font-bold underline underline-offset-4 cursor-pointer"
             >
               Skip for now
             </button>

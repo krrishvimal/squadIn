@@ -27,57 +27,57 @@ export const BottomTabs = () => {
     .reduce((acc, p) => acc + (p.pendingRequests?.length || 0), 0);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-stone-200 py-2 px-4 safe-area-pb">
-      <div className="max-w-md mx-auto flex items-center justify-between">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t-2 border-stone-200/60 py-2 px-3 safe-area-pb shadow-lg shadow-stone-300/30 rounded-t-3xl">
+      <div className="max-w-md mx-auto flex items-center justify-around">
         
         {/* Tab 1: Explore */}
         <button
           onClick={() => setActiveTab('explore')}
-          className={`flex flex-col items-center gap-1 transition-all ${
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all cursor-pointer ${
             activeTab === 'explore'
-              ? 'text-amber-600 scale-105 font-bold'
-              : 'text-stone-400 hover:text-stone-600 font-medium'
+              ? 'bg-amber-100 text-amber-900 font-extrabold scale-105 shadow-xs'
+              : 'text-stone-400 hover:text-stone-700 font-bold'
           }`}
         >
-          <Compass size={21} className={activeTab === 'explore' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] font-bold tracking-tight">Explore</span>
+          <Compass size={20} className={activeTab === 'explore' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
+          <span className="text-[10px] tracking-tight">Explore</span>
         </button>
 
         {/* Tab 2: Squad Radar */}
         <button
           onClick={() => setActiveTab('radar')}
-          className={`relative flex flex-col items-center gap-1 transition-all ${
+          className={`relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all cursor-pointer ${
             activeTab === 'radar'
-              ? 'text-amber-600 scale-105 font-bold'
-              : 'text-stone-400 hover:text-stone-600 font-medium'
+              ? 'bg-amber-100 text-amber-900 font-extrabold scale-105 shadow-xs'
+              : 'text-stone-400 hover:text-stone-700 font-bold'
           }`}
         >
           <div className="relative">
-            <Radio size={21} className={activeTab === 'radar' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
+            <Radio size={20} className={activeTab === 'radar' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
             {incomingWavesCount > 0 ? (
-              <span className="absolute -top-1 -right-2 bg-amber-500 text-stone-900 font-extrabold text-[9px] px-1 py-0.2 rounded-full shadow-sm animate-bounce flex items-center gap-0.5">
+              <span className="absolute -top-1.5 -right-3 bg-amber-500 text-stone-900 font-extrabold text-[9px] px-1 rounded-full shadow-sm animate-bounce flex items-center gap-0.5">
                 👋 {incomingWavesCount}
               </span>
             ) : (
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             )}
           </div>
-          <span className="text-[10px] font-bold tracking-tight">Radar</span>
+          <span className="text-[10px] tracking-tight">Radar</span>
         </button>
 
         {/* Tab 3: My Crews */}
         <button
           onClick={() => setActiveTab('my_crews')}
-          className={`relative flex flex-col items-center gap-1 transition-all ${
+          className={`relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all cursor-pointer ${
             activeTab === 'my_crews'
-              ? 'text-amber-600 scale-105 font-bold'
-              : 'text-stone-400 hover:text-stone-600 font-medium'
+              ? 'bg-amber-100 text-amber-900 font-extrabold scale-105 shadow-xs'
+              : 'text-stone-400 hover:text-stone-700 font-bold'
           }`}
         >
-          <Users size={21} className={activeTab === 'my_crews' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] font-bold tracking-tight">My Crews</span>
+          <Users size={20} className={activeTab === 'my_crews' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
+          <span className="text-[10px] tracking-tight">Crews</span>
           {pendingRequestsCount > 0 && (
-            <span className="absolute -top-1 right-2 w-4 h-4 bg-amber-500 text-stone-900 rounded-full text-[9px] font-extrabold flex items-center justify-center animate-pulse">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-extrabold flex items-center justify-center animate-pulse">
               {pendingRequestsCount}
             </span>
           )}
@@ -86,16 +86,16 @@ export const BottomTabs = () => {
         {/* Tab 4: Chats */}
         <button
           onClick={() => setActiveTab('chats')}
-          className={`relative flex flex-col items-center gap-1 transition-all ${
+          className={`relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all cursor-pointer ${
             activeTab === 'chats'
-              ? 'text-amber-600 scale-105 font-bold'
-              : 'text-stone-400 hover:text-stone-600 font-medium'
+              ? 'bg-amber-100 text-amber-900 font-extrabold scale-105 shadow-xs'
+              : 'text-stone-400 hover:text-stone-700 font-bold'
           }`}
         >
-          <MessageSquare size={22} className={activeTab === 'chats' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] font-bold tracking-tight">Chats</span>
+          <MessageSquare size={20} className={activeTab === 'chats' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
+          <span className="text-[10px] tracking-tight">Chats</span>
           {unlockedChatsCount > 0 && (
-            <span className="absolute -top-1 right-1 w-4 h-4 bg-amber-500 text-stone-900 rounded-full text-[9px] font-extrabold flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-white rounded-full text-[9px] font-extrabold flex items-center justify-center">
               {unlockedChatsCount}
             </span>
           )}
@@ -104,14 +104,14 @@ export const BottomTabs = () => {
         {/* Tab 5: Profile */}
         <button
           onClick={() => setActiveTab('profile')}
-          className={`flex flex-col items-center gap-1 transition-all ${
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-all cursor-pointer ${
             activeTab === 'profile'
-              ? 'text-amber-600 scale-105 font-bold'
-              : 'text-stone-400 hover:text-stone-600 font-medium'
+              ? 'bg-amber-100 text-amber-900 font-extrabold scale-105 shadow-xs'
+              : 'text-stone-400 hover:text-stone-700 font-bold'
           }`}
         >
-          <User size={22} className={activeTab === 'profile' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] font-bold tracking-tight">Profile</span>
+          <User size={20} className={activeTab === 'profile' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
+          <span className="text-[10px] tracking-tight">Profile</span>
         </button>
 
       </div>

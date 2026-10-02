@@ -92,16 +92,19 @@ export const MyCrewsView = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-stone-300 p-6 space-y-3">
-              <span className="text-4xl mx-auto block">🔭</span>
-              <div>
-                <h4 className="text-sm font-extrabold text-stone-700">No crews yet! Explore plans or post your own ☀️</h4>
+            <div className="text-center py-10 bg-white rounded-3xl border-2 border-amber-100 p-8 space-y-4 shadow-xs">
+              <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-50 flex items-center justify-center text-3xl border border-amber-200 shadow-inner">
+                🎪
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-base font-extrabold text-stone-900">No Hosted Plans Yet</h4>
+                <p className="text-xs text-stone-500 max-w-xs mx-auto font-medium">Post a coffee crawl, sports match, or comedy gig and watch your crew assemble!</p>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-amber-500 text-stone-900 font-extrabold text-xs rounded-xl hover:bg-amber-600 shadow-md"
+                className="px-6 py-2.5 bg-amber-500 text-stone-900 font-extrabold text-xs rounded-2xl hover:bg-amber-600 shadow-md border-b-4 border-amber-600 active:border-b-0 active:translate-y-1 transition-all cursor-pointer inline-flex items-center gap-1.5"
               >
-                Post Your First Plan
+                <span>✨ Post a Weekend Plan (Free)</span>
               </button>
             </div>
           )
@@ -122,11 +125,12 @@ export const MyCrewsView = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-stone-300 p-6 space-y-3">
-              <span className="text-4xl mx-auto block">🔭</span>
-              <div>
-                <h4 className="text-sm font-extrabold text-stone-700">No crews yet! Explore plans or post your own ☀️</h4>
+            <div className="text-center py-10 bg-white rounded-3xl border-2 border-amber-100 p-8 space-y-3 shadow-xs">
+              <div className="w-14 h-14 mx-auto rounded-3xl bg-amber-50 flex items-center justify-center text-2xl border border-amber-200 shadow-inner">
+                🎟️
               </div>
+              <h4 className="text-sm font-extrabold text-stone-800">You haven't joined any crews yet</h4>
+              <p className="text-xs text-stone-500 font-medium">Head to the Explore feed and tap "Join Crew" on any plan that looks fun!</p>
             </div>
           )
         )}
@@ -146,11 +150,12 @@ export const MyCrewsView = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-stone-300 p-6 space-y-3">
-              <span className="text-4xl mx-auto block">🔭</span>
-              <div>
-                <h4 className="text-sm font-extrabold text-stone-700">No crews yet! Explore plans or post your own ☀️</h4>
+            <div className="text-center py-10 bg-white rounded-3xl border-2 border-amber-100 p-8 space-y-3 shadow-xs">
+              <div className="w-14 h-14 mx-auto rounded-3xl bg-amber-50 flex items-center justify-center text-2xl border border-amber-200 shadow-inner">
+                ⏳
               </div>
+              <h4 className="text-sm font-extrabold text-stone-800">No pending join requests</h4>
+              <p className="text-xs text-stone-500 font-medium">When you request to join an open crew, track the host's approval right here!</p>
             </div>
           )
         )}

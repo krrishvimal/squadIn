@@ -120,10 +120,14 @@ export const ChatView = () => {
               ))}
             </div>
           ) : (
-            <div className="p-6 bg-white rounded-2xl border border-dashed border-stone-300 text-center">
-              <MessageSquare size={24} className="mx-auto text-stone-300 mb-2" />
-              <p className="text-xs font-bold text-stone-600">No active chats yet</p>
-              <p className="text-[11px] text-stone-400 mt-0.5">Join or host a plan. Chat unlocks when the crew fills up!</p>
+            <div className="py-10 px-6 bg-white rounded-3xl border-2 border-amber-100 text-center space-y-2 shadow-xs">
+              <div className="w-14 h-14 mx-auto rounded-3xl bg-amber-50 flex items-center justify-center text-2xl border border-amber-200 shadow-inner">
+                💬
+              </div>
+              <p className="text-sm font-extrabold text-stone-800">No Active Chats Yet</p>
+              <p className="text-xs text-stone-500 max-w-xs mx-auto font-medium leading-relaxed">
+                Join or host a weekend plan — group chat unlocks automatically once your crew reaches quorum!
+              </p>
             </div>
           )}
         </div>

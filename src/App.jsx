@@ -135,40 +135,43 @@ export function App() {
             )}
 
             {/* Hero Welcome Banner */}
-            <div className="px-4 pt-4 pb-2">
-              <h1 className="text-2xl font-extrabold text-stone-900 leading-tight">☀️ Your Weekend<br/>Starts Here</h1>
-              <p className="text-stone-500 text-sm font-medium mt-1">Find your crew for this weekend in {selectedCity}</p>
+            <div className="pt-2 pb-1 text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight flex items-center justify-center sm:justify-start gap-2">
+                <span>☀️</span>
+                <span>Your Weekend Starts Here</span>
+              </h1>
+              <p className="text-stone-500 text-xs sm:text-sm font-medium mt-1">
+                Find your crew for this weekend in <span className="font-extrabold text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded-lg">{selectedCity}</span>
+              </p>
             </div>
 
-            {/* Filters & Sorting */}
+            {/* Horizontal Pastel Category Cards Carousel (Mockup Match) */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1">
-                  <Filter size={12} className="text-amber-600" />
-                  <span>Filter Plans:</span>
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] font-extrabold text-stone-500 uppercase tracking-wider flex items-center gap-1">
+                  <span>🎨</span>
+                  <span>Explore Activities</span>
                 </span>
-
+                
                 <div className="flex items-center gap-1.5">
-                  {/* Nearest Distance Toggle */}
                   <button
                     onClick={() => setSortByDistance(prev => !prev)}
-                    className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold border transition-all flex items-center gap-1 ${
                       sortByDistance
-                        ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        ? 'bg-amber-500 text-stone-900 border-amber-600 shadow-xs'
+                        : 'bg-white/80 text-stone-600 border-stone-200 hover:bg-stone-50'
                     }`}
                   >
-                    <Navigation size={11} />
-                    <span>Nearest First</span>
+                    <Navigation size={10} />
+                    <span>Nearby</span>
                   </button>
 
-                  {/* Women-Only Toggle Pill */}
                   <button
                     onClick={() => setWomenOnlyFilter(prev => !prev)}
-                    className={`px-3 py-1 rounded-xl text-xs font-extrabold border transition-all flex items-center gap-1.5 ${
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold border transition-all flex items-center gap-1 ${
                       womenOnlyFilter
-                        ? 'bg-rose-600 text-white border-rose-700 shadow-sm'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
+                        : 'bg-white/80 text-stone-600 border-stone-200 hover:bg-stone-50'
                     }`}
                   >
                     <span>🚺</span>
@@ -177,30 +180,44 @@ export function App() {
                 </div>
               </div>
 
-              {/* Horizontal Filter Scroll */}
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                {CATEGORY_FILTERS.map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setCategoryFilter(f.id)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                      categoryFilter === f.id
-                        ? 'bg-amber-500 text-stone-900 shadow-sm scale-102 font-extrabold'
-                        : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <span>{f.icon}</span>
-                    <span>{f.label}</span>
-                  </button>
-                ))}
+              {/* Chunky Pastel Category Cards */}
+              <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-2 px-1">
+                {[
+                  { id: 'all', label: 'All', icon: '✨', bg: 'bg-[#FEF3C7]', border: 'border-[#FCD34D]', text: 'text-[#92400E]', ring: 'ring-amber-400' },
+                  { id: 'cafe', label: 'Cafe', icon: '☕', bg: 'bg-[#EDE9FE]', border: 'border-[#DDD6FE]', text: 'text-[#6D28D9]', ring: 'ring-violet-400' },
+                  { id: 'sports', label: 'Sports', icon: '⚽', bg: 'bg-[#D1FAE5]', border: 'border-[#A7F3D0]', text: 'text-[#047857]', ring: 'ring-emerald-400' },
+                  { id: 'concert', label: 'Concerts', icon: '🎵', bg: 'bg-[#FFEDD5]', border: 'border-[#FED7AA]', text: 'text-[#C2410C]', ring: 'ring-orange-400' },
+                  { id: 'comedy', label: 'Standup', icon: '😂', bg: 'bg-[#FEF9C3]', border: 'border-[#FDE047]', text: 'text-[#A16207]', ring: 'ring-yellow-400' },
+                  { id: 'arts', label: 'Workshops', icon: '🎨', bg: 'bg-[#FCE7F3]', border: 'border-[#FBCFE8]', text: 'text-[#BE185D]', ring: 'ring-pink-400' },
+                  { id: 'hike', label: 'Treks', icon: '🥾', bg: 'bg-[#ECFCCB]', border: 'border-[#D9F99D]', text: 'text-[#4D7C0F]', ring: 'ring-lime-400' },
+                  { id: 'other', label: 'Other', icon: '✨', bg: 'bg-[#FFE4E6]', border: 'border-[#FECDD3]', text: 'text-[#BE123C]', ring: 'ring-rose-400' }
+                ].map(f => {
+                  const isSelected = categoryFilter === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => setCategoryFilter(f.id)}
+                      className={`flex flex-col items-center justify-center min-w-[70px] h-[78px] rounded-2xl border-2 transition-all active:scale-95 flex-shrink-0 cursor-pointer ${
+                        isSelected
+                          ? `${f.bg} ${f.border} ring-2 ${f.ring} shadow-md -translate-y-1`
+                          : 'bg-white border-stone-200/90 hover:bg-stone-50 shadow-xs'
+                      }`}
+                    >
+                      <span className="text-2xl mb-0.5 filter drop-shadow-xs">{f.icon}</span>
+                      <span className={`text-[11px] font-extrabold ${isSelected ? f.text : 'text-stone-700'}`}>
+                        {f.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Plans Feed */}
-            <div className="space-y-3.5 pt-1">
-              <div className="flex justify-between items-center text-xs text-stone-500 font-bold px-1">
+            <div className="space-y-3.5 pt-2">
+              <div className="flex justify-between items-center text-[11px] text-stone-500 font-extrabold px-1">
                 <span>Upcoming Weekend Plans ({filteredPlans.length})</span>
-                <span>{sortByDistance ? 'Sorted by Live GPS Distance' : 'Sorted by Date'}</span>
+                <span>{sortByDistance ? '📍 Sorted by Distance' : '📅 Sorted by Date'}</span>
               </div>
 
               {filteredPlans.length > 0 ? (
@@ -208,17 +225,22 @@ export function App() {
                   <PlanCard key={plan.id} plan={plan} />
                 ))
               ) : (
-                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-stone-300 p-6 space-y-3">
-                  <Compass size={32} className="mx-auto text-amber-500/60" />
-                  <div>
-                    <h4 className="text-xs font-bold text-stone-800">No plans matching this filter</h4>
-                    <p className="text-[11px] text-stone-400 mt-0.5">Be the first host to post a weekend activity in {selectedCity}!</p>
+                /* Warm Postcard Empty State matching mockup */
+                <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-amber-200 p-6 space-y-4 shadow-sm relative overflow-hidden">
+                  <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-100 flex items-center justify-center text-3xl shadow-inner border border-amber-200">
+                    🎪
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-base font-extrabold text-stone-900">Your Weekend Canvas is Blank!</h4>
+                    <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                      Be the awesome pioneer who posts the first weekend meetup in {selectedCity}!
+                    </p>
                   </div>
                   <button
                     onClick={() => requireVerification(() => setShowCreateModal(true), 'create_plan')}
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-xs rounded-xl shadow-md transition-all"
+                    className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-xs sm:text-sm rounded-2xl shadow-md border-b-4 border-amber-600 active:border-b-0 active:translate-y-1 transition-all inline-flex items-center gap-2 cursor-pointer"
                   >
-                    Post a Plan (Free)
+                    <span>✨ Post a Weekend Plan (Free)</span>
                   </button>
                 </div>
               )}

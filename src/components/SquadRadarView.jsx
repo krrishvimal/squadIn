@@ -140,149 +140,94 @@ export const SquadRadarView = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 animate-fade-in">
       
-      {/* Top Hero Banner */}
-      <div className="bg-[#FDFBF7] border border-stone-200 rounded-3xl p-5 shadow-sm relative overflow-hidden">
-        <div className="relative z-10 space-y-2">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
-                <Radio size={12} className="animate-pulse" /> Live Squad Radar
-              </span>
-
-              {/* Live GPS Sync Button */}
-              <button
-                onClick={() => requestLiveLocation()}
-                disabled={isLocating}
-                className={`text-[10.5px] font-extrabold px-2.5 py-0.5 rounded-full border transition-all flex items-center gap-1 shadow-xs active:scale-95 ${
-                  userCoords.isRealGPS
-                    ? 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200'
-                    : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50 animate-pulse'
-                }`}
-                title="Recalibrate / Sync with device GPS"
-              >
-                <Navigation size={11} className={isLocating ? "animate-spin text-amber-500" : "text-amber-500"} />
-                <span>{isLocating ? 'Locating...' : userCoords.isRealGPS ? 'GPS Active' : 'Sync Live GPS'}</span>
-              </button>
-            </div>
-
-            {/* Broadcast status toggle */}
-            <button
-              onClick={() => setIsRadarBroadcastOn(prev => !prev)}
-              className={`text-[11px] font-extrabold px-3 py-1 rounded-full border transition-all flex items-center gap-1.5 ${
-                isRadarBroadcastOn
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-stone-100 text-stone-500 border-stone-200'
-              }`}
-            >
-              <span className={`w-2 h-2 rounded-full ${isRadarBroadcastOn ? 'bg-emerald-400 animate-ping' : 'bg-stone-400'}`} />
-              <span>{isRadarBroadcastOn ? 'Visible' : 'Hidden'}</span>
-            </button>
-          </div>
-
-          <h2 className="text-xl font-extrabold text-stone-900">🧭 Who's Around?</h2>
-          <p className="text-stone-500 text-sm font-medium mt-0.5">{filteredMembers.length} people nearby in {selectedCity}</p>
+      {/* Header matching Mockup 2 Screen 2 */}
+      <div className="flex items-center justify-between px-1 pt-1 pb-1">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2">
+            <span>🧭</span>
+            <span>Who's Around?</span>
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 font-bold mt-0.5">
+            {filteredMembers.length} active verified members near you in <span className="text-amber-700 bg-amber-100/70 px-1.5 py-0.5 rounded-md">{selectedCity}</span>
+          </p>
         </div>
 
-        {/* Floating subtle aesthetic badge */}
-        <div className="absolute -right-4 -bottom-4 text-7xl opacity-10 pointer-events-none">
-          🧭
+        {/* GPS Sync & Visibility status */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => requestLiveLocation()}
+            disabled={isLocating}
+            className="p-2 rounded-xl bg-white border-2 border-stone-200/90 text-stone-700 hover:text-amber-700 shadow-xs active:scale-95 transition-all"
+            title="Recalibrate GPS"
+          >
+            <Navigation size={13} className={isLocating ? "animate-spin text-amber-500" : "text-amber-600"} />
+          </button>
+          
+          <button
+            onClick={() => setIsRadarBroadcastOn(prev => !prev)}
+            className={`text-xs font-extrabold px-3 py-1.5 rounded-xl border-2 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
+              isRadarBroadcastOn
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'bg-stone-100 text-stone-500 border-stone-200'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${isRadarBroadcastOn ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+            <span>{isRadarBroadcastOn ? 'Visible' : 'Hidden'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Controls & Filter Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          
-          {/* View mode switcher */}
-          <div className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200">
+      {/* Streamlined Controls & Radius Bar */}
+      <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-1">
+        {/* Radius filter pills */}
+        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-stone-200/80 shadow-xs">
+          {[
+            { id: 5, label: '📍 5 km' },
+            { id: 15, label: '⚡ 15 km' },
+            { id: 999, label: '🏙️ City' }
+          ].map(pill => (
             <button
-              onClick={() => setViewMode('radar')}
-              className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 ${
-                viewMode === 'radar'
-                  ? 'bg-white text-espresso shadow-xs'
-                  : 'text-stone-500 hover:text-stone-800'
+              key={pill.id}
+              onClick={() => setDistanceFilter(pill.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                distanceFilter === pill.id
+                  ? 'bg-amber-500 text-stone-900 shadow-xs'
+                  : 'text-stone-600 hover:bg-stone-100'
               }`}
             >
-              <Radio size={12} />
-              <span>Radar View</span>
+              {pill.label}
             </button>
-            <button
-              onClick={() => setViewMode('cards')}
-              className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 ${
-                viewMode === 'cards'
-                  ? 'bg-white text-espresso shadow-xs'
-                  : 'text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              <Layers size={12} />
-              <span>List View ({filteredMembers.length})</span>
-            </button>
-          </div>
+          ))}
+        </div>
 
-          {/* Women Only filter */}
+        {/* View Mode & Women-Only */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
             onClick={() => setWomenOnly(prev => !prev)}
-            className={`px-3 py-1 rounded-xl text-xs font-extrabold border transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border-2 transition-all flex items-center gap-1 shadow-xs cursor-pointer ${
               womenOnly
-                ? 'bg-rose-600 text-white border-rose-700 shadow-sm'
-                : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                ? 'bg-rose-500 text-white border-rose-600'
+                : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
             }`}
           >
             <span>🚺</span>
             <span>Women-Only</span>
           </button>
-        </div>
 
-        {/* Discovery Radius 3-Pill Filter Row */}
-        <div className="flex items-center justify-between gap-2 p-2 bg-stone-100/80 rounded-2xl border border-stone-200/80">
-          <div className="flex items-center gap-1 text-[11px] font-extrabold text-stone-600 pl-1">
-            <Navigation size={12} className="text-amber-600" />
-            <span>Radius:</span>
-          </div>
-          <div className="flex items-center gap-1.5 flex-1 justify-end">
-            {[
-              { id: 5, label: '📍 5 km', desc: 'Neighborhood' },
-              { id: 15, label: '⚡ 15 km', desc: 'City Hubs' },
-              { id: 999, label: '🏙️ Whole City', desc: 'All Areas' }
-            ].map(pill => (
-              <button
-                key={pill.id}
-                onClick={() => setDistanceFilter(pill.id)}
-                className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold transition-all ${
-                  distanceFilter === pill.id
-                    ? 'bg-amber-500 text-stone-900 shadow-sm ring-1 ring-amber-400'
-                    : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
-                }`}
-              >
-                {pill.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Activity category pills */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {ACTIVITY_FILTERS.map(f => (
-            <button
-              key={f.id}
-              onClick={() => setSelectedCat(f.id)}
-              className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
-                selectedCat === f.id
-                  ? 'bg-amber-500 text-espresso font-extrabold shadow-sm'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
-              }`}
-            >
-              <span>{f.icon}</span>
-              <span>{f.label}</span>
-            </button>
-          ))}
+          <button
+            onClick={() => setViewMode(prev => prev === 'radar' ? 'cards' : 'radar')}
+            className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-white border-2 border-stone-200 hover:bg-stone-50 text-stone-700 shadow-xs flex items-center gap-1 transition-all cursor-pointer"
+          >
+            {viewMode === 'radar' ? <Layers size={13} /> : <Radio size={13} />}
+            <span>{viewMode === 'radar' ? `List (${filteredMembers.length})` : 'Radar'}</span>
+          </button>
         </div>
       </div>
 
       {/* RADAR CANVAS VIEW */}
       {viewMode === 'radar' && (
         <>
-          <div className="bg-[#FDFBF7] rounded-3xl p-4 border border-stone-200 shadow-sm relative min-h-[380px] flex items-center justify-center overflow-hidden">
+          <div className="bg-[#FAF6EE] rounded-3xl p-4 border-2 border-amber-200/80 shadow-sm relative min-h-[440px] sm:min-h-[480px] flex items-center justify-center overflow-hidden">
           
           {/* Concentric Radar Distance Rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
