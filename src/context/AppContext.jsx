@@ -214,24 +214,25 @@ export const AppProvider = ({ children }) => {
       });
     }
 
-    // Update current user profile city and sync
-    if (currentUser?.id) {
-      const updatedUser = { ...currentUser, city };
-      setCurrentUser(updatedUser);
+    // Update current user profile city and sync using functional update to prevent race conditions
+    setCurrentUser(prev => {
+      if (!prev?.id) return prev;
+      const updatedUser = { ...prev, city };
       try {
         appStorage.setItem('squadin_current_user', JSON.stringify(updatedUser));
       } catch (e) {}
-      if (cloudEnabled && supabase) {
+      if (cloudEnabled && supabase && prev.name && prev.name !== 'Verified Member') {
         try {
           supabase.from('profiles').upsert({
-            id: currentUser.id,
-            name: currentUser.name || 'Verified Member',
-            avatar: currentUser.avatar,
+            id: prev.id,
+            name: prev.name,
+            avatar: prev.avatar,
             city: city
           }, { onConflict: 'id' }).then(() => {}, () => {});
         } catch (e) {}
       }
-    }
+      return updatedUser;
+    });
   };
 
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -256,12 +257,9 @@ export const AppProvider = ({ children }) => {
   const [onboardingReason, setOnboardingReason] = useState('general'); // 'join_plan' | 'create_plan' | 'radar_invite' | 'general'
   const [pendingActionAfterAuth, setPendingActionAfterAuth] = useState(null);
 
-  // Verification gate: only requires a real name + completed onboarding
-  // Phone/Selfie/LinkedIn are optional trust badges that boost visibility, not gates
+  // Verification gate: verified if user has entered a real name OR completed onboarding
   const isUserVerified = Boolean(
-    currentUser?.name &&
-    currentUser?.name.trim() !== '' &&
-    currentUser?.name !== 'Verified Member' &&
+    (currentUser?.name && currentUser?.name.trim() !== '' && currentUser?.name !== 'Verified Member') ||
     appStorage.getItem('squadin_onboarded') === 'true'
   );
 
@@ -617,14 +615,17 @@ export const AppProvider = ({ children }) => {
               }));
 
             const planReqs = cloudRequests
-              .filter(r => r.plan_id === cp.id && r.status !== 'ACCEPTED')
-              .map(r => ({
-                userId: r.user_id,
-                userName: r.user_name || 'Member',
-                userAvatar: r.user_avatar,
-                message: r.message,
-                requestedAt: 'Just now'
-              }));
+              .filter(r => sameId(r.plan_id, cp.id) && r.status !== 'ACCEPTED')
+              .map(r => {
+                const applicantProfile = (cloudProfiles || []).find(p => sameId(p.id, r.user_id));
+                return {
+                  userId: r.user_id,
+                  userName: applicantProfile?.name || r.user_name || 'Member',
+                  userAvatar: applicantProfile?.avatar || r.user_avatar,
+                  message: r.message || '',
+                  requestedAt: r.requested_at ? new Date(r.requested_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+                };
+              });
 
             return mapRowToPlan(cp, planMsgs, planReqs);
           });
@@ -812,43 +813,58 @@ export const AppProvider = ({ children }) => {
 
     const requestsSubscription = supabase
       .channel('public:plan_requests')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_requests' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_requests' }, async (payload) => {
+        if (payload.eventType === 'INSERT' || (payload.eventType === 'UPDATE' && payload.new?.status === 'PENDING')) {
           const req = payload.new;
-          setPlans(prev => prev.map(p => {
-            if (p.id === req.plan_id) {
-              const exists = p.pendingRequests.some(r => r.userId === req.user_id);
-              if (exists) return p;
+          if (!req?.plan_id || !req?.user_id) return;
 
-              // Trigger toast notification if current user is the host of this plan
-              if (p.hostId === currentUser?.id) {
-                showToast(`🎉 ${req.user_name || 'A member'} requested to join your meetup: "${p.title}"!`);
+          let applicantName = req.user_name || 'Member';
+          let applicantAvatar = req.user_avatar;
+          try {
+            const { data: prof } = await supabase.from('profiles').select('*').eq('id', req.user_id).maybeSingle();
+            if (prof) {
+              applicantName = prof.name || applicantName;
+              applicantAvatar = prof.avatar || applicantAvatar;
+              setAllUsers(prev => prev.some(u => sameId(u.id, prof.id)) ? prev : [...prev, prof]);
+            }
+          } catch (e) {}
+
+          setPlans(prev => prev.map(p => {
+            if (sameId(p.id, req.plan_id)) {
+              if (sameId(p.hostId, currentUser?.id)) {
+                showToast(`🎉 ${applicantName} requested to join your meetup: "${p.title}"!`);
               }
+
+              const existingReqs = p.pendingRequests || [];
+              const alreadyThere = existingReqs.some(r => sameId(r.userId, req.user_id));
+              const updatedReqs = alreadyThere
+                ? existingReqs.map(r => sameId(r.userId, req.user_id) ? { ...r, message: req.message || r.message } : r)
+                : [
+                    ...existingReqs,
+                    {
+                      userId: req.user_id,
+                      userName: applicantName,
+                      userAvatar: applicantAvatar,
+                      message: req.message || '',
+                      requestedAt: 'Just now'
+                    }
+                  ];
 
               return {
                 ...p,
-                pendingRequests: [
-                  ...p.pendingRequests,
-                  {
-                    userId: req.user_id,
-                    userName: req.user_name || 'Member',
-                    userAvatar: req.user_avatar,
-                    message: req.message,
-                    requestedAt: 'Just now'
-                  }
-                ]
+                pendingRequests: updatedReqs
               };
             }
             return p;
           }));
-        } else if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
+        } else if (payload.eventType === 'DELETE' || (payload.eventType === 'UPDATE' && payload.new?.status !== 'PENDING')) {
           const req = payload.old || payload.new;
           if (req?.plan_id && req?.user_id) {
             setPlans(prev => prev.map(p => {
-              if (p.id === req.plan_id) {
+              if (sameId(p.id, req.plan_id)) {
                 return {
                   ...p,
-                  pendingRequests: p.pendingRequests.filter(r => r.userId !== req.user_id)
+                  pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.userId, req.user_id))
                 };
               }
               return p;
@@ -868,15 +884,37 @@ export const AppProvider = ({ children }) => {
 
   // Update profile
   const updateCurrentUserProfile = async (updates) => {
-    const updated = { ...currentUser, ...updates };
-    setCurrentUser(updated);
-    setAllUsers(users => users.map(u => u.id === currentUser.id ? updated : u));
-    appStorage.setItem('squadin_current_user', JSON.stringify(updated));
+    let updated = null;
+    setCurrentUser(prev => {
+      updated = { ...prev, ...updates };
+      try {
+        appStorage.setItem('squadin_current_user', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    if (updates.name && updates.name.trim() !== '') {
+      appStorage.setItem('squadin_onboarded', 'true');
+    }
+
+    if (updates.city) {
+      setSelectedCityState(updates.city);
+      try {
+        appStorage.setItem('squadin_selected_city', updates.city);
+      } catch (e) {}
+    }
+
+    const targetId = updated?.id || currentUser?.id;
+    setAllUsers(users => users.map(u => u.id === targetId ? (updated || { ...u, ...updates }) : u));
 
     // If there was a pending high-intent action waiting for verification, execute it now
     if (pendingActionAfterAuth && typeof pendingActionAfterAuth === 'function') {
       setTimeout(() => {
-        pendingActionAfterAuth();
+        try {
+          pendingActionAfterAuth();
+        } catch (e) {
+          console.warn('Pending action execution error:', e);
+        }
         setPendingActionAfterAuth(null);
       }, 300);
     }
@@ -1010,14 +1048,27 @@ export const AppProvider = ({ children }) => {
 
     if (cloudEnabled && supabase) {
       try {
-        await supabase.from('plan_requests').insert({
+        // 1. Ensure applicant profile exists in profiles table to satisfy foreign key constraint
+        await supabase.from('profiles').upsert({
+          id: currentUser.id,
+          name: currentUser.name || 'Member',
+          avatar: currentUser.avatar,
+          city: currentUser.city || selectedCity
+        }, { onConflict: 'id' });
+
+        // 2. Upsert request with exact schema columns (no user_name/user_avatar column mismatch)
+        const { error } = await supabase.from('plan_requests').upsert({
           plan_id: planId,
           user_id: currentUser.id,
-          user_name: currentUser.name || 'Member',
-          user_avatar: currentUser.avatar,
           message: cleanMessage,
           status: 'PENDING'
-        });
+        }, { onConflict: 'plan_id,user_id' });
+
+        if (error) {
+          console.warn('⚠️ Join request upsert notice:', error.message);
+        } else {
+          console.info('✅ Join request successfully saved to Supabase');
+        }
       } catch (err) {
         console.warn('Request cloud sync notice:', err);
       }
@@ -1412,12 +1463,58 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // 12. Fetch Fresh Plan Requests (called on demand, e.g. when Host Dashboard opens)
+  const fetchPlanRequests = async (planId) => {
+    if (!cloudEnabled || !supabase || !planId) return;
+    try {
+      const { data: reqs, error } = await supabase
+        .from('plan_requests')
+        .select('*')
+        .eq('plan_id', planId)
+        .eq('status', 'PENDING');
+
+      if (!error && reqs) {
+        const userIds = reqs.map(r => r.user_id);
+        let profs = [];
+        if (userIds.length > 0) {
+          const { data: profData } = await supabase.from('profiles').select('*').in('id', userIds);
+          if (profData) {
+            profs = profData;
+            setAllUsers(prev => {
+              const map = new Map();
+              [...prev, ...profData].forEach(u => map.set(u.id, u));
+              return Array.from(map.values());
+            });
+          }
+        }
+
+        setPlans(prev => prev.map(p => {
+          if (!sameId(p.id, planId)) return p;
+          const fresh = reqs.map(r => {
+            const matchedProf = profs.find(pr => sameId(pr.id, r.user_id));
+            return {
+              userId: r.user_id,
+              userName: matchedProf?.name || r.user_name || 'Member',
+              userAvatar: matchedProf?.avatar || r.user_avatar,
+              message: r.message || '',
+              requestedAt: r.requested_at ? new Date(r.requested_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+            };
+          });
+          return { ...p, pendingRequests: fresh };
+        }));
+      }
+    } catch (e) {
+      console.warn('fetchPlanRequests notice:', e);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
         currentUser,
         allUsers,
         plans,
+        fetchPlanRequests,
         activeTab,
         setActiveTab,
         selectedPlanForDetail,

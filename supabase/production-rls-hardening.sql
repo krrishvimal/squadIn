@@ -16,6 +16,10 @@ alter table public.messages add constraint message_length_check
     (text is null or length(text) <= 2500)
   );
 
+-- Ensure plan_requests has user_name and user_avatar columns if needed
+alter table public.plan_requests add column if not exists user_name text;
+alter table public.plan_requests add column if not exists user_avatar text;
+
 -- 3. ENABLE ROW LEVEL SECURITY (RLS) ON ALL TABLES
 alter table public.profiles enable row level security;
 alter table public.plans enable row level security;

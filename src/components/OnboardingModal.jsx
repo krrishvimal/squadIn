@@ -17,7 +17,6 @@ export function OnboardingModal({ isOpen, onClose, reason }) {
     if (!name.trim()) return;
     appStorage.setItem('squadin_onboarded', 'true');
     updateCurrentUserProfile({ name: name.trim(), city });
-    setSelectedCity(city);
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#ffc966', '#c7b3e8', '#a9d6bd', '#f4ac99'] });
     onClose();
   };

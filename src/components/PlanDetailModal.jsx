@@ -3,11 +3,18 @@ import { CalendarDays, MapPin, Star, Clock3, MessageCircle, ShieldCheck, Plus, M
 import { useApp } from '../context/AppContext';
 import { ActivityArt, Avatar, AvatarStack, Sheet, categoryFor, sameId, trustScore } from './DesignKit';
 export function PlanDetailModal() {
-  const { plans, selectedPlanForDetail, setSelectedPlanForDetail, getUserById, getPlanDistance, currentUser, requestToJoinPlan, acceptJoinRequest, rejectJoinRequest, hostEarlyUnlockPlan, hostUpdateCapacity, setActiveChatPlanId, setActiveTab, requireVerification } = useApp();
+  const { plans, selectedPlanForDetail, setSelectedPlanForDetail, getUserById, getPlanDistance, currentUser, requestToJoinPlan, acceptJoinRequest, rejectJoinRequest, hostEarlyUnlockPlan, hostUpdateCapacity, setActiveChatPlanId, setActiveTab, requireVerification, fetchPlanRequests } = useApp();
   const [note, setNote] = useState('');
   const [showNote, setShowNote] = useState(false);
   const [noteSent, setNoteSent] = useState(false);
-  useEffect(() => { setNote(''); setShowNote(false); setNoteSent(false); }, [selectedPlanForDetail?.id]);
+  useEffect(() => {
+    setNote('');
+    setShowNote(false);
+    setNoteSent(false);
+    if (selectedPlanForDetail?.id && fetchPlanRequests) {
+      fetchPlanRequests(selectedPlanForDetail.id);
+    }
+  }, [selectedPlanForDetail?.id]);
   if (!selectedPlanForDetail) return null;
   const plan = plans.find(p => sameId(p.id, selectedPlanForDetail.id)) || selectedPlanForDetail;
   const host = getUserById(plan.hostId);
