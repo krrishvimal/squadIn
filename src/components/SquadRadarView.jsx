@@ -5,7 +5,7 @@ import { calculateDistanceKm, PASSION_TO_CATEGORY_MAP } from '../venueData';
 import { ActivityArt, Avatar, CityPicker, Sheet, EmptyState, CATEGORIES, categoryFor, trustScore, sameId } from './DesignKit';
 export { PASSION_TO_CATEGORY_MAP } from '../venueData';
 export function SquadRadarView() {
-  const { radarMembers, selectedCity, isRadarBroadcastOn, setIsRadarBroadcastOn, sendCrewInvite, plans, currentUser, userCoords, isLocating, requestLiveLocation, setShowCreateModal, requireVerification, sendWave, hasWavedAt, hasReceivedWaveFrom, isMutualWave, blockedUserIds } = useApp();
+  const { radarMembers, selectedCity, isRadarBroadcastOn, setIsRadarBroadcastOn, sendCrewInvite, plans, currentUser, userCoords, isLocating, requestLiveLocation, setShowCreateModal, requireVerification, sendWave, hasWavedAt, hasReceivedWaveFrom, isMutualWave, blockedUserIds, getUserById } = useApp();
   const [radius, setRadius] = useState(15);
   const [women, setWomen] = useState(false);
   const [category, setCategory] = useState('all');
@@ -21,7 +21,16 @@ export function SquadRadarView() {
     const km = distance(member);
     return km == null || km <= radius;
   });
-  const candidate = radarMembers.find(m => m.id === candidateId);
+  const candidateMember = radarMembers.find(m => m.id === candidateId);
+  const candidateUser = candidateId && getUserById ? getUserById(candidateId) : null;
+  const candidate = candidateMember ? { 
+    ...candidateMember, 
+    ...candidateUser,
+    phoneVerified: Boolean(candidateMember.phoneVerified || candidateUser?.phoneVerified || candidateUser?.phone_verified),
+    idVerified: Boolean(candidateMember.idVerified || candidateUser?.idVerified || candidateUser?.id_verified || candidateMember.avatar?.startsWith('data:image') || candidateUser?.avatar?.startsWith('data:image')),
+    linkedin_verified: Boolean(candidateMember.linkedin_verified || candidateUser?.linkedin_verified || candidateUser?.linkedInVerified),
+    bio: candidateMember.bio || candidateUser?.bio || ''
+  } : null;
   const openPlans = plans.filter(p => sameId(p.hostId, currentUser.id) && p.status !== 'COMPLETED' && (p.acceptedMembers?.length || 0) < p.targetCapacity && (!p.womenOnly || (candidate?.gender === 'female' && trustScore(candidate) > 0)));
   const open = member => { setCandidateId(member.id); setInvitePlan(''); setInvited(false); };
   const wave = () => requireVerification(() => sendWave(candidate.id), 'radar_wave');

@@ -15,7 +15,11 @@ export function ProfileView() {
   const [editBio, setEditBio] = useState('');
   const score = trustScore(currentUser);
   const hosted = plans.filter(p => sameId(p.hostId, currentUser.id)).length;
-  const badges = [{ id: 'phone', label: 'Phone', boost: 50, verified: currentUser.phoneVerified, art: 'phone' }, { id: 'selfie', label: 'Selfie', boost: 30, verified: currentUser.idVerified, icon: '📷' }, { id: 'linkedin', label: 'LinkedIn', boost: 20, verified: currentUser.linkedin_verified, icon: 'in' }];
+  const badges = [
+    { id: 'phone', label: 'Phone', boost: 50, verified: Boolean(currentUser.phoneVerified || currentUser.phone_verified), art: 'phone' },
+    { id: 'selfie', label: 'Selfie', boost: 30, verified: Boolean(currentUser.idVerified || currentUser.id_verified || currentUser.avatar?.startsWith('data:image')), icon: '📷' },
+    { id: 'linkedin', label: 'LinkedIn', boost: 20, verified: Boolean(currentUser.linkedin_verified || currentUser.linkedInVerified), icon: 'in' }
+  ];
 
   const openEdit = () => {
     setEditName(currentUser?.name !== 'Verified Member' ? currentUser?.name || '' : '');
