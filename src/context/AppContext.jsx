@@ -37,7 +37,7 @@ const mapProfileToRadarMember = (p) => {
     phoneVerified: Boolean(p.phone_verified || p.phoneVerified),
     workEmailVerified: Boolean(p.work_email_verified || p.workEmailVerified),
     linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
-    idVerified: Boolean(p.id_verified || p.idVerified),
+    idVerified: Boolean(p.id_verified || p.idVerified || p.avatar?.startsWith('data:image')),
     karmaScore: p.karma_score || p.karmaScore || 5.0,
     distanceKm: 1.8,
     latOffset: (Math.random() * 0.03 - 0.015),
@@ -543,7 +543,7 @@ export const AppProvider = ({ children }) => {
               phoneVerified: Boolean(p.phone_verified || p.phoneVerified),
               workEmailVerified: Boolean(p.work_email_verified || p.workEmailVerified),
               linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
-              idVerified: Boolean(p.id_verified || p.idVerified),
+              idVerified: Boolean(p.id_verified || p.idVerified || p.avatar?.startsWith('data:image')),
               karmaScore: p.karma_score || p.karmaScore || 5.0
             }));
 
@@ -826,7 +826,7 @@ export const AppProvider = ({ children }) => {
               bio: updatedProfile.bio || '',
               interests: updatedProfile.interests || [],
               phoneVerified: Boolean(updatedProfile.phone_verified),
-              idVerified: Boolean(updatedProfile.id_verified),
+              idVerified: Boolean(updatedProfile.id_verified || updatedProfile.avatar?.startsWith('data:image')),
               workEmailVerified: Boolean(updatedProfile.work_email_verified),
               linkedin_verified: Boolean(updatedProfile.linkedin_verified),
               karmaScore: updatedProfile.karma_score || 5.0
@@ -1554,7 +1554,7 @@ export const AppProvider = ({ children }) => {
             profs = profData.map(p => ({
               ...p,
               phoneVerified: Boolean(p.phone_verified),
-              idVerified: Boolean(p.id_verified),
+              idVerified: Boolean(p.id_verified || p.avatar?.startsWith('data:image')),
               workEmailVerified: Boolean(p.work_email_verified),
               linkedin_verified: Boolean(p.linkedin_verified),
               karmaScore: p.karma_score || 5.0
