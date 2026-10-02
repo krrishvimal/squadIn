@@ -1258,98 +1258,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // 5. Host Early Unlock
-  const hostEarlyUnlockPlan = async (planId) => {
-    const plan = plans.find(p => p.id === planId);
-    if (!plan) return;
-    // Safety check: Only host can unlock early
-    if (normId(plan.hostId) !== normId(currentUser.id)) {
-      console.warn('Unauthorized: Only the host can early unlock');
-      return;
-    }
-
-    let updatedPlanTarget = null;
-
-    setPlans(prev => prev.map(p => {
-      if (p.id !== planId) return p;
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
-      const updated = {
-        ...p,
-        targetCapacity: p.acceptedMembers.length,
-        status: 'LOCKED_CHAT_ACTIVE',
-        messages: [
-          ...p.messages,
-          {
-            id: `msg_sys_${Date.now()}`,
-            senderId: 'SYSTEM',
-            content: `⚡ Host locked the crew early with ${p.acceptedMembers.length} members! Group chat is unlocked. Coordinate arrival!`,
-            timestamp: 'Just now',
-            isSystem: true
-          }
-        ]
-      };
-      updatedPlanTarget = updated;
-      return updated;
-    }));
-
-    if (cloudEnabled && supabase && updatedPlanTarget) {
-      try {
-        await supabase
-          .from('plans')
-          .update({
-            target_capacity: updatedPlanTarget.targetCapacity,
-            status: 'LOCKED_CHAT_ACTIVE'
-          })
-          .eq('id', planId);
-      } catch (err) {
-        console.warn('Host early unlock cloud sync notice:', err);
-      }
-    }
-  };
-
-  // 6. Host Expands Capacity (+1 free)
-  const hostUpdateCapacity = async (planId, delta) => {
-    const plan = plans.find(p => p.id === planId);
-    if (!plan) return;
-    // Safety check: Only host can update capacity
-    if (normId(plan.hostId) !== normId(currentUser.id)) {
-      console.warn('Unauthorized: Only the host can update capacity');
-      return;
-    }
-
-    let updatedTarget = null;
-
-    setPlans(prev => prev.map(p => {
-      if (p.id !== planId) return p;
-      const newCap = Math.max(p.acceptedMembers.length, p.targetCapacity + delta);
-      const updated = {
-        ...p,
-        targetCapacity: newCap,
-        status: p.acceptedMembers.length >= newCap ? 'LOCKED_CHAT_ACTIVE' : 'OPEN'
-      };
-      updatedTarget = updated;
-      return updated;
-    }));
-
-    if (cloudEnabled && supabase && updatedTarget) {
-      try {
-        await supabase
-          .from('plans')
-          .update({
-            target_capacity: updatedTarget.targetCapacity,
-            status: updatedTarget.status
-          })
-          .eq('id', planId);
-      } catch (err) {
-        console.warn('Update capacity cloud sync notice:', err);
-      }
-    }
-  };
 
   // 7. Send Chat Message
   const sendMessage = async (planId, content) => {
@@ -1466,17 +1374,23 @@ export const AppProvider = ({ children }) => {
   // 11. Send Crew Invite from Host to Nearby Radar Candidate
   const sendCrewInvite = (targetUserId, planId) => {
     if (!planId) return;
+    const currentPlan = plans.find(p => sameId(p.id, planId));
+    if (currentPlan && currentPlan.acceptedMembers && currentPlan.acceptedMembers.length >= currentPlan.targetCapacity) {
+      console.warn('Cannot invite: crew is already full');
+      return;
+    }
 
     setInvitedUserIds(prev => [...prev, targetUserId]);
 
+    let updatedTarget = null;
     setPlans(prev => prev.map(p => {
-      if (p.id !== planId) return p;
+      if (!sameId(p.id, planId)) return p;
       if (p.acceptedMembers.includes(targetUserId)) return p;
 
       const newAccepted = [...p.acceptedMembers, targetUserId];
       const isNowFull = newAccepted.length >= p.targetCapacity;
 
-      return {
+      const updated = {
         ...p,
         acceptedMembers: newAccepted,
         status: isNowFull ? 'LOCKED_CHAT_ACTIVE' : p.status,
@@ -1491,7 +1405,16 @@ export const AppProvider = ({ children }) => {
           }
         ] : p.messages
       };
+      updatedTarget = updated;
+      return updated;
     }));
+
+    if (cloudEnabled && supabase && updatedTarget) {
+      supabase.from('plans').update({
+        accepted_members: updatedTarget.acceptedMembers,
+        status: updatedTarget.status
+      }).eq('id', planId).then(() => {});
+    }
 
     confetti({
       particleCount: 60,
@@ -1663,8 +1586,6 @@ export const AppProvider = ({ children }) => {
         requestToJoinPlan,
         acceptJoinRequest,
         rejectJoinRequest,
-        hostEarlyUnlockPlan,
-        hostUpdateCapacity,
         sendMessage,
         triggerEmergencySOS,
         submitKarmaReview,
