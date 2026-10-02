@@ -4,7 +4,10 @@ import { useApp } from '../context/AppContext';
 import { sameId } from './DesignKit';
 export function NavigationTabs({ className = 'bottom-tabs' }) {
   const { activeTab, setActiveTab, plans, currentUser, waves, hasWavedAt } = useApp();
-  const requests = plans.filter(p => sameId(p.hostId, currentUser.id)).reduce((n, p) => n + (p.pendingRequests?.length || 0), 0);
+  const requests = plans.filter(p => sameId(p.hostId, currentUser.id)).reduce((n, p) => {
+    const validPending = (p.pendingRequests || []).filter(r => !(p.acceptedMembers || []).some(mId => sameId(mId, r.userId)));
+    return n + validPending.length;
+  }, 0);
   const incoming = (waves || []).filter(w => sameId(w.toUserId, currentUser.id) && !hasWavedAt(w.fromUserId)).length;
   const tabs = [
     { id: 'explore', label: 'Explore', Icon: Compass },

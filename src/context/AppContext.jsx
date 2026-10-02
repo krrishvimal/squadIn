@@ -616,10 +616,11 @@ export const AppProvider = ({ children }) => {
               }));
 
             const planReqs = cloudRequests
-              .filter(r => sameId(r.plan_id, cp.id) && r.status !== 'ACCEPTED')
+              .filter(r => sameId(r.plan_id, cp.id) && r.status !== 'ACCEPTED' && !(cp.accepted_members || []).some(mId => sameId(mId, r.user_id)))
               .map(r => {
                 const applicantProfile = (cloudProfiles || []).find(p => sameId(p.id, r.user_id));
                 return {
+                  id: r.id,
                   userId: r.user_id,
                   userName: applicantProfile?.name || r.user_name || 'Member',
                   userAvatar: applicantProfile?.avatar || r.user_avatar,
@@ -738,9 +739,12 @@ export const AppProvider = ({ children }) => {
                 showToast(`🎟️ You're in! Your request for "${p.title}" was accepted!`);
                 confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
               }
+              const cleanPending = (p.pendingRequests || []).filter(r => 
+                !(updatedRow.accepted_members || []).some(mId => sameId(mId, r.userId))
+              );
               return {
                 ...p,
-                ...mapRowToPlan(updatedRow, p.messages, p.pendingRequests)
+                ...mapRowToPlan(updatedRow, p.messages, cleanPending)
               };
             }
             return p;
@@ -839,6 +843,11 @@ export const AppProvider = ({ children }) => {
 
           setPlans(prev => prev.map(p => {
             if (sameId(p.id, req.plan_id)) {
+              // If user is already an accepted member, never add to pendingRequests
+              if ((p.acceptedMembers || []).some(mId => sameId(mId, req.user_id))) {
+                return p;
+              }
+
               if (sameId(p.hostId, currentUser?.id)) {
                 showToast(`🎉 ${applicantName} requested to join your meetup: "${p.title}"!`);
               }
@@ -850,6 +859,7 @@ export const AppProvider = ({ children }) => {
                 : [
                     ...existingReqs,
                     {
+                      id: req.id,
                       userId: req.user_id,
                       userName: applicantName,
                       userAvatar: applicantAvatar,
@@ -866,18 +876,18 @@ export const AppProvider = ({ children }) => {
             return p;
           }));
         } else if (payload.eventType === 'DELETE' || (payload.eventType === 'UPDATE' && payload.new?.status !== 'PENDING')) {
-          const req = payload.old || payload.new;
-          if (req?.plan_id && req?.user_id) {
-            setPlans(prev => prev.map(p => {
-              if (sameId(p.id, req.plan_id)) {
-                return {
-                  ...p,
-                  pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.userId, req.user_id))
-                };
-              }
-              return p;
-            }));
-          }
+          const req = payload.new || payload.old;
+          setPlans(prev => prev.map(p => {
+            if (req?.plan_id && !sameId(p.id, req.plan_id)) return p;
+            return {
+              ...p,
+              pendingRequests: (p.pendingRequests || []).filter(r => {
+                if (req?.user_id && sameId(r.userId, req.user_id)) return false;
+                if (req?.id && r.id && sameId(r.id, req.id)) return false;
+                return true;
+              })
+            };
+          }));
         }
       })
       .subscribe();
@@ -1085,7 +1095,7 @@ export const AppProvider = ({ children }) => {
 
   // 3. Host Accepts Request
   const acceptJoinRequest = async (planId, userId) => {
-    const plan = plans.find(p => p.id === planId);
+    const plan = plans.find(p => sameId(p.id, planId));
     if (!plan) return;
     // Safety check: Only host can accept join requests
     if (normId(plan.hostId) !== normId(currentUser.id)) {
@@ -1093,7 +1103,9 @@ export const AppProvider = ({ children }) => {
       return;
     }
     // Prevent over-filling the crew
-    if (plan.acceptedMembers && plan.acceptedMembers.length >= plan.targetCapacity) {
+    const currentMembers = plan.acceptedMembers || [];
+    const alreadyMember = currentMembers.some(mId => sameId(mId, userId));
+    if (!alreadyMember && currentMembers.length >= plan.targetCapacity) {
       console.warn('Cannot accept: crew is already full');
       return;
     }
@@ -1101,10 +1113,11 @@ export const AppProvider = ({ children }) => {
     let updatedPlanTarget = null;
 
     setPlans(prev => prev.map(p => {
-      if (p.id !== planId) return p;
+      if (!sameId(p.id, planId)) return p;
 
-      const newAccepted = [...p.acceptedMembers, userId];
-      const newPending = p.pendingRequests.filter(r => r.userId !== userId);
+      const alreadyInCrew = (p.acceptedMembers || []).some(mId => sameId(mId, userId));
+      const newAccepted = alreadyInCrew ? p.acceptedMembers : [...p.acceptedMembers, userId];
+      const newPending = (p.pendingRequests || []).filter(r => !sameId(r.userId, userId));
       const isNowFull = newAccepted.length >= p.targetCapacity;
 
       const updatedMessages = isNowFull && p.status !== 'LOCKED_CHAT_ACTIVE' ? [
@@ -1148,6 +1161,14 @@ export const AppProvider = ({ children }) => {
           })
           .eq('id', planId);
 
+        // 1. Mark status as ACCEPTED first so realtime update reaches all clients cleanly
+        await supabase
+          .from('plan_requests')
+          .update({ status: 'ACCEPTED' })
+          .eq('plan_id', planId)
+          .eq('user_id', userId);
+
+        // 2. Remove the request row from database
         await supabase
           .from('plan_requests')
           .delete()
@@ -1161,7 +1182,7 @@ export const AppProvider = ({ children }) => {
 
   // 4. Host Rejects Request
   const rejectJoinRequest = async (planId, userId) => {
-    const plan = plans.find(p => p.id === planId);
+    const plan = plans.find(p => sameId(p.id, planId));
     if (!plan) return;
     // Safety check: Only host can reject join requests
     if (normId(plan.hostId) !== normId(currentUser.id)) {
@@ -1170,15 +1191,21 @@ export const AppProvider = ({ children }) => {
     }
 
     setPlans(prev => prev.map(p => {
-      if (p.id !== planId) return p;
+      if (!sameId(p.id, planId)) return p;
       return {
         ...p,
-        pendingRequests: p.pendingRequests.filter(r => r.userId !== userId)
+        pendingRequests: (p.pendingRequests || []).filter(r => !sameId(r.userId, userId))
       };
     }));
 
     if (cloudEnabled && supabase) {
       try {
+        await supabase
+          .from('plan_requests')
+          .update({ status: 'REJECTED' })
+          .eq('plan_id', planId)
+          .eq('user_id', userId);
+
         await supabase
           .from('plan_requests')
           .delete()
@@ -1498,9 +1525,19 @@ export const AppProvider = ({ children }) => {
 
         setPlans(prev => prev.map(p => {
           if (!sameId(p.id, planId)) return p;
-          const fresh = reqs.map(r => {
+          // Filter out anyone who is ALREADY an accepted member
+          const validReqs = reqs.filter(r => !(p.acceptedMembers || []).some(mId => sameId(mId, r.user_id)));
+
+          // Clean up orphan requests in Supabase if any exist for accepted members
+          const orphanIds = reqs.filter(r => (p.acceptedMembers || []).some(mId => sameId(mId, r.user_id))).map(r => r.user_id);
+          if (orphanIds.length > 0) {
+            supabase.from('plan_requests').delete().eq('plan_id', planId).in('user_id', orphanIds).then(() => {});
+          }
+
+          const fresh = validReqs.map(r => {
             const matchedProf = profs.find(pr => sameId(pr.id, r.user_id));
             return {
+              id: r.id,
               userId: r.user_id,
               userName: matchedProf?.name || r.user_name || 'Member',
               userAvatar: matchedProf?.avatar || r.user_avatar,
