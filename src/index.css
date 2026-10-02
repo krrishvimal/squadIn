@@ -84,7 +84,11 @@ button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}button,a{to
 .onboarding-form{width:79%;margin:31px auto 0;position:relative;z-index:2}.onboarding-form label{font-size:14px;font-weight:800;display:block;margin:16px 0 7px}
 .input-with-icon{display:flex;align-items:center;background:#fff;border:1.3px solid #d6c6ae;border-radius:99px;padding:0 14px;gap:10px}.input-with-icon>span{font-size:23px}.input-with-icon input{border:0;outline:none;background:transparent;width:100%;padding:11px 0;font-size:14px}.input-with-icon:focus-within{border-color:#bca073;box-shadow:0 0 0 3px #ffe4ad80}
 .onboarding-form .city-picker{width:100%;padding:12px 15px;gap:9px;background:#fff}.onboarding-form .city-picker select{max-width:none;flex:1;font-size:14px}
-.trust-later{font-size:10px;color:#96816a;margin:13px 0 28px}.trust-later>span{color:#d7ad52;font-size:19px}.onboarding-submit{min-height:49px;width:100%;font-size:18px}
+.onboarding-bio-card{position:relative;background:#fff;border:1.3px solid #d6c6ae;border-radius:18px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.onboarding-bio-card:focus-within{border-color:#bca073;box-shadow:0 0 0 3px #ffe4ad80;background:#fffdfa}
+.onboarding-bio-input{width:100%;border:0;outline:none;background:transparent;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:13px;color:#3c2e1e;line-height:1.45;resize:none;display:block;box-sizing:border-box}
+.onboarding-bio-input::placeholder{color:#b39f86;font-weight:400;font-size:12.5px}
+.trust-later{font-size:10px;color:#96816a;margin:10px 0 16px}.trust-later>span{color:#d7ad52;font-size:19px}.onboarding-submit{min-height:49px;width:100%;font-size:18px}
 .skip-button{display:block;margin:26px auto 28px;text-decoration:underline;position:relative;z-index:2}.onboarding-doodle{position:absolute;z-index:1}
 .doodle-coffee{top:307px;left:-24px;transform:rotate(14deg)}.doodle-boot{top:324px;right:-25px;transform:rotate(-16deg)}
 .onboarding-bottom-art{display:flex;align-items:flex-end;justify-content:space-between;margin:0 8px -5px;color:#a18a6e;font-family:'Fredoka',sans-serif;font-size:11px}.onboarding-bottom-art>span{text-align:center;margin-bottom:13px;transform:rotate(-4deg)}.onboarding-bottom-art>svg:last-child{transform:rotate(15deg);margin-right:-20px}

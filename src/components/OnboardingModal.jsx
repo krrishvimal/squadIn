@@ -72,8 +72,28 @@ export function OnboardingModal({ isOpen, onClose, reason }) {
         ))}
       </div>
 
-      <label htmlFor="onboarding-bio">About you (Optional)</label>
-      <textarea id="onboarding-bio" rows={2} maxLength={180} value={bio} onChange={e => setBio(e.target.value)} placeholder="What kind of weekends do you love? (e.g. coffee walks, board games, live gigs...)" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px', marginBottom: '6px' }}>
+        <label htmlFor="onboarding-bio" style={{ margin: 0, fontSize: '12px', fontWeight: 'bold', color: '#4a3b2c' }}>
+          About you <span style={{ fontWeight: 'normal', color: '#8c7662', fontSize: '11px' }}>(Optional)</span>
+        </label>
+        {bio.length > 0 && (
+          <small style={{ fontSize: '10px', color: '#99816b', fontWeight: '700' }}>
+            {bio.length}/180
+          </small>
+        )}
+      </div>
+      <div className="onboarding-bio-card">
+        <textarea
+          id="onboarding-bio"
+          name="bio"
+          rows={2}
+          maxLength={180}
+          value={bio}
+          onChange={e => setBio(e.target.value)}
+          placeholder="What kind of weekends do you love? (e.g. coffee walks, board games, live gigs...)"
+          className="onboarding-bio-input"
+        />
+      </div>
       
       <p className="trust-later">📱 Add phone later for +50% trust boost <span>✧</span></p>
       <button className="button button-yellow onboarding-submit" type="submit">{reason === 'create_plan' ? 'Continue to Post' : reason === 'join_plan' ? 'Continue to Join' : 'Start Exploring'}<ArrowRight size={20} /></button>
