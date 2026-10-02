@@ -183,7 +183,7 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
             <button
               type="button"
               onClick={stopCamera}
-              className="w-8 h-8 rounded-full bg-stone-900/80 text-white flex items-center justify-center hover:bg-stone-800"
+              className="w-8 h-8 rounded-full bg-white/90 text-stone-700 shadow-sm border border-stone-200 flex items-center justify-center hover:bg-stone-800"
             >
               <X size={15} />
             </button>
@@ -209,7 +209,7 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
               <button
                 type="button"
                 onClick={startCamera}
-                className="w-full py-2 bg-espresso hover:bg-stone-800 text-cream text-xs font-extrabold rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
+                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-stone-900 text-xs font-extrabold rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95"
               >
                 <Camera size={13} className="text-amber-400" />
                 <span>{previewPhoto ? 'Retake Live Selfie' : '📸 Take Live Selfie Verification'}</span>

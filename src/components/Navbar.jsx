@@ -25,14 +25,14 @@ export const Navbar = () => {
         <div className="flex items-center gap-2 min-w-0">
           <div 
             onClick={() => setActiveTab('explore')}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 flex items-center justify-center text-espresso font-extrabold shadow-sm cursor-pointer hover:scale-105 transition-transform flex-shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 flex items-center justify-center text-stone-900 font-extrabold shadow-sm cursor-pointer hover:scale-105 transition-transform flex-shrink-0"
           >
             <span className="text-base sm:text-lg">⚡</span>
           </div>
           
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => setActiveTab('explore')}>
-              <span className="font-extrabold text-sm sm:text-base tracking-tight text-espresso truncate">SquadIn</span>
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-stone-900 truncate">SquadIn</span>
               <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 font-extrabold text-[8.5px] uppercase tracking-wider hidden sm:inline">
                 India
               </span>
@@ -83,9 +83,9 @@ export const Navbar = () => {
           {/* Post a Plan Button */}
           <button
             onClick={() => requireVerification(() => setShowCreateModal(true), 'create_plan')}
-            className="flex items-center gap-1 bg-espresso hover:bg-stone-800 text-cream px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all flex-shrink-0"
+            className="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-stone-900 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-extrabold shadow-md active:scale-95 transition-all flex-shrink-0"
           >
-            <Plus size={13} className="text-amber-400" />
+            <Plus size={13} className="text-stone-900" />
             <span className="inline sm:hidden">Plan</span>
             <span className="hidden sm:inline">Post Plan</span>
           </button>

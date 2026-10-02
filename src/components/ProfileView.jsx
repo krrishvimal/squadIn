@@ -29,7 +29,7 @@ export const ProfileView = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-espresso">Profile & Trust Hub</h2>
+          <h2 className="text-xl font-extrabold text-stone-900">Your Weekend Starts Here ☀️</h2>
           <p className="text-xs text-stone-500 font-medium">Your verified identity & community reputation</p>
         </div>
         <button
@@ -133,15 +133,15 @@ export const ProfileView = () => {
       </div>
 
       {/* VERIFICATION & CREDENTIALS ACTION HUB */}
-      <div className="bg-stone-900 rounded-3xl border border-stone-800 p-5 space-y-4 shadow-sm">
+      <div className="bg-white rounded-3xl border border-stone-100 p-5 space-y-4 shadow-card">
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Trust Score</span>
-            <span className="text-sm font-extrabold text-amber-400">{trustScore}%</span>
+            <span className="text-sm font-extrabold text-stone-900">🛡️ Trust Score</span>
+            <span className="text-sm font-extrabold text-amber-600">{trustScore}%</span>
           </div>
-          <div className="w-full h-2 bg-stone-800 rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-stone-100 rounded-full overflow-hidden">
             <div 
-              className={`h-full rounded-full transition-all duration-700 ${trustScore === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gradient-to-r from-amber-500 to-amber-400'}`}
+              className={`h-full rounded-full transition-all duration-700 ${trustScore === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gradient-to-r from-amber-400 to-amber-500'}`}
               style={{ width: `${trustScore}%` }}
             />
           </div>

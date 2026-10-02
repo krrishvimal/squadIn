@@ -3,13 +3,13 @@ import { useApp } from '../context/AppContext';
 import { X, Sparkles, Users, MapPin, Calendar, Plus, Minus, ShieldCheck, CheckCircle2, Tag } from 'lucide-react';
 
 const CATEGORIES = [
-  { id: 'cafe', label: 'Cafe & Dinner', icon: '☕', defaultCap: 4, desc: 'Coffee, brunch, or casual dinners' },
-  { id: 'sports', label: 'Sports & Run', icon: '🏸', defaultCap: 4, desc: 'Badminton doubles, 5K morning run' },
-  { id: 'concert', label: 'Concerts & Gigs', icon: '🎵', defaultCap: 6, desc: 'Music festivals, live gigs, music nights' },
-  { id: 'comedy', label: 'Standup & Comedy', icon: '🎭', defaultCap: 4, desc: 'Standup comedy trials, open mics, shows' },
-  { id: 'arts', label: 'Workshops', icon: '🏺', defaultCap: 5, desc: 'Pottery, art workshops, book reading' },
-  { id: 'hike', label: 'Treks & Walks', icon: '🥾', defaultCap: 8, desc: 'Weekend day treks & heritage walks' },
-  { id: 'other', label: 'Other Activities', icon: '✨', defaultCap: 4, desc: 'IPL watchparty, grocery run, shopping, movies' },
+  { id: 'cafe', label: 'Cafe & Dinner', icon: '☕', defaultCap: 4, desc: 'Coffee, brunch, or casual dinners', baseBg: 'bg-violet-50', baseBorder: 'border-violet-200' },
+  { id: 'sports', label: 'Sports & Run', icon: '🏸', defaultCap: 4, desc: 'Badminton doubles, 5K morning run', baseBg: 'bg-emerald-50', baseBorder: 'border-emerald-200' },
+  { id: 'concert', label: 'Concerts & Gigs', icon: '🎵', defaultCap: 6, desc: 'Music festivals, live gigs, music nights', baseBg: 'bg-orange-50', baseBorder: 'border-orange-200' },
+  { id: 'comedy', label: 'Standup & Comedy', icon: '🎭', defaultCap: 4, desc: 'Standup comedy trials, open mics, shows', baseBg: 'bg-yellow-50', baseBorder: 'border-yellow-200' },
+  { id: 'arts', label: 'Workshops', icon: '🏺', defaultCap: 5, desc: 'Pottery, art workshops, book reading', baseBg: 'bg-purple-50', baseBorder: 'border-purple-200' },
+  { id: 'hike', label: 'Treks & Walks', icon: '🥾', defaultCap: 8, desc: 'Weekend day treks & heritage walks', baseBg: 'bg-green-50', baseBorder: 'border-green-200' },
+  { id: 'other', label: 'Other Activities', icon: '✨', defaultCap: 4, desc: 'IPL watchparty, grocery run, shopping, movies', baseBg: 'bg-pink-50', baseBorder: 'border-pink-200' },
 ];
 
 const TIME_OPTIONS = [
@@ -106,19 +106,16 @@ export const CreatePlanModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 pb-2 sm:pb-0">
+      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 pb-2 sm:pb-0">
         
         {/* Mobile drag handle */}
         <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden flex-shrink-0" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-100 bg-white sticky top-0 z-10 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-100 bg-[#FDFBF7] sticky top-0 z-10 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
-              <Sparkles size={16} />
-            </div>
             <div>
-              <h2 className="text-base font-extrabold text-espresso">Post a Weekend Plan</h2>
+              <h2 className="text-xl font-extrabold text-stone-900">📋 Post Your Weekend Plan ✨</h2>
               <p className="text-[10px] text-stone-500 font-medium">You are the host · Free to create & curate</p>
             </div>
           </div>
@@ -146,13 +143,13 @@ export const CreatePlanModal = () => {
                   onClick={() => handleCategorySelect(cat)}
                   className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
                     selectedCat === cat.id
-                      ? 'bg-amber-500 text-espresso font-extrabold border-amber-600 shadow-sm scale-[1.02]'
-                      : 'bg-white border-stone-200 text-stone-700 hover:border-stone-300'
+                      ? `${cat.baseBg} ring-2 ring-amber-400 border-amber-400 shadow-sm scale-[1.02]`
+                      : `${cat.baseBg} ${cat.baseBorder} hover:border-stone-300`
                   }`}
                 >
                   <span className="text-lg">{cat.icon}</span>
                   <div className="mt-1">
-                    <div className="text-[10.5px] font-bold leading-tight">{cat.label}</div>
+                    <div className="text-[10.5px] font-bold leading-tight text-stone-700">{cat.label}</div>
                   </div>
                 </button>
               ))}
@@ -187,7 +184,7 @@ export const CreatePlanModal = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. RCB vs CSK Match Screening & Wings @ Social"
-              className="w-full text-xs font-semibold p-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:border-amber-500 shadow-sm"
+              className="w-full text-xs font-semibold p-3 rounded-xl border border-stone-200 bg-white focus:outline-none focus:border-amber-500 shadow-sm font-medium text-stone-800"
             />
           </div>
 
@@ -213,7 +210,7 @@ export const CreatePlanModal = () => {
                 value={venueSearch}
                 onChange={(e) => setVenueSearch(e.target.value)}
                 placeholder="e.g. Third Wave Coffee, Decathlon, Cubbon Park, Blue Tokai..."
-                className="w-full text-xs p-2.5 pl-8 rounded-xl border border-stone-300 bg-white focus:outline-none focus:border-amber-500 shadow-sm font-medium"
+                className="w-full text-xs p-2.5 pl-8 rounded-xl border border-stone-200 bg-white focus:outline-none focus:border-amber-500 shadow-sm font-medium text-stone-800 font-medium"
               />
               <MapPin size={14} className="absolute left-2.5 top-3 text-stone-400" />
             </div>
@@ -258,7 +255,7 @@ export const CreatePlanModal = () => {
                   onClick={() => setSelectedTime(opt.value)}
                   className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-all ${
                     selectedTime === opt.value
-                      ? 'bg-amber-100 border-amber-300 text-amber-900 shadow-sm'
+                      ? 'bg-amber-100 border-amber-400 text-amber-800 shadow-sm'
                       : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
                   }`}
                 >
@@ -381,9 +378,9 @@ export const CreatePlanModal = () => {
           <div className="pt-2 sticky bottom-0 bg-[#FDFBF7]">
             <button
               type="submit"
-              className="w-full py-3.5 bg-espresso hover:bg-stone-800 text-cream rounded-2xl font-extrabold text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
+              className="w-full py-3 bg-amber-500 text-stone-900 rounded-xl font-extrabold text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
             >
-              <Sparkles size={16} className="text-amber-400" />
+              <Sparkles size={16} />
               <span>Publish Plan to {selectedCity} Feed (Free)</span>
             </button>
           </div>

@@ -481,7 +481,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
         <div className="px-5 py-3 bg-stone-100 border-t border-stone-200 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-espresso text-cream font-bold text-xs rounded-xl hover:bg-stone-800 transition-colors"
+            className="px-4 py-2 bg-amber-500 text-stone-900 font-bold text-xs rounded-xl hover:bg-amber-600 shadow-md transition-colors"
           >
             Done
           </button>

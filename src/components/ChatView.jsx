@@ -239,7 +239,7 @@ export const ChatView = () => {
             <div className="pt-4 border-t border-stone-100 space-y-1.5">
               <button
                 onClick={() => hostEarlyUnlockPlan(activePlan.id)}
-                className="w-full max-w-sm mx-auto py-2.5 bg-espresso hover:bg-stone-800 text-cream font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
+                className="w-full max-w-sm mx-auto py-2.5 bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all"
               >
                 <Sparkles size={14} className="text-amber-400" />
                 <span>Host: Lock Crew & Unlock Chat Now (Free)</span>
@@ -259,11 +259,11 @@ export const ChatView = () => {
     <div className="max-w-2xl mx-auto flex flex-col h-[calc(100vh-120px)] bg-[#FDFBF7]">
       
       {/* Top Chat Bar */}
-      <div className="bg-white border-b border-stone-200 p-3.5 flex items-center justify-between shadow-sm sticky top-0 z-20">
+      <div className="bg-white/95 backdrop-blur-md border-b border-stone-200 p-3.5 flex items-center justify-between shadow-sm sticky top-0 z-20">
         <div className="flex items-center gap-2.5 truncate">
           <button
             onClick={() => setActiveChatPlanId(null)}
-            className="p-1 rounded-lg hover:bg-stone-100 text-stone-500"
+            className="p-1 rounded-lg hover:bg-stone-100 text-stone-500 hover:text-stone-700"
           >
             <ChevronLeft size={20} />
           </button>
@@ -339,7 +339,7 @@ export const ChatView = () => {
 
               <div>
                 {!isMe && (
-                  <div className="flex items-center justify-between text-[10px] font-bold text-stone-500 mb-0.5 ml-1 gap-2">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-amber-600 mb-0.5 ml-1 gap-2">
                     <span>{sender.name} · {sender.company}</span>
                     <button
                       onClick={() => setReportingUser({ user: sender, planId: activePlan.id })}
@@ -353,8 +353,8 @@ export const ChatView = () => {
                 <div
                   className={`p-3 rounded-2xl text-xs leading-relaxed ${
                     isMe
-                      ? 'bg-espresso text-cream rounded-br-xs font-medium'
-                      : 'bg-white border border-stone-200 text-stone-800 rounded-bl-xs shadow-sm font-normal'
+                      ? 'bg-amber-100 border border-amber-200 text-stone-800 rounded-tr-md font-medium'
+                      : 'bg-white border border-stone-100 text-stone-800 rounded-tl-md shadow-sm font-normal'
                   }`}
                 >
                   {msg.content}

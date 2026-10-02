@@ -141,11 +141,11 @@ export const SquadRadarView = () => {
     <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 animate-fade-in">
       
       {/* Top Hero Banner */}
-      <div className="bg-gradient-to-br from-stone-900 via-amber-950 to-espresso text-cream rounded-3xl p-5 shadow-md relative overflow-hidden">
+      <div className="bg-[#FDFBF7] border border-stone-200 rounded-3xl p-5 shadow-sm relative overflow-hidden">
         <div className="relative z-10 space-y-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-espresso font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
                 <Radio size={12} className="animate-pulse" /> Live Squad Radar
               </span>
 
@@ -155,12 +155,12 @@ export const SquadRadarView = () => {
                 disabled={isLocating}
                 className={`text-[10.5px] font-extrabold px-2.5 py-0.5 rounded-full border transition-all flex items-center gap-1 shadow-xs active:scale-95 ${
                   userCoords.isRealGPS
-                    ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30'
-                    : 'bg-stone-800 text-amber-400 border-amber-500/50 hover:bg-stone-700 animate-pulse'
+                    ? 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200'
+                    : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50 animate-pulse'
                 }`}
                 title="Recalibrate / Sync with device GPS"
               >
-                <Navigation size={11} className={isLocating ? "animate-spin text-amber-400" : "text-amber-400"} />
+                <Navigation size={11} className={isLocating ? "animate-spin text-amber-500" : "text-amber-500"} />
                 <span>{isLocating ? 'Locating...' : userCoords.isRealGPS ? 'GPS Active' : 'Sync Live GPS'}</span>
               </button>
             </div>
@@ -170,20 +170,20 @@ export const SquadRadarView = () => {
               onClick={() => setIsRadarBroadcastOn(prev => !prev)}
               className={`text-[11px] font-extrabold px-3 py-1 rounded-full border transition-all flex items-center gap-1.5 ${
                 isRadarBroadcastOn
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
-                  : 'bg-stone-800 text-stone-400 border-stone-700'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-stone-100 text-stone-500 border-stone-200'
               }`}
             >
-              <span className={`w-2 h-2 rounded-full ${isRadarBroadcastOn ? 'bg-emerald-400 animate-ping' : 'bg-stone-500'}`} />
+              <span className={`w-2 h-2 rounded-full ${isRadarBroadcastOn ? 'bg-emerald-400 animate-ping' : 'bg-stone-400'}`} />
               <span>{isRadarBroadcastOn ? 'Visible' : 'Hidden'}</span>
             </button>
           </div>
 
-          <h1 className="text-xl font-extrabold text-white leading-tight">
-            Discover Verified Members Nearby
+          <h1 className="text-xl font-extrabold text-stone-900 leading-tight">
+            🧭 Who's Around?
           </h1>
-          <p className="text-xs text-stone-300 max-w-md leading-relaxed">
-            <strong className="text-amber-300">{filteredMembers.length}</strong> members in <strong className="text-amber-300">{selectedCity}</strong> are looking for a weekend crew. Tap any profile to invite them to your plan!
+          <p className="text-sm text-stone-500 font-medium max-w-md leading-relaxed">
+            <strong className="text-amber-600">{filteredMembers.length}</strong> members in <strong className="text-amber-600">{selectedCity}</strong> are looking for a weekend crew. Tap any profile to invite them to your plan!
             {radarMembers.length > 0 && radarMembers.length !== filteredMembers.length && (
               <span className="text-stone-400"> ({radarMembers.length} total across all cities)</span>
             )}
@@ -257,7 +257,7 @@ export const SquadRadarView = () => {
                 onClick={() => setDistanceFilter(pill.id)}
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold transition-all ${
                   distanceFilter === pill.id
-                    ? 'bg-espresso text-cream shadow-sm ring-1 ring-stone-900'
+                    ? 'bg-amber-500 text-stone-900 shadow-sm ring-1 ring-amber-400'
                     : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
                 }`}
               >
@@ -288,46 +288,46 @@ export const SquadRadarView = () => {
 
       {/* RADAR CANVAS VIEW */}
       {viewMode === 'radar' && (
-        <div className="bg-gradient-to-b from-stone-900 to-espresso rounded-3xl p-4 border border-stone-800 shadow-xl relative min-h-[380px] flex items-center justify-center overflow-hidden">
+        <div className="bg-[#FDFBF7] rounded-3xl p-4 border border-stone-200 shadow-sm relative min-h-[380px] flex items-center justify-center overflow-hidden">
           
           {/* Concentric Radar Distance Rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             {/* Outer Ring */}
-            <div className="w-[340px] h-[340px] rounded-full border border-dashed border-amber-500/20 flex items-center justify-center">
-              <span className="absolute top-2 text-[9px] font-bold text-amber-500/40 tracking-wider">
+            <div className="w-[340px] h-[340px] rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
+              <span className="absolute top-2 text-[9px] font-bold italic text-stone-400 tracking-wider">
                 {distanceFilter === 5 ? '~5 KM (NEIGHBORHOOD)' : distanceFilter === 15 ? '~15 KM (CITY HUBS)' : `~${selectedCity.toUpperCase()} (WHOLE CITY)`}
               </span>
               
               {/* Middle Ring */}
-              <div className="w-[230px] h-[230px] rounded-full border border-amber-500/30 flex items-center justify-center">
-                <span className="absolute top-16 text-[9px] font-bold text-amber-500/50 tracking-wider">
-                  {distanceFilter === 5 ? '~3 KM' : distanceFilter === 15 ? '~5 KM' : '~15 KM'}
+              <div className="w-[230px] h-[230px] rounded-full border border-dashed border-amber-200 flex items-center justify-center">
+                <span className="absolute top-16 text-[9px] font-bold italic text-stone-400 tracking-wider">
+                  Quick Ride 🛺
                 </span>
                 
                 {/* Inner Ring */}
-                <div className="w-[120px] h-[120px] rounded-full border border-amber-400/40 flex items-center justify-center">
-                  <span className="absolute top-3 text-[8px] font-bold text-amber-400/60 tracking-wider">
-                    {distanceFilter === 5 ? '~1 KM' : distanceFilter === 15 ? '~2 KM' : '~5 KM'}
+                <div className="w-[120px] h-[120px] rounded-full border border-dashed border-amber-200 flex items-center justify-center">
+                  <span className="absolute top-3 text-[9px] font-bold italic text-stone-400 tracking-wider">
+                    Walking Distance 🚶
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Scanning Radar Sweep Line */}
-            <div className="absolute w-[340px] h-[340px] rounded-full border-t-2 border-amber-400/40 animate-spin opacity-40 pointer-events-none" style={{ animationDuration: '8s' }} />
+            <div className="absolute w-[340px] h-[340px] rounded-full border-t-2 border-amber-400 animate-spin opacity-30 pointer-events-none" style={{ animationDuration: '8s' }} />
           </div>
 
           {/* Center Point: Host / You */}
           <div className="relative z-10 flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full bg-amber-500 p-0.5 shadow-lg shadow-amber-500/50 ring-4 ring-amber-400/30">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-amber-300 p-0.5 shadow-md ring-4 ring-amber-100">
               <img
                 src={currentUser.avatar}
                 alt="You"
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <div className="mt-1 px-2 py-0.5 rounded-full bg-stone-900/90 border border-amber-500/40 text-[9px] font-extrabold text-amber-300">
-              YOU (Host)
+            <div className="mt-1 px-2 py-0.5 rounded-full bg-white border border-stone-200 text-[9px] font-extrabold text-stone-800 shadow-sm">
+              You 📍
             </div>
           </div>
 
@@ -362,16 +362,16 @@ export const SquadRadarView = () => {
                 <div className="relative flex flex-col items-center">
                   
                   {/* Activity / Passion Badge Floating above avatar */}
-                  <div className="mb-1 px-2 py-0.5 rounded-full bg-stone-900/95 border border-amber-400 text-amber-300 text-[9.5px] font-extrabold shadow-md flex items-center gap-1 whitespace-nowrap">
+                  <div className="mb-1 px-2 py-0.5 rounded-full bg-white border border-stone-200 text-stone-700 text-[9.5px] font-extrabold shadow-sm flex items-center gap-1 whitespace-nowrap">
                     <span>{member.primaryActivity || (member.interests && member.interests.length > 0 ? member.interests[0] : '✨ Weekend Passion')}</span>
                   </div>
 
                   {/* Avatar Bubble */}
                   <div className="relative">
-                    <div className={`w-11 h-11 rounded-full p-0.5 shadow-lg transition-all ${
+                    <div className={`w-11 h-11 rounded-full p-0.5 shadow-md transition-all ${
                       isInvited
-                        ? 'bg-emerald-500 ring-2 ring-emerald-400'
-                        : 'bg-gradient-to-tr from-amber-500 to-amber-300 ring-2 ring-white/80 group-hover:ring-amber-400'
+                        ? 'bg-emerald-500 ring-2 ring-emerald-300'
+                        : 'bg-gradient-to-tr from-amber-500 to-amber-300 ring-2 ring-white group-hover:ring-amber-400'
                     }`}>
                       <img
                         src={member.avatar}
@@ -381,7 +381,7 @@ export const SquadRadarView = () => {
                     </div>
 
                     {/* Verified check badge */}
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center border border-white text-[9px] font-extrabold">
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-[9px] font-extrabold">
                       ✓
                     </div>
                     {hasReceivedWaveFrom(member.id) && !isMutualWave(member.id) && (
@@ -401,9 +401,9 @@ export const SquadRadarView = () => {
                   </div>
 
                   {/* Name & Dynamic Distance Tag */}
-                  <div className="mt-1 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-[9px] font-bold text-cream flex items-center gap-1 whitespace-nowrap">
+                  <div className="mt-1 px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-sm text-stone-800 text-[9px] font-bold shadow-sm flex items-center gap-1 whitespace-nowrap">
                     <span>{member.name.split(' ')[0]}</span>
-                    <span className="text-amber-400 font-extrabold">· {liveDist}km</span>
+                    <span className="text-amber-600 font-extrabold">· {liveDist}km</span>
                   </div>
                 </div>
               </div>
@@ -411,11 +411,11 @@ export const SquadRadarView = () => {
           })}
 
           {filteredMembers.length === 0 && (
-            <div className="absolute bottom-5 z-20 px-4 py-2 bg-stone-900/90 border border-amber-500/30 rounded-2xl text-center backdrop-blur-sm max-w-xs animate-fade-in shadow-lg">
-              <p className="text-[11px] font-bold text-amber-300">
+            <div className="absolute bottom-5 z-20 px-4 py-2 bg-white/90 border border-amber-200 rounded-2xl text-center backdrop-blur-sm max-w-xs animate-fade-in shadow-sm">
+              <p className="text-xs font-bold text-amber-700">
                 🧭 Squad Radar is Scanning in {selectedCity}
               </p>
-              <p className="text-[9.5px] text-stone-400 mt-0.5 leading-tight">
+              <p className="text-xs text-stone-400 mt-0.5 leading-tight">
                 As nearby verified members open the app, they will appear on your distance rings.
               </p>
             </div>
@@ -511,16 +511,16 @@ export const SquadRadarView = () => {
 
       {/* CANDIDATE PROFILE BOTTOM SHEET MODAL */}
       {activeCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
           <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-stone-200 bg-white sticky top-0 z-10">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-white sticky top-0 z-10">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-extrabold text-xs flex items-center gap-1">
-                  <ShieldCheck size={13} className="text-emerald-700" /> Verified Candidate
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-xs flex items-center gap-1 border border-emerald-200">
+                  <ShieldCheck size={13} className="text-emerald-600" /> Verified Candidate
                 </span>
-                <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
                   📍 {activeCandidate.distanceKm} km away
                 </span>
               </div>
@@ -536,28 +536,30 @@ export const SquadRadarView = () => {
             <div className="overflow-y-auto p-5 space-y-4">
               
               {/* Profile Card Header */}
-              <div className="bg-white p-4 rounded-2xl border border-stone-200 flex items-start gap-4">
-                <img
-                  src={activeCandidate.avatar}
-                  alt={activeCandidate.name}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-200 shadow-sm flex-shrink-0"
-                />
+              <div className="bg-white p-4 rounded-2xl border border-stone-100 flex items-start gap-4 shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-amber-300 p-0.5 shadow-sm flex-shrink-0">
+                  <img
+                    src={activeCandidate.avatar}
+                    alt={activeCandidate.name}
+                    className="w-full h-full rounded-full object-cover border-2 border-white"
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-extrabold text-espresso truncate">{activeCandidate.name}</h2>
+                    <h2 className="text-lg font-extrabold text-stone-900 truncate">{activeCandidate.name}</h2>
                     <span className="text-xs font-bold text-stone-400">({activeCandidate.age})</span>
                   </div>
 
-                  <div className="text-xs font-semibold text-stone-700 flex items-center gap-1 mt-0.5">
-                    <Briefcase size={12} className="text-amber-600 flex-shrink-0" />
+                  <div className="text-sm font-medium text-stone-500 flex items-center gap-1 mt-0.5">
+                    <Briefcase size={12} className="text-amber-500 flex-shrink-0" />
                     <span>{activeCandidate.role} @ <strong>{activeCandidate.company}</strong></span>
                   </div>
 
                   <div className="flex items-center gap-3 mt-2 text-[11px] font-bold text-stone-500">
-                    <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                    <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
                       <CheckCircle2 size={11} /> Work Email & ID Verified
                     </span>
-                    <span className="flex items-center gap-0.5 text-amber-700">
+                    <span className="flex items-center gap-0.5 text-amber-600 font-extrabold">
                       <Star size={12} className="fill-amber-500 text-amber-500" />
                       <span>{activeCandidate.karmaScore} ({activeCandidate.meetupsAttended} meetups)</span>
                     </span>
@@ -566,7 +568,7 @@ export const SquadRadarView = () => {
               </div>
 
               {/* Bio & Weekend Goals */}
-              <div className="bg-white p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div className="bg-white p-4 rounded-2xl border border-stone-100 space-y-2 shadow-sm">
                 <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">
                   About & Weekend Goals
                 </h4>
@@ -642,7 +644,7 @@ export const SquadRadarView = () => {
               </div>
 
               {/* Recruitment / Invite to Crew Box */}
-              <div className="bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50 border border-amber-200 p-4 rounded-2xl space-y-3">
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Send size={15} className="text-amber-700" />
@@ -663,7 +665,7 @@ export const SquadRadarView = () => {
                         setActiveCandidate(null);
                         requireVerification(() => setShowCreateModal(true), 'create_plan');
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-espresso text-xs font-extrabold transition-colors inline-flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-900 text-xs font-extrabold transition-colors inline-flex items-center gap-1"
                     >
                       <Plus size={13} /> Post a Weekend Plan First
                     </button>
@@ -677,7 +679,7 @@ export const SquadRadarView = () => {
                       <select
                         value={selectedPlanForInvite}
                         onChange={(e) => setSelectedPlanForInvite(e.target.value)}
-                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-600 text-espresso shadow-xs"
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:border-amber-600 text-stone-900 shadow-sm"
                       >
                         {hostOpenPlans.map(p => (
                           <option key={p.id} value={p.id}>
@@ -695,7 +697,7 @@ export const SquadRadarView = () => {
                     ) : (
                       <button
                         onClick={() => handleSendInvite(activeCandidate.id)}
-                        className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-espresso font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                        className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
                       >
                         <Send size={14} />
                         <span>Send 1-Tap Crew Invite</span>

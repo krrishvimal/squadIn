@@ -76,14 +76,14 @@ export const PlanDetailModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 pb-2 sm:pb-0">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 w-screen h-[100dvh] overflow-hidden animate-fade-in">
+      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden border border-stone-200 pb-2 sm:pb-0">
         
         {/* Mobile drag handle */}
         <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden flex-shrink-0" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-100 bg-white sticky top-0 z-10 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-100 bg-[#FDFBF7] sticky top-0 z-10 flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-extrabold text-xs">
               {plan.categoryLabel}
@@ -96,7 +96,7 @@ export const PlanDetailModal = () => {
           </div>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500 transition-colors"
+            className="w-8 h-8 rounded-full bg-white hover:bg-stone-50 shadow-sm flex items-center justify-center text-stone-400 hover:text-stone-600 transition-colors p-2"
           >
             <X size={18} />
           </button>
@@ -107,13 +107,48 @@ export const PlanDetailModal = () => {
           
           {/* Title & Status */}
           <div>
-            <h2 className="text-xl font-extrabold text-espresso leading-snug mb-1">
+            <h2 className="text-xl font-extrabold text-stone-900 leading-snug mb-2">
               {plan.title}
             </h2>
-            <div className="flex items-center gap-2 text-xs font-semibold text-stone-600">
-              <span className="text-amber-700">{plan.dateText}</span>
-              <span>•</span>
-              <span className="text-stone-500">{plan.neighborhood}</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-stone-700 text-xs font-bold flex items-center gap-1.5">
+                <Calendar size={13} className="text-amber-600" />
+                {plan.dateText}
+              </span>
+              <span className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-stone-700 text-xs font-bold flex items-center gap-1.5">
+                <MapPin size={13} className="text-stone-400" />
+                {plan.neighborhood}
+              </span>
+            </div>
+          </div>
+
+          {/* Host Info Card */}
+          <div className="bg-white rounded-xl border border-stone-100 p-3 flex items-center gap-3">
+            <div className="relative">
+              <img
+                src={host.avatar}
+                alt={host.name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-amber-400"
+              />
+              {host.idVerified && (
+                <ShieldCheck
+                  size={14}
+                  className="absolute -bottom-1 -right-1 text-emerald-600 bg-white rounded-full fill-emerald-50"
+                />
+              )}
+            </div>
+            <div>
+              <div className="text-stone-800 font-bold text-sm">{host.name}</div>
+              <div className="text-xs text-stone-500 mt-0.5 flex items-center gap-1.5">
+                <span>Host</span>
+                <span>•</span>
+                <span className="flex items-center text-amber-600 font-bold">
+                  <Star size={11} className="fill-amber-400 mr-1" />
+                  {host.karmaScore}
+                </span>
+                <span>•</span>
+                <span>{host.company}</span>
+              </div>
             </div>
           </div>
 
@@ -125,26 +160,26 @@ export const PlanDetailModal = () => {
                 <span>Crew Capacity & Status:</span>
               </div>
               <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full ${
-                isUnlocked ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'
+                isUnlocked ? 'bg-emerald-100 text-emerald-900' : 'text-amber-700 font-bold text-xs'
               }`}>
-                {plan.acceptedMembers.length} / {plan.targetCapacity} Filled
+                {isUnlocked ? 'Filled' : `${spotsLeft} spots left!`}
               </span>
             </div>
 
-            <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden flex gap-1 mb-2">
+            <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden flex gap-1 mb-2">
               {Array.from({ length: plan.targetCapacity }).map((_, idx) => (
                 <div
                   key={idx}
                   className={`flex-1 h-full rounded-full transition-all ${
                     idx < plan.acceptedMembers.length
-                      ? isUnlocked ? 'bg-emerald-500' : 'bg-amber-500'
+                      ? isUnlocked ? 'bg-emerald-500' : 'bg-amber-400'
                       : 'bg-stone-200'
                   }`}
                 />
               ))}
             </div>
 
-            <p className="text-[11px] text-stone-600 font-medium">
+            <p className="text-[11px] text-stone-400 font-medium text-center mt-2">
               {isUnlocked
                 ? '🎉 Crew is full! Group chat is unlocked and ready for coordination.'
                 : `🔒 Chat unlocks automatically once the host accepts ${spotsLeft} more member${spotsLeft === 1 ? '' : 's'}.`}
@@ -152,11 +187,11 @@ export const PlanDetailModal = () => {
           </div>
 
           {/* Description */}
-          <div className="bg-white p-4 rounded-2xl border border-stone-200">
-            <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">
-              Plan Description
+          <div className="bg-white rounded-xl border border-stone-100 p-4 shadow-sm">
+            <h4 className="text-xs font-extrabold text-stone-900 uppercase tracking-wider mb-2">
+              About this plan
             </h4>
-            <p className="text-xs text-stone-700 leading-relaxed font-normal">
+            <p className="text-sm text-stone-700 leading-relaxed font-normal">
               {plan.description}
             </p>
           </div>
@@ -180,9 +215,9 @@ export const PlanDetailModal = () => {
           />
 
           {/* HOST & ATTENDEES LIST */}
-          <div className="bg-white p-4 rounded-2xl border border-stone-200 space-y-3">
+          <div className="bg-white p-4 rounded-xl border border-stone-100 space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">
+              <h4 className="text-xs font-extrabold text-stone-900 uppercase tracking-wider">
                 Confirmed Crew Members ({plan.acceptedMembers.length})
               </h4>
               {isHost && (
@@ -212,33 +247,30 @@ export const PlanDetailModal = () => {
                 const member = getUserById(memberId);
                 const isMemberHost = memberId === plan.hostId;
                 return (
-                  <div key={memberId} className="flex items-center justify-between p-2 rounded-xl bg-stone-50 border border-stone-100">
+                  <div key={memberId} className="flex items-center justify-between p-2 rounded-xl bg-white border border-stone-100 shadow-sm">
                     <div className="flex items-center gap-2.5">
                       <img
                         src={member.avatar}
                         alt={member.name}
-                        className="w-9 h-9 rounded-full object-cover border border-stone-200"
+                        className={`w-9 h-9 rounded-full object-cover border-2 ${isMemberHost ? 'border-amber-400' : 'border-emerald-400'}`}
                       />
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-stone-800">{member.name}</span>
+                          <span className="text-sm font-bold text-stone-800">{member.name}</span>
                           {(member.phoneVerified || member.idVerified) ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold">
-                              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9px] font-bold">
+                              <ShieldCheck size={10} />
                               Verified
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-700/50 border border-stone-600 text-stone-400 text-[9px] font-bold">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-stone-500 text-[9px] font-bold">
                               New Member
                             </span>
                           )}
                           {isMemberHost && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-extrabold text-[9px] uppercase">
+                            <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-extrabold text-[9px] uppercase border border-amber-200">
                               Host
                             </span>
-                          )}
-                          {member.idVerified && (
-                            <ShieldCheck size={13} className="text-blue-600 fill-blue-50" />
                           )}
                         </div>
                         <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
@@ -259,10 +291,10 @@ export const PlanDetailModal = () => {
 
           {/* HOST APPROVAL CONTROL PANEL (If Host has pending requests) */}
           {isHost && (
-            <div className="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-3">
+            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-900">
-                  <UserPlus size={15} className="text-amber-700" />
+                <div className="flex items-center gap-1.5 text-sm font-extrabold text-stone-900">
+                  <UserPlus size={16} className="text-amber-600" />
                   <span>Pending Join Requests ({plan.pendingRequests?.length || 0})</span>
                 </div>
                 <span className="text-[10px] text-amber-800 font-semibold">
@@ -278,48 +310,42 @@ export const PlanDetailModal = () => {
                       <div key={req.userId} className="p-3 bg-white rounded-xl border border-amber-200 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <img src={applicant.avatar} className="w-8 h-8 rounded-full object-cover" />
+                            <img src={applicant.avatar} className="w-10 h-10 rounded-full object-cover border-2 border-amber-200" />
                             <div>
-                              <div className="text-xs font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
+                              <div className="text-sm font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
                                 <span>{applicant.name}</span>
                                 {(applicant.phoneVerified || applicant.idVerified) ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold">
-                                    <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9px] font-bold">
+                                    <ShieldCheck size={10} />
                                     Verified
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-700/50 border border-stone-600 text-stone-400 text-[9px] font-bold">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-stone-500 text-[9px] font-bold">
                                     New Member
                                   </span>
                                 )}
-                                {applicant.idVerified && (
-                                  <span className="px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 text-[9px] font-extrabold flex items-center gap-0.5 border border-blue-200">
-                                    <ShieldCheck size={10} className="text-blue-600" />
-                                    <span>Live Verified</span>
-                                  </span>
-                                )}
                               </div>
-                              <div className="text-[10px] text-stone-500">{applicant.company} · ⭐ {applicant.karmaScore}</div>
+                              <div className="text-[11px] text-stone-500 font-medium mt-0.5">{applicant.company} · ⭐ {applicant.karmaScore}</div>
                             </div>
                           </div>
                           <div className="text-[10px] text-stone-400 font-medium">{req.requestedAt}</div>
                         </div>
 
-                        <p className="text-[11px] text-stone-600 italic bg-stone-50 p-2 rounded-lg mb-2.5">
+                        <p className="text-[12px] text-stone-700 italic bg-stone-50 p-2 rounded-lg mb-3">
                           "{req.message}"
                         </p>
 
                         <div className="flex gap-2">
                           <button
                             onClick={() => acceptJoinRequest(plan.id, req.userId)}
-                            className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
                           >
-                            <CheckCircle2 size={13} />
-                            <span>Accept Into Crew</span>
+                            <CheckCircle2 size={15} />
+                            <span>Accept</span>
                           </button>
                           <button
                             onClick={() => rejectJoinRequest(plan.id, req.userId)}
-                            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-lg transition-colors"
+                            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-500 font-bold text-sm rounded-xl transition-colors"
                           >
                             Decline
                           </button>
@@ -336,15 +362,15 @@ export const PlanDetailModal = () => {
 
               {/* Host Instant Early Unlock Action */}
               {!isUnlocked && plan.acceptedMembers.length >= 2 && (
-                <div className="pt-2 border-t border-amber-200/80">
+                <div className="pt-2 border-t border-amber-200/80 mt-3">
                   <button
                     onClick={() => hostEarlyUnlockPlan(plan.id)}
-                    className="w-full py-2 bg-espresso hover:bg-stone-800 text-cream font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                    className="w-full py-2 bg-gradient-to-r from-violet-500 to-indigo-500 hover:opacity-90 text-white font-extrabold text-sm rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md mt-2"
                   >
-                    <Sparkles size={14} className="text-amber-400" />
+                    <Sparkles size={16} />
                     <span>Lock Crew & Unlock Chat Now (Free)</span>
                   </button>
-                  <p className="text-[10px] text-center text-stone-500 mt-1">
+                  <p className="text-[10px] text-center text-stone-500 mt-1.5 font-medium">
                     Host perk: Start coordinating immediately with your current {plan.acceptedMembers.length} members.
                   </p>
                 </div>
@@ -355,14 +381,14 @@ export const PlanDetailModal = () => {
         </div>
 
         {/* Modal Footer / Action CTA */}
-        <div className="p-4 border-t border-stone-200 bg-white sticky bottom-0 z-10">
+        <div className="p-4 border-t border-stone-200 bg-[#FDFBF7] sticky bottom-0 z-10">
           {isMember ? (
             <button
               onClick={handleOpenChat}
-              className={`w-full py-3 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 transition-all ${
+              className={`w-full py-3 rounded-xl text-base font-extrabold flex items-center justify-center gap-2 transition-all shadow-md ${
                 isUnlocked
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md'
-                  : 'bg-stone-100 text-stone-800 hover:bg-stone-200'
+                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                  : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'
               }`}
             >
               {isUnlocked ? (
@@ -379,24 +405,24 @@ export const PlanDetailModal = () => {
             </button>
           ) : isPending || joinRequestSent ? (
             <div className="flex flex-col gap-2">
-              <div className="text-center py-2 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+              <div className="text-center p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm">
                 <span>✅ Join Request Sent! Waiting for host to accept.</span>
               </div>
               
               {!showOptionalNote ? (
                 <button
                   onClick={() => setShowOptionalNote(true)}
-                  className="text-[11px] text-stone-500 hover:text-stone-700 font-medium text-center transition-colors py-1 flex items-center justify-center gap-1.5 mx-auto"
+                  className="text-xs text-stone-500 hover:text-stone-700 font-bold text-center transition-colors py-1 flex items-center justify-center gap-1.5 mx-auto"
                 >
                   <span>💬 Add a note for the host (optional)</span>
                 </button>
               ) : (
-                <div className="space-y-2 mt-1 animate-fade-in">
+                <div className="space-y-2 mt-1 animate-fade-in bg-white border border-stone-200 rounded-xl p-2 shadow-sm">
                   <textarea
                     value={joinNote}
                     onChange={(e) => setJoinNote(e.target.value)}
                     placeholder="Add a quick note for the host (e.g. 'Hey, excited for coffee!')..."
-                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-500 bg-stone-50 resize-none h-16"
+                    className="w-full text-sm p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-amber-400 bg-stone-50 resize-none h-20"
                   />
                   <div className="flex gap-2">
                     <button
@@ -404,13 +430,13 @@ export const PlanDetailModal = () => {
                         requestToJoinPlan(plan.id, joinNote);
                         setShowOptionalNote(false);
                       }}
-                      className="flex-1 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition-colors"
+                      className="flex-1 py-2.5 bg-amber-500 text-stone-900 font-extrabold text-sm rounded-xl hover:bg-amber-600 transition-colors shadow-sm"
                     >
                       Send Note
                     </button>
                     <button
                       onClick={() => setShowOptionalNote(false)}
-                      className="px-4 py-2 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-200"
+                      className="px-4 py-2.5 bg-stone-100 text-stone-700 font-bold text-sm rounded-xl hover:bg-stone-200"
                     >
                       Cancel
                     </button>
@@ -424,10 +450,10 @@ export const PlanDetailModal = () => {
                 requestToJoinPlan(plan.id, '');
                 setJoinRequestSent(true);
               }, 'join_plan')}
-              className="w-full py-3 bg-espresso hover:bg-stone-800 text-cream rounded-2xl font-extrabold text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
+              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-stone-900 rounded-xl font-extrabold text-base shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
             >
               <span>Request to Join Crew</span>
-              <span className="text-xs text-amber-400 font-semibold">• Free</span>
+              <span className="text-xs text-amber-900/70 font-bold">• Free</span>
             </button>
           )}
         </div>

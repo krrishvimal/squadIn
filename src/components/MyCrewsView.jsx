@@ -21,13 +21,13 @@ export const MyCrewsView = () => {
       {/* Title */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-espresso">My Weekend Crews</h2>
+          <h2 className="text-xl font-extrabold text-stone-900">🎪 My Crews</h2>
           <p className="text-xs text-stone-500 font-medium">Manage the plans you are hosting and attending</p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-espresso text-xs font-extrabold rounded-xl shadow-sm transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-stone-900 text-xs font-extrabold rounded-xl shadow-sm transition-all"
         >
           <Plus size={14} />
           <span>New Plan</span>
@@ -40,7 +40,7 @@ export const MyCrewsView = () => {
           onClick={() => setSubTab('hosting')}
           className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
             subTab === 'hosting'
-              ? 'bg-white text-espresso shadow-sm'
+              ? 'bg-white text-stone-900 shadow-sm'
               : 'text-stone-600 hover:text-stone-900'
           }`}
         >
@@ -57,7 +57,7 @@ export const MyCrewsView = () => {
           onClick={() => setSubTab('joined')}
           className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
             subTab === 'joined'
-              ? 'bg-white text-espresso shadow-sm'
+              ? 'bg-white text-stone-900 shadow-sm'
               : 'text-stone-600 hover:text-stone-900'
           }`}
         >
@@ -69,7 +69,7 @@ export const MyCrewsView = () => {
           onClick={() => setSubTab('pending')}
           className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
             subTab === 'pending'
-              ? 'bg-white text-espresso shadow-sm'
+              ? 'bg-white text-stone-900 shadow-sm'
               : 'text-stone-600 hover:text-stone-900'
           }`}
         >
@@ -92,7 +92,7 @@ export const MyCrewsView = () => {
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-espresso text-cream font-bold text-xs rounded-xl hover:bg-stone-800"
+                className="px-4 py-2 bg-amber-500 text-stone-900 font-bold text-xs rounded-xl hover:bg-amber-600 shadow-md"
               >
                 Post Your First Plan (Free)
               </button>

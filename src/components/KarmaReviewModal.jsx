@@ -106,7 +106,7 @@ export const KarmaReviewModal = () => {
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          className="w-full py-3 bg-espresso hover:bg-stone-800 text-cream font-extrabold text-xs rounded-2xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-1.5"
+          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-stone-900 shadow-md font-extrabold text-xs rounded-2xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-1.5"
         >
           <CheckCircle2 size={15} className="text-amber-400" />
           <span>{otherMembers.length === 0 ? 'Mark Meetup Completed' : 'Confirm & Boost Crew Karma'}</span>

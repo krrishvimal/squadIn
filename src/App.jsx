@@ -88,15 +88,15 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24 text-espresso relative">
+    <div className="min-h-screen bg-[#FDFBF7] pb-24 text-stone-900 relative">
       
       {/* Realtime Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-stone-900/95 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl border border-amber-500/50 flex items-center gap-2 animate-bounce backdrop-blur-md max-w-sm text-center">
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-[#FDFBF7] text-stone-900 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md border border-stone-200 flex items-center gap-2 animate-bounce backdrop-blur-md max-w-sm text-center">
           <span>{toastMessage}</span>
           <button 
             onClick={() => setToastMessage(null)}
-            className="p-1 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors flex-shrink-0"
+            className="p-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors flex-shrink-0"
           >
             <X size={12} />
           </button>
@@ -115,9 +115,9 @@ export function App() {
             
             {/* PWA Install Banner */}
             {showPwaBanner && (
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-espresso rounded-2xl p-3 px-4 shadow-sm flex items-center justify-between gap-3">
+              <div className="bg-amber-500 text-stone-900 rounded-2xl p-3 px-4 shadow-sm flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-espresso text-cream">
+                  <div className="p-1.5 rounded-lg bg-amber-700 text-white">
                     <Smartphone size={16} />
                   </div>
                   <div className="text-xs">
@@ -127,7 +127,7 @@ export function App() {
                 </div>
                 <button
                   onClick={() => setShowPwaBanner(false)}
-                  className="p-1 text-espresso/70 hover:text-espresso rounded-md"
+                  className="p-1 text-stone-900/70 hover:text-stone-900 rounded-md"
                 >
                   <X size={15} />
                 </button>
@@ -135,15 +135,15 @@ export function App() {
             )}
 
             {/* Hero Welcome Banner */}
-            <div className="bg-gradient-to-br from-espresso via-stone-900 to-amber-950 rounded-3xl p-5 text-cream shadow-md relative overflow-hidden">
+            <div className="bg-[#FDFBF7] shadow-card border border-stone-100 rounded-3xl p-5 text-stone-900 shadow-md relative overflow-hidden">
               <div className="relative z-10 space-y-1.5">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-espresso font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
                   <Sparkles size={11} /> 100% Free · Real-World Crews
                 </span>
-                <h1 className="text-xl font-extrabold tracking-tight text-white leading-snug">
-                  No swiping. Just real weekend plans in {selectedCity}.
+                <h1 className="text-xl font-extrabold tracking-tight text-stone-900 leading-snug">
+                  Your Weekend Starts Here ☀️
                 </h1>
-                <p className="text-xs text-stone-300 max-w-md">
+                <p className="text-xs text-stone-500 max-w-md">
                   Hosts set their crew size and accept applicants. Group chat unlocks when the crew is full!
                 </p>
               </div>
@@ -199,7 +199,7 @@ export function App() {
                     onClick={() => setCategoryFilter(f.id)}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                       categoryFilter === f.id
-                        ? 'bg-amber-500 text-espresso shadow-sm scale-102 font-extrabold'
+                        ? 'bg-amber-500 text-stone-900 shadow-sm scale-102 font-extrabold'
                         : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
                     }`}
                   >
@@ -230,7 +230,7 @@ export function App() {
                   </div>
                   <button
                     onClick={() => requireVerification(() => setShowCreateModal(true), 'create_plan')}
-                    className="px-4 py-2 bg-espresso text-cream font-bold text-xs rounded-xl hover:bg-stone-800 transition-all"
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-900 font-extrabold text-xs rounded-xl shadow-md transition-all"
                   >
                     Post a Plan (Free)
                   </button>

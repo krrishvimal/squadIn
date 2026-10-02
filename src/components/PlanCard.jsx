@@ -34,12 +34,23 @@ export const PlanCard = ({ plan }) => {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-2xl border border-stone-200/90 p-4 shadow-card hover:shadow-card-hover transition-all cursor-pointer relative overflow-hidden group"
+      className="bg-white rounded-2xl border border-stone-100 p-4 shadow-card hover:shadow-card-hover transition-all cursor-pointer relative overflow-hidden group flex flex-col"
     >
+      {/* Category Strip */}
+      <div className={`absolute top-0 left-0 right-0 h-1.5 ${
+        plan.category === 'cafe' ? 'bg-violet-300' :
+        plan.category === 'sports' ? 'bg-emerald-300' :
+        plan.category === 'concert' ? 'bg-orange-300' :
+        plan.category === 'comedy' ? 'bg-yellow-300' :
+        plan.category === 'arts' ? 'bg-pink-300' :
+        plan.category === 'hike' ? 'bg-green-300' :
+        'bg-blue-300'
+      }`} />
+
       {/* Category, Distance & Safety Tags */}
-      <div className="flex items-center justify-between gap-2 mb-2.5">
+      <div className="flex items-center justify-between gap-2 mb-2.5 mt-1">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-xs font-bold flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-bold flex items-center gap-1">
             {plan.category === 'cafe' && '☕'}
             {plan.category === 'sports' && '🏸'}
             {plan.category === 'concert' && '🎵'}
@@ -51,8 +62,8 @@ export const PlanCard = ({ plan }) => {
           </span>
 
           {/* Real-time Distance Badge */}
-          <span className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-extrabold flex items-center gap-0.5">
-            <Navigation size={10} className="text-blue-600" />
+          <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 text-xs font-bold flex items-center gap-0.5">
+            <Navigation size={10} className="text-amber-600" />
             <span>{distanceStr} away</span>
           </span>
 
@@ -77,13 +88,13 @@ export const PlanCard = ({ plan }) => {
       </div>
 
       {/* Plan Title */}
-      <h3 className="font-extrabold text-base text-espresso leading-snug mb-2 group-hover:text-amber-700 transition-colors">
+      <h3 className="font-extrabold text-base text-stone-900 leading-snug mb-2 group-hover:text-amber-700 transition-colors">
         {plan.title}
       </h3>
 
       {/* Date & Venue */}
-      <div className="space-y-1 text-xs text-stone-600 mb-3.5">
-        <div className="flex items-center gap-1.5 font-semibold text-stone-800">
+      <div className="space-y-1 text-xs text-stone-500 font-medium mb-3.5">
+        <div className="flex items-center gap-1.5 font-semibold text-stone-500">
           <Calendar size={13} className="text-amber-600 flex-shrink-0" />
           <span>{plan.dateText}</span>
         </div>
@@ -113,7 +124,7 @@ export const PlanCard = ({ plan }) => {
                 idx < plan.acceptedMembers.length
                   ? isUnlocked
                     ? 'bg-emerald-500'
-                    : 'bg-amber-500'
+                    : 'bg-amber-400'
                   : 'bg-stone-200'
               }`}
             />
@@ -130,7 +141,7 @@ export const PlanCard = ({ plan }) => {
             <img
               src={host.avatar}
               alt={host.name}
-              className="w-8 h-8 rounded-full object-cover border border-stone-200"
+              className="w-8 h-8 rounded-full object-cover border-2 border-amber-400"
             />
             {host.idVerified && (
               <ShieldCheck
@@ -141,11 +152,11 @@ export const PlanCard = ({ plan }) => {
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="text-xs font-bold text-stone-800 leading-none">
+              <span className="text-sm font-medium text-stone-600 leading-none">
                 {host.name}
               </span>
               {isHost && (
-                <span className="text-[9px] font-extrabold bg-stone-100 text-stone-600 px-1 rounded">
+                <span className="text-[9px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 px-1 rounded">
                   Host
                 </span>
               )}
@@ -168,7 +179,7 @@ export const PlanCard = ({ plan }) => {
             className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               isUnlocked
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
-                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
             }`}
           >
             {isUnlocked ? (
@@ -184,13 +195,13 @@ export const PlanCard = ({ plan }) => {
             )}
           </button>
         ) : isPending ? (
-          <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+          <span className="px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold">
             Pending Approval
           </span>
         ) : (
           <button
             onClick={handleCardClick}
-            className="px-3.5 py-1.5 rounded-xl bg-espresso text-cream hover:bg-stone-800 text-xs font-bold transition-all"
+            className="px-4 py-2 rounded-xl bg-amber-500 text-stone-900 shadow-sm hover:bg-amber-600 text-sm font-extrabold transition-all"
           >
             View & Join
           </button>
@@ -200,3 +211,4 @@ export const PlanCard = ({ plan }) => {
     </div>
   );
 };
+

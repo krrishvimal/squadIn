@@ -40,7 +40,7 @@ export const BottomTabs = () => {
           }`}
         >
           <Compass size={21} className={activeTab === 'explore' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] tracking-tight">Explore</span>
+          <span className="text-[10px] font-bold tracking-tight">Explore</span>
         </button>
 
         {/* Tab 2: Squad Radar */}
@@ -55,14 +55,14 @@ export const BottomTabs = () => {
           <div className="relative">
             <Radio size={21} className={activeTab === 'radar' ? 'stroke-[2.5] text-amber-600' : 'stroke-2'} />
             {incomingWavesCount > 0 ? (
-              <span className="absolute -top-1 -right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-[9px] px-1 py-0.2 rounded-full shadow-sm animate-bounce flex items-center gap-0.5">
+              <span className="absolute -top-1 -right-2 bg-amber-500 text-stone-900 font-extrabold text-[9px] px-1 py-0.2 rounded-full shadow-sm animate-bounce flex items-center gap-0.5">
                 👋 {incomingWavesCount}
               </span>
             ) : (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             )}
           </div>
-          <span className="text-[10px] tracking-tight">Radar</span>
+          <span className="text-[10px] font-bold tracking-tight">Radar</span>
         </button>
 
         {/* Tab 3: My Crews */}
@@ -75,9 +75,9 @@ export const BottomTabs = () => {
           }`}
         >
           <Users size={21} className={activeTab === 'my_crews' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] tracking-tight">My Crews</span>
+          <span className="text-[10px] font-bold tracking-tight">My Crews</span>
           {pendingRequestsCount > 0 && (
-            <span className="absolute -top-1 right-2 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-extrabold flex items-center justify-center animate-pulse">
+            <span className="absolute -top-1 right-2 w-4 h-4 bg-amber-500 text-stone-900 rounded-full text-[9px] font-extrabold flex items-center justify-center animate-pulse">
               {pendingRequestsCount}
             </span>
           )}
@@ -93,15 +93,15 @@ export const BottomTabs = () => {
           }`}
         >
           <MessageSquare size={22} className={activeTab === 'chats' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] tracking-tight">Chats</span>
+          <span className="text-[10px] font-bold tracking-tight">Chats</span>
           {unlockedChatsCount > 0 && (
-            <span className="absolute -top-1 right-1 w-4 h-4 bg-emerald-500 text-white rounded-full text-[9px] font-extrabold flex items-center justify-center">
+            <span className="absolute -top-1 right-1 w-4 h-4 bg-amber-500 text-stone-900 rounded-full text-[9px] font-extrabold flex items-center justify-center">
               {unlockedChatsCount}
             </span>
           )}
         </button>
 
-        {/* Tab 4: Profile */}
+        {/* Tab 5: Profile */}
         <button
           onClick={() => setActiveTab('profile')}
           className={`flex flex-col items-center gap-1 transition-all ${
@@ -111,7 +111,7 @@ export const BottomTabs = () => {
           }`}
         >
           <User size={22} className={activeTab === 'profile' ? 'stroke-[2.5]' : 'stroke-2'} />
-          <span className="text-[10px] tracking-tight">Profile</span>
+          <span className="text-[10px] font-bold tracking-tight">Profile</span>
         </button>
 
       </div>

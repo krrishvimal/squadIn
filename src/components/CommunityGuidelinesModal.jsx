@@ -109,7 +109,7 @@ export const CommunityGuidelinesModal = ({ isOpen, onClose }) => {
         <div className="p-4 border-t border-stone-200 bg-white sticky bottom-0 z-10">
           <button
             onClick={onClose}
-            className="w-full py-2.5 bg-espresso hover:bg-stone-800 text-cream font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-stone-900 shadow-md font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
           >
             <CheckCircle2 size={15} className="text-amber-400" />
             <span>I Understand & Agree</span>
