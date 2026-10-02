@@ -389,7 +389,11 @@ export const SquadRadarView = () => {
                         👋
                       </div>
                     )}
-                    {hasWavedAt(member.id) && (
+                    {isMutualWave(member.id) ? (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-[9px] shadow-lg ring-2 ring-emerald-300 animate-pulse" title="Squad Up!">
+                        🤝
+                      </div>
+                    ) : hasWavedAt(member.id) && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-violet-500 rounded-full flex items-center justify-center text-[8px] shadow-lg">
                         👋
                       </div>
@@ -579,25 +583,35 @@ export const SquadRadarView = () => {
               {/* Wave Action — lightweight connection without needing a plan */}
               <div className="mb-3">
                 {isMutualWave(activeCandidate.id) ? (
-                  // Mutual wave! Show match state
+                  // Mutual wave! Show squad-up state (NOT dating "match" language)
                   <div className="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-4 text-center shadow-md animate-fade-in">
                     <div className="text-3xl mb-1 animate-bounce">🤝</div>
-                    <p className="text-emerald-950 font-black text-base tracking-tight">It's a Match!</p>
-                    <p className="text-emerald-800 font-bold text-xs mt-1">You both waved at each other! Start a conversation about weekend plans.</p>
+                    <p className="text-emerald-950 font-black text-base tracking-tight">Squad Up!</p>
+                    <p className="text-emerald-800 font-bold text-xs mt-1">You're both interested in similar plans! Create a weekend crew together.</p>
+                    <button
+                      onClick={() => {
+                        setActiveCandidate(null);
+                        requireVerification(() => setShowCreateModal(true), 'create_plan');
+                      }}
+                      className="mt-2.5 w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-lg transition-all active:scale-[0.98]"
+                    >
+                      <span>📋</span>
+                      <span>Create a Plan Together</span>
+                    </button>
                   </div>
                 ) : hasWavedAt(activeCandidate.id) ? (
                   // Already waved, waiting
                   <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 text-center shadow-sm">
                     <p className="text-amber-950 font-extrabold text-sm flex items-center justify-center gap-1.5">
-                      <span className="text-base">👋</span> Wave Sent!
+                      <span className="text-base">👋</span> Interest Sent!
                     </p>
-                    <p className="text-amber-800 font-bold text-xs mt-0.5">Waiting for {activeCandidate.name} to wave back</p>
+                    <p className="text-amber-800 font-bold text-xs mt-0.5">Waiting for {activeCandidate.name} to respond — you'll both unlock plan invites</p>
                   </div>
                 ) : hasReceivedWaveFrom(activeCandidate.id) ? (
                   // Someone waved at YOU! Prompt to wave back!
                   <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-500 rounded-2xl p-4 text-center space-y-2 shadow-lg animate-pulse">
                     <p className="text-emerald-950 font-black text-sm flex items-center justify-center gap-1.5">
-                      <span className="text-lg animate-bounce">👋</span> {activeCandidate.name} waved at you!
+                      <span className="text-lg animate-bounce">👋</span> {activeCandidate.name} wants to squad up!
                     </p>
                     <button
                       onClick={() => {
@@ -607,8 +621,8 @@ export const SquadRadarView = () => {
                       }}
                       className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all active:scale-[0.98]"
                     >
-                      <span className="text-lg">👋</span>
-                      <span>Wave Back to Match!</span>
+                      <span className="text-lg">🤝</span>
+                      <span>Wave Back — Unlock Plan Invites</span>
                     </button>
                   </div>
                 ) : (
@@ -622,7 +636,7 @@ export const SquadRadarView = () => {
                     className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/30 transition-all active:scale-[0.98]"
                   >
                     <span className="text-lg">👋</span>
-                    <span>Wave — Show Interest</span>
+                    <span>Interested in Similar Plans</span>
                   </button>
                 )}
               </div>

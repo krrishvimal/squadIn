@@ -752,7 +752,7 @@ export const AppProvider = ({ children }) => {
             return [...prev, incomingWave];
           });
 
-          // If this wave is sent to current user & forms a mutual match -> trigger celebration!
+          // If this wave is sent to current user & forms a mutual connection -> trigger squad-up celebration!
           if (incomingWave.toUserId === currentUser?.id) {
             confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
           }
