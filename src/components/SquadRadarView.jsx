@@ -343,13 +343,25 @@ export const SquadRadarView = () => {
           })}
 
           {filteredMembers.length === 0 && (
-            <div className="absolute bottom-5 z-20 px-4 py-2 bg-white/90 border border-amber-200 rounded-2xl text-center backdrop-blur-sm max-w-xs animate-fade-in shadow-sm">
-              <p className="text-xs font-bold text-amber-700">
-                🧭 Squad Radar is Scanning in {selectedCity}
+            <div className="absolute bottom-6 z-20 px-6 py-4 bg-white/95 border-2 border-stone-800 rounded-3xl text-center backdrop-blur-md max-w-xs animate-fade-in shadow-[2px_3px_0px_#1c1917] space-y-1.5">
+              <div className="flex items-center justify-center gap-3 text-2xl mb-1">
+                <span>🧭</span>
+                <span>🔭</span>
+              </div>
+              <h4 className="text-sm font-black text-stone-900 leading-snug">
+                Your Squad Radar is Scanning...
+              </h4>
+              <p className="text-xs font-bold text-stone-500 leading-tight">
+                Nearby members will appear as they open the app in <span className="text-amber-800 font-black">{selectedCity}</span>
               </p>
-              <p className="text-xs text-stone-400 mt-0.5 leading-tight">
-                As nearby verified members open the app, they will appear on your distance rings.
-              </p>
+              
+              {/* Carousel indicator dots (Screen 3) */}
+              <div className="flex items-center justify-center gap-1.5 pt-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400 border border-stone-800" />
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
+              </div>
             </div>
           )}
         </div>

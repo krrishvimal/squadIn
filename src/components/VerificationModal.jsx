@@ -121,137 +121,117 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="bg-[#FDFBF7] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-stone-200">
+      <div className="bg-[#FAF6EE] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-stone-800">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-200 bg-white sticky top-0 z-10">
+        {/* Header matching Screen 1 */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-stone-200/80 bg-white sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-blue-100 text-blue-900 font-extrabold">
-              <ShieldCheck size={18} />
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold text-espresso">Boost Your Trust Score</h2>
-              <p className="text-[10px] text-stone-500 font-medium">Industry-standard authentication & verified badges</p>
-            </div>
+            <span className="text-xl">🛡️</span>
+            <h2 className="text-lg font-black text-stone-900 tracking-tight">Boost Your Trust Score</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 font-black transition-colors cursor-pointer"
           >
-            <X size={18} />
+            <X size={16} className="stroke-[3]" />
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex border-b border-stone-200 bg-stone-50 px-5 pt-2 gap-2">
+        {/* Tab Switcher matching Screen 1 */}
+        <div className="flex bg-white px-5 pt-1 pb-3 gap-2 justify-center border-b border-stone-200/80">
           <button
             onClick={() => setActiveTab('phone')}
-            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs transition-all flex items-center gap-1 cursor-pointer ${
               activeTab === 'phone'
-                ? 'border-amber-600 text-amber-900'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'bg-amber-400 text-stone-900 border-2 border-stone-900 font-black shadow-[1.5px_1.5px_0px_#1c1917]'
+                : 'bg-[#FAF6EE] text-stone-700 border border-stone-300 font-bold hover:bg-stone-100'
             }`}
           >
-            <Smartphone size={13} />
-            <span>1. Phone (+50%)</span>
-            {isPhoneVerified && <span className="text-emerald-600">✓</span>}
+            <span>📱 Phone (+50%)</span>
+            {isPhoneVerified && <span className="text-emerald-700 font-black">✓</span>}
           </button>
 
           <button
             onClick={() => setActiveTab('selfie')}
-            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs transition-all flex items-center gap-1 cursor-pointer ${
               activeTab === 'selfie'
-                ? 'border-amber-600 text-amber-900'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'bg-amber-400 text-stone-900 border-2 border-stone-900 font-black shadow-[1.5px_1.5px_0px_#1c1917]'
+                : 'bg-[#FAF6EE] text-stone-700 border border-stone-300 font-bold hover:bg-stone-100'
             }`}
           >
-            <Camera size={13} />
-            <span>2. Selfie (+30%)</span>
-            {currentUser?.idVerified && <span className="text-emerald-600">✓</span>}
+            <span>📸 Selfie (+30%)</span>
+            {currentUser?.idVerified && <span className="text-emerald-700 font-black">✓</span>}
           </button>
 
           <button
             onClick={() => setActiveTab('linkedin')}
-            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs transition-all flex items-center gap-1 cursor-pointer ${
               activeTab === 'linkedin'
-                ? 'border-blue-600 text-blue-900'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
+                ? 'bg-amber-400 text-stone-900 border-2 border-stone-900 font-black shadow-[1.5px_1.5px_0px_#1c1917]'
+                : 'bg-[#FAF6EE] text-stone-700 border border-stone-300 font-bold hover:bg-stone-100'
             }`}
           >
-            <ExternalLink size={13} />
-            <span>3. LinkedIn (+20%)</span>
-            {isLinkedInVerified && <span className="text-blue-600">✓</span>}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('work_email')}
-            className={`pb-2.5 px-2.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 ${
-              activeTab === 'work_email'
-                ? 'border-emerald-600 text-emerald-900'
-                : 'border-transparent text-stone-400 hover:text-stone-700'
-            }`}
-          >
-            <Mail size={13} />
-            <span>4. Work Email (+10%)</span>
-            {isWorkVerified && <span className="text-emerald-600">✓</span>}
+            <span>🔗 LinkedIn (+20%)</span>
+            {isLinkedInVerified && <span className="text-emerald-700 font-black">✓</span>}
           </button>
         </div>
 
         {/* Tab Content */}
-        <div className="overflow-y-auto p-5 space-y-4">
+        <div className="overflow-y-auto p-6 space-y-4 bg-white/60">
           
-          {/* TAB 1: PHONE SMS OTP */}
+          {/* TAB 1: PHONE SMS OTP matching Screen 1 */}
           {activeTab === 'phone' && (
             <div className="space-y-4 animate-fade-in">
-              <div className="bg-white p-4 rounded-2xl border border-stone-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-stone-800 flex items-center gap-1.5">
-                    <Smartphone size={15} className="text-amber-600" />
-                    <span>Indian Mobile Number (+91)</span>
-                  </span>
-                  {isPhoneVerified && (
-                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
-                      <CheckCircle2 size={11} /> Phone Verified
-                    </span>
-                  )}
+              {/* Screen 1 Center Cartoon Illustration */}
+              <div className="flex flex-col items-center justify-center pt-1 pb-2">
+                <div className="w-20 h-20 bg-amber-100/80 rounded-full flex items-center justify-center relative border border-amber-200">
+                  <span className="text-4xl filter drop-shadow-xs">📱</span>
+                  <div className="absolute bottom-1 right-1 w-6 h-6 bg-amber-400 rounded-full border-2 border-stone-900 flex items-center justify-center text-xs font-black text-stone-900 shadow-xs">
+                    ✓
+                  </div>
                 </div>
-                <p className="text-[11px] text-stone-500 leading-relaxed">
-                  Anchor your account with a verified 10-digit Indian SIM. Required for emergency SOS alerts and host contact.
-                </p>
+              </div>
+
+              {/* Form Input Group */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs font-black text-stone-800">
+                  <span>Your Phone Number</span>
+                  <span className="text-base">🇮🇳</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-3 bg-[#FAF6EE] border-2 border-stone-300 rounded-2xl text-xs font-black text-stone-800">
+                    🇮🇳 +91
+                  </span>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    required
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Enter mobile number"
+                    className="flex-1 p-3 text-xs font-black rounded-2xl border-2 border-stone-300 bg-white focus:outline-none focus:border-amber-500 shadow-xs"
+                  />
+                </div>
 
                 {!isOtpSent ? (
-                  <form onSubmit={handleSendPhoneOtp} className="space-y-3 pt-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-3 py-2.5 bg-stone-100 border border-stone-300 rounded-xl text-xs font-bold text-stone-700">
-                        🇮🇳 +91
-                      </span>
-                      <input
-                        type="tel"
-                        maxLength={10}
-                        required
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                        placeholder="98765 43210"
-                        className="flex-1 p-2.5 text-xs font-bold rounded-xl border border-stone-300 bg-white focus:outline-none focus:border-amber-500"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-espresso font-extrabold text-xs rounded-xl shadow-sm transition-all"
-                    >
-                      Send 6-Digit SMS OTP
-                    </button>
-                  </form>
+                  <button
+                    type="button"
+                    onClick={handleSendPhoneOtp}
+                    className="w-full py-3.5 bg-amber-400 hover:bg-amber-500 text-stone-900 font-black text-sm rounded-2xl border-2 border-stone-900 shadow-[2px_3px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Send OTP ✨</span>
+                  </button>
                 ) : (
-                  <div className="space-y-3 pt-2">
-                    <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs">
-                      <span className="text-stone-700 font-medium">OTP sent to: <strong>+91 {phoneNumber}</strong></span>
-                      <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded">
-                        Demo OTP: {generatedOtp}
+                  <div className="space-y-3 pt-1">
+                    <div className="p-2 bg-amber-100/70 rounded-xl border border-amber-300 flex items-center justify-between text-xs font-black">
+                      <span className="text-stone-800">OTP Sent: <strong>+91 {phoneNumber}</strong></span>
+                      <span className="font-mono text-amber-900 bg-amber-200 px-2 py-0.5 rounded border border-amber-400">
+                        Demo: {generatedOtp}
                       </span>
                     </div>
 
-                    {/* 6 Digit Inputs */}
+                    {/* 6 Dashed Digit Boxes (Exact Screen 1 Match) */}
                     <div className="flex justify-between gap-1.5">
                       {phoneOtp.map((digit, idx) => (
                         <input
@@ -260,6 +240,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                           type="text"
                           maxLength={1}
                           value={digit}
+                          placeholder="0"
                           onKeyDown={(e) => {
                             if (e.key === 'Backspace' && !digit && idx > 0) {
                               document.getElementById(`otp-box-${idx - 1}`)?.focus();
@@ -274,44 +255,36 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                               document.getElementById(`otp-box-${idx + 1}`)?.focus();
                             }
                           }}
-                          className="w-11 h-12 text-center text-base font-extrabold rounded-xl border border-stone-300 bg-white focus:border-amber-500 focus:outline-none shadow-xs"
+                          className="w-11 h-13 text-center text-lg font-black rounded-xl border-2 border-dashed border-stone-400 bg-[#FAF6EE] focus:border-amber-500 focus:outline-none shadow-inner"
                         />
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-1">
-                      <span className="text-stone-400 font-medium">
-                        {timer > 0 ? `Resend OTP in ${timer}s` : (
-                          <button
-                            type="button"
-                            onClick={handleSendPhoneOtp}
-                            className="text-amber-700 font-bold hover:underline"
-                          >
-                            Resend OTP now
-                          </button>
-                        )}
-                      </span>
+                    <div className="flex items-center justify-between text-xs font-bold text-stone-500">
+                      <span>{timer > 0 ? `Resend in ${timer}s` : <button type="button" onClick={handleSendPhoneOtp} className="text-amber-800 font-black underline">Resend OTP</button>}</span>
                       <button
                         type="button"
-                        onClick={() => {
-                          setPhoneOtp(generatedOtp.split(''));
-                        }}
-                        className="text-[11px] font-bold text-blue-600 hover:underline"
+                        onClick={() => setPhoneOtp(generatedOtp.split(''))}
+                        className="text-amber-800 font-black underline"
                       >
-                        Auto-fill Demo OTP
+                        Auto-fill Demo
                       </button>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleVerifyPhoneOtp}
-                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1"
+                      className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm rounded-2xl border-2 border-stone-900 shadow-[2px_3px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all flex items-center justify-center gap-1 cursor-pointer"
                     >
-                      <CheckCircle2 size={14} />
-                      <span>Confirm & Verify Phone Number</span>
+                      <CheckCircle2 size={16} className="stroke-[3]" />
+                      <span>Confirm & Verify Phone</span>
                     </button>
                   </div>
                 )}
+
+                <p className="text-center text-[11px] font-bold text-stone-500 pt-1">
+                  This verifies you're a real person 🤝
+                </p>
               </div>
             </div>
           )}
@@ -477,11 +450,27 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
 
         </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 bg-stone-100 border-t border-stone-200 flex justify-end">
+        {/* Footer matching Screen 1 bottom tray */}
+        <div className="px-6 py-3.5 bg-[#FAF6EE] border-t-2 border-stone-200/80 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-stone-800">
+              {Number(Boolean(isPhoneVerified)) + Number(Boolean(currentUser?.idVerified)) + Number(Boolean(isLinkedInVerified))} of 3 badges collected
+            </span>
+            <div className="flex items-center gap-1">
+              <span className={`px-1.5 py-0.5 rounded-lg border text-xs ${isPhoneVerified ? 'bg-amber-200 border-amber-500 text-stone-900 shadow-xs' : 'bg-white border-stone-300 opacity-40'}`}>
+                📱
+              </span>
+              <span className={`px-1.5 py-0.5 rounded-lg border text-xs ${currentUser?.idVerified ? 'bg-amber-200 border-amber-500 text-stone-900 shadow-xs' : 'bg-white border-stone-300 opacity-40'}`}>
+                📸
+              </span>
+              <span className={`px-1.5 py-0.5 rounded-lg border text-xs ${isLinkedInVerified ? 'bg-amber-200 border-amber-500 text-stone-900 shadow-xs' : 'bg-white border-stone-300 opacity-40'}`}>
+                🔗
+              </span>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-amber-500 text-stone-900 font-bold text-xs rounded-xl hover:bg-amber-600 shadow-md transition-colors"
+            className="px-4 py-1.5 bg-amber-400 hover:bg-amber-500 text-stone-900 font-black text-xs rounded-xl border-2 border-stone-900 shadow-[1.5px_1.5px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all cursor-pointer"
           >
             Done
           </button>

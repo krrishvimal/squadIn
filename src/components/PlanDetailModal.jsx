@@ -289,90 +289,140 @@ export const PlanDetailModal = () => {
             </div>
           </div>
 
-          {/* HOST APPROVAL CONTROL PANEL (If Host has pending requests) */}
+          {/* HOST APPROVAL CONTROL PANEL (Mockup Screen 2: Host Dashboard) */}
           {isHost && (
-            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-sm font-extrabold text-stone-900">
-                  <UserPlus size={16} className="text-amber-600" />
-                  <span>Pending Join Requests ({plan.pendingRequests?.length || 0})</span>
-                </div>
-                <span className="text-[10px] text-amber-800 font-semibold">
-                  You have full approval power
-                </span>
+            <div className="bg-[#FAF6EE] p-5 rounded-3xl border-2 border-stone-800 space-y-3.5 shadow-[2px_3px_0px_#1c1917]">
+              <div>
+                <h3 className="text-base font-black text-stone-900 tracking-tight flex items-center gap-1.5">
+                  <span>⚡</span>
+                  <span>Host Dashboard</span>
+                </h3>
+                <p className="text-xs font-bold text-stone-500 mt-0.5">{plan.title}</p>
               </div>
 
-              {plan.pendingRequests?.length > 0 ? (
-                <div className="space-y-2">
-                  {plan.pendingRequests.map(req => {
-                    const applicant = getUserById(req.userId);
+              {/* 4/6 Crew Filled Pill with Avatar Stack (Screen 2) */}
+              <div className="flex items-center justify-between bg-amber-300/80 border-2 border-stone-800 rounded-full px-4 py-1.5 shadow-[1.5px_1.5px_0px_#1c1917]">
+                <span className="text-xs font-black text-stone-900">
+                  {plan.acceptedMembers.length}/{plan.targetCapacity} Crew Filled
+                </span>
+                <div className="flex -space-x-2 overflow-hidden">
+                  {plan.acceptedMembers.slice(0, 4).map(mId => {
+                    const m = getUserById(mId);
                     return (
-                      <div key={req.userId} className="p-3 bg-white rounded-xl border border-amber-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <img src={applicant.avatar} className="w-10 h-10 rounded-full object-cover border-2 border-amber-200" />
-                            <div>
-                              <div className="text-sm font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
-                                <span>{applicant.name}</span>
-                                {(applicant.phoneVerified || applicant.idVerified) ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9px] font-bold">
-                                    <ShieldCheck size={10} />
-                                    Verified
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-stone-500 text-[9px] font-bold">
-                                    New Member
-                                  </span>
-                                )}
+                      <img key={mId} src={m.avatar} alt={m.name} className="inline-block w-6 h-6 rounded-full border-2 border-stone-800 object-cover" />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Pending Requests Section */}
+              <div className="space-y-2.5 pt-1">
+                <div className="flex items-center gap-1.5 text-xs font-black text-stone-900">
+                  <span>📩</span>
+                  <span>Pending Requests ({plan.pendingRequests?.length || 0})</span>
+                </div>
+
+                {plan.pendingRequests?.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {plan.pendingRequests.map(req => {
+                      const applicant = getUserById(req.userId);
+                      const isVerified = Boolean(applicant.phoneVerified || applicant.idVerified);
+                      return (
+                        <div key={req.userId} className="p-3.5 bg-white rounded-2xl border-2 border-stone-800 shadow-[2px_2px_0px_#1c1917] space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-10 h-10 rounded-full border-2 border-stone-800 p-0.5 bg-gradient-to-tr from-amber-400 to-amber-200 flex-shrink-0">
+                                <img src={applicant.avatar} className="w-full h-full rounded-full object-cover" />
                               </div>
-                              <div className="text-[11px] text-stone-500 font-medium mt-0.5">{applicant.company} · ⭐ {applicant.karmaScore}</div>
+                              <div>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-sm font-black text-stone-900">{applicant.name}</span>
+                                  {isVerified ? (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-emerald-100 border border-emerald-400 text-emerald-800 text-[9px] font-black">
+                                      ✅ Verified
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-stone-100 border border-stone-300 text-stone-600 text-[9px] font-black">
+                                      New Member
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                {/* Trust Meter */}
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] font-bold text-stone-500">Trust meter</span>
+                                  <div className="w-14 h-1.5 bg-stone-100 rounded-full border border-stone-300 overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${isVerified ? 80 : 35}%` }} />
+                                  </div>
+                                  <span className="text-[9px] font-black text-stone-700">{isVerified ? '80%' : '35%'}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-[10px] text-stone-400 font-medium">{req.requestedAt}</div>
-                        </div>
 
-                        <p className="text-[12px] text-stone-700 italic bg-stone-50 p-2 rounded-lg mb-3">
-                          "{req.message}"
-                        </p>
+                          <p className="text-xs text-stone-700 italic font-medium bg-[#FAF6EE] p-2 rounded-xl border border-stone-200">
+                            "{req.message || 'Love cafes! Count me in 🙌'}"
+                          </p>
 
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => acceptJoinRequest(plan.id, req.userId)}
-                            className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
-                          >
-                            <CheckCircle2 size={15} />
-                            <span>Accept</span>
-                          </button>
-                          <button
-                            onClick={() => rejectJoinRequest(plan.id, req.userId)}
-                            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-500 font-bold text-sm rounded-xl transition-colors"
-                          >
-                            Decline
-                          </button>
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              onClick={() => acceptJoinRequest(plan.id, req.userId)}
+                              className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl border-2 border-stone-900 shadow-[1.5px_2px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <span>Accept</span>
+                              <span>🎟️</span>
+                            </button>
+                            <button
+                              onClick={() => rejectJoinRequest(plan.id, req.userId)}
+                              className="px-5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 font-black text-xs rounded-xl border border-stone-300 active:translate-y-0.5 transition-all cursor-pointer"
+                            >
+                              Decline
+                            </button>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-stone-500 font-bold bg-white/70 p-3 rounded-xl border border-stone-200">
+                    No pending requests yet. As members request to join, approve them here!
+                  </p>
+                )}
+              </div>
+
+              {/* Confirmed Crew Section (Screen 2 Bottom) */}
+              <div className="pt-2 border-t border-stone-800/15">
+                <div className="flex items-center gap-1.5 text-xs font-black text-stone-900 mb-2.5">
+                  <span>✅</span>
+                  <span>Confirmed Crew ({plan.acceptedMembers.length})</span>
+                </div>
+                <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+                  {plan.acceptedMembers.map(memberId => {
+                    const member = getUserById(memberId);
+                    return (
+                      <div key={memberId} className="flex flex-col items-center gap-1 flex-shrink-0">
+                        <div className="w-11 h-11 rounded-full border-2 border-stone-800 p-0.5 bg-amber-100 overflow-hidden shadow-xs">
+                          <img src={member.avatar} alt={member.name} className="w-full h-full rounded-full object-cover" />
+                        </div>
+                        <span className="text-[10px] font-black text-stone-800 truncate max-w-[50px]">
+                          {member.name.split(' ')[0]}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
-              ) : (
-                <p className="text-xs text-amber-800 font-medium">
-                  No pending requests. Nearby members will appear here as they apply.
-                </p>
-              )}
+              </div>
 
               {/* Host Instant Early Unlock Action */}
               {!isUnlocked && plan.acceptedMembers.length >= 2 && (
-                <div className="pt-2 border-t border-amber-200/80 mt-3">
+                <div className="pt-2">
                   <button
                     onClick={() => hostEarlyUnlockPlan(plan.id)}
-                    className="w-full py-2 bg-gradient-to-r from-violet-500 to-indigo-500 hover:opacity-90 text-white font-extrabold text-sm rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md mt-2"
+                    className="w-full py-2.5 bg-amber-400 hover:bg-amber-500 text-stone-900 font-black text-xs rounded-2xl border-2 border-stone-800 shadow-[2px_2px_0px_#1c1917] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
-                    <Sparkles size={16} />
-                    <span>Lock Crew & Unlock Chat Now (Free)</span>
+                    <Sparkles size={14} className="stroke-[3]" />
+                    <span>Host: Lock Crew & Unlock Chat Now (Free)</span>
                   </button>
-                  <p className="text-[10px] text-center text-stone-500 mt-1.5 font-medium">
-                    Host perk: Start coordinating immediately with your current {plan.acceptedMembers.length} members.
-                  </p>
                 </div>
               )}
             </div>
@@ -380,49 +430,61 @@ export const PlanDetailModal = () => {
 
         </div>
 
-        {/* Modal Footer / Action CTA */}
-        <div className="p-4 border-t border-stone-200 bg-[#FDFBF7] sticky bottom-0 z-10">
+        {/* Modal Footer / Action CTA (Mockup Screen 3: Celebrations) */}
+        <div className="p-4 border-t-2 border-stone-800/10 bg-[#FAF6EE] sticky bottom-0 z-10">
           {isMember ? (
-            <button
-              onClick={handleOpenChat}
-              className={`w-full py-3 rounded-xl text-base font-extrabold flex items-center justify-center gap-2 transition-all shadow-md ${
-                isUnlocked
-                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                  : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'
-              }`}
-            >
-              {isUnlocked ? (
-                <>
-                  <MessageSquare size={16} />
-                  <span>Open Unlocked Group Chat</span>
-                </>
-              ) : (
-                <>
-                  <Lock size={15} />
-                  <span>You're in the Crew (Chat Unlocks on Full)</span>
-                </>
-              )}
-            </button>
+            /* Screen 3 Bottom Half: Celebration Card */
+            <div className="bg-emerald-50/90 border-2 border-stone-800 rounded-3xl p-4 text-center space-y-2.5 shadow-[2px_3px_0px_#1c1917] animate-fade-in relative overflow-hidden">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-100 border-2 border-stone-800 flex items-center justify-center text-2xl shadow-xs">
+                🎟️
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-stone-900 leading-tight">
+                  You're In! Welcome to the Crew!
+                </h3>
+                <p className="text-xs font-bold text-stone-600 mt-0.5">
+                  {plan.title} • {plan.dateText}
+                </p>
+              </div>
+
+              {/* Overlapping Avatar Stack (Screen 3) */}
+              <div className="flex justify-center -space-x-2 py-1">
+                {plan.acceptedMembers.map(mId => {
+                  const m = getUserById(mId);
+                  return (
+                    <img key={mId} src={m.avatar} alt={m.name} className="inline-block w-8 h-8 rounded-full border-2 border-stone-800 object-cover shadow-xs" />
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleOpenChat}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl border-2 border-stone-900 shadow-[2px_3px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MessageSquare size={16} className="stroke-[3]" />
+                <span>Open Crew Chat</span>
+              </button>
+            </div>
           ) : isPending || joinRequestSent ? (
             <div className="flex flex-col gap-2">
-              <div className="text-center p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm">
+              <div className="text-center p-3 bg-emerald-100 border-2 border-stone-800 rounded-2xl text-emerald-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-[2px_2px_0px_#1c1917]">
                 <span>✅ Join Request Sent! Waiting for host to accept.</span>
               </div>
               
               {!showOptionalNote ? (
                 <button
                   onClick={() => setShowOptionalNote(true)}
-                  className="text-xs text-stone-500 hover:text-stone-700 font-bold text-center transition-colors py-1 flex items-center justify-center gap-1.5 mx-auto"
+                  className="text-xs text-stone-600 hover:text-stone-900 font-black text-center transition-colors py-1 flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
                 >
                   <span>💬 Add a note for the host (optional)</span>
                 </button>
               ) : (
-                <div className="space-y-2 mt-1 animate-fade-in bg-white border border-stone-200 rounded-xl p-2 shadow-sm">
+                <div className="space-y-2 mt-1 animate-fade-in bg-white border-2 border-stone-800 rounded-2xl p-3 shadow-sm">
                   <textarea
                     value={joinNote}
                     onChange={(e) => setJoinNote(e.target.value)}
-                    placeholder="Add a quick note for the host (e.g. 'Hey, excited for coffee!')..."
-                    className="w-full text-sm p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-amber-400 bg-stone-50 resize-none h-20"
+                    placeholder="Add a quick note for the host (e.g. 'Love cafes! Count me in 🙌')..."
+                    className="w-full text-xs font-bold p-3 rounded-xl border-2 border-stone-200 focus:outline-none focus:border-amber-400 bg-stone-50 resize-none h-20"
                   />
                   <div className="flex gap-2">
                     <button
@@ -430,13 +492,13 @@ export const PlanDetailModal = () => {
                         requestToJoinPlan(plan.id, joinNote);
                         setShowOptionalNote(false);
                       }}
-                      className="flex-1 py-2.5 bg-amber-500 text-stone-900 font-extrabold text-sm rounded-xl hover:bg-amber-600 transition-colors shadow-sm"
+                      className="flex-1 py-2.5 bg-amber-400 hover:bg-amber-500 text-stone-900 font-black text-xs rounded-xl border-2 border-stone-800 shadow-[1.5px_2px_0px_#1c1917] transition-all cursor-pointer"
                     >
                       Send Note
                     </button>
                     <button
                       onClick={() => setShowOptionalNote(false)}
-                      className="px-4 py-2.5 bg-stone-100 text-stone-700 font-bold text-sm rounded-xl hover:bg-stone-200"
+                      className="px-4 py-2.5 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-200 cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -450,10 +512,10 @@ export const PlanDetailModal = () => {
                 requestToJoinPlan(plan.id, '');
                 setJoinRequestSent(true);
               }, 'join_plan')}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-stone-900 rounded-xl font-extrabold text-base shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-amber-400 hover:bg-amber-500 text-stone-900 rounded-2xl font-black text-sm border-2 border-stone-900 shadow-[2px_3px_0px_#1c1917] active:shadow-none active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Request to Join Crew</span>
-              <span className="text-xs text-amber-900/70 font-bold">• Free</span>
+              <span className="text-xs text-amber-950 font-bold">• Free</span>
             </button>
           )}
         </div>
