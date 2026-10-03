@@ -102,27 +102,41 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
 
   const handleNativeFileUpload = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        alert('Please select a JPEG, PNG, or WebP image.');
-        return;
-      }
-      if (file.size > 3 * 1024 * 1024) {
-        alert('Image must be under 3MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result;
-        setPreviewPhoto(result);
-        if (onPhotoCaptured) {
-          onPhotoCaptured(result);
-        }
+    if (!file) return;
+
+    // Security: only allow real image types (blocks SVG XSS)
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      alert('Please select a JPEG, PNG, or WebP image.');
+      return;
+    }
+
+    // Read the file and auto-compress through canvas (handles any size)
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onload = () => {
+        // Resize to 400x400 square (same as camera capture) — guarantees small output
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+
+        // Center-crop to square
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 400, 400);
+
+        // Compress to JPEG ~50-80KB regardless of original file size
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        setPreviewPhoto(compressed);
+        if (onPhotoCaptured) onPhotoCaptured(compressed);
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       };
-      reader.readAsDataURL(file);
-    }
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
