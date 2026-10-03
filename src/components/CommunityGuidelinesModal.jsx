@@ -102,10 +102,17 @@ export const CommunityGuidelinesModal = ({ isOpen, onClose }) => {
             </p>
           </div>
 
-          {/* Terms Agreement Note */}
+          {/* Terms & Privacy Agreement Note */}
           <div className="text-center pt-2">
-            <p className="text-[10px] text-stone-400">
-              By using SquadIn, you agree to these Community Safety Standards and Terms of Service.
+            <p className="text-[10px] text-stone-500">
+              By using SquadIn, you agree to our{' '}
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="text-amber-700 underline font-semibold hover:text-amber-800">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="text-amber-700 underline font-semibold hover:text-amber-800">
+                Privacy Policy
+              </a>.
             </p>
           </div>
         </div>
