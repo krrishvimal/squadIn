@@ -232,3 +232,18 @@ begin
 end;
 $$;
 
+-- 11. PRODUCTION PERFORMANCE INDEXES & REALTIME OPTIMIZATION
+create index if not exists idx_plans_city_created on public.plans(city, created_at desc);
+create index if not exists idx_plans_host_id on public.plans(host_id);
+create index if not exists idx_messages_plan_created on public.messages(plan_id, created_at asc);
+create index if not exists idx_messages_waves on public.messages(type, target_user_id) where type = 'wave';
+create index if not exists idx_profiles_city_active on public.profiles(city, last_active_at desc);
+create index if not exists idx_requests_plan_status on public.plan_requests(plan_id, status);
+create index if not exists idx_requests_user_id on public.plan_requests(user_id);
+
+alter table public.profiles replica identity default;
+alter table public.plans replica identity default;
+alter table public.plan_requests replica identity default;
+alter table public.messages replica identity default;
+
+
