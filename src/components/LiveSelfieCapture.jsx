@@ -103,6 +103,15 @@ export const LiveSelfieCapture = ({ currentAvatar, onPhotoCaptured, isVerified =
   const handleNativeFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        alert('Please select a JPEG, PNG, or WebP image.');
+        return;
+      }
+      if (file.size > 3 * 1024 * 1024) {
+        alert('Image must be under 3MB.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result;

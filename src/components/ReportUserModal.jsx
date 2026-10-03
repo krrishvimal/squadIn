@@ -148,6 +148,7 @@ export const ReportUserModal = ({ isOpen, onClose, targetUser, planId }) => {
               <textarea
                 id="report-details"
                 name="reportDetails"
+                maxLength={1000}
                 value={additionalDetails}
                 onChange={(e) => setAdditionalDetails(e.target.value)}
                 placeholder="Describe what happened to help us take immediate action..."

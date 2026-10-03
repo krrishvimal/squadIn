@@ -155,6 +155,7 @@ export function CreatePlanModal() {
         <input
           id="plan-neighborhood"
           name="neighborhood"
+          maxLength={100}
           value={form.neighborhood}
           onChange={e => set('neighborhood', e.target.value)}
           placeholder="e.g. Indiranagar, Koramangala, Bandra..."

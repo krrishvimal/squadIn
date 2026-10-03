@@ -31,6 +31,8 @@ export function App() {
   useEffect(() => {
     const result = checkLinkedInCallback();
     if (result?.success) {
+      // Only grant LinkedIn verification if the OAuth state was validated
+      // checkLinkedInCallback now validates the state parameter internally
       updateCurrentUserProfile({ linkedin_verified: true });
       confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }

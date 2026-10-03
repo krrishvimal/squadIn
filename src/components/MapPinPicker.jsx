@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
 // Custom Map Pin SVG Icon
+const escapeHtml = (str) => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 const createCustomPinIcon = (label = 'Meetup Spot') => {
   return L.divIcon({
     className: 'custom-map-pin',
@@ -27,7 +29,7 @@ const createCustomPinIcon = (label = 'Meetup Spot') => {
           align-items: center;
           gap: 4px;
         ">
-          <span>📍</span> ${label}
+          <span>📍</span> ${escapeHtml(label)}
         </div>
         <div style="
           width: 24px;

@@ -2,7 +2,7 @@
 // SquadIn LinkedIn OAuth 2.0 OpenID Connect
 // ==========================================
 
-export const LINKEDIN_CLIENT_ID = import.meta.env.VITE_LINKEDIN_CLIENT_ID || '78yuwlhfpdz58g';
+export const LINKEDIN_CLIENT_ID = import.meta.env.VITE_LINKEDIN_CLIENT_ID || '';
 
 export const getRedirectUri = () => {
   if (typeof window === 'undefined') return 'https://squad-in.vercel.app/';
@@ -39,6 +39,14 @@ export const checkLinkedInCallback = () => {
   }
 
   if (code) {
+    const savedState = localStorage.getItem('squadin_linkedin_oauth_state');
+    if (!savedState || state !== savedState) {
+      console.warn('LinkedIn OAuth state mismatch — possible CSRF');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return null;
+    }
+    localStorage.removeItem('squadin_linkedin_oauth_state');
+    
     // Successfully received LinkedIn OAuth Code
     window.history.replaceState({}, document.title, window.location.pathname);
     return { code, state, success: true };

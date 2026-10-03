@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { CURRENT_USER, OTHER_USERS, INITIAL_PLANS } from '../userData';
 import { calculateDistanceKm, INDIAN_CITIES, detectClosestCity, PASSION_TO_CATEGORY_MAP } from '../venueData';
 import { NEARBY_RADAR_MEMBERS } from '../radarData';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, initAuth } from '../lib/supabase';
 import { IS_DESIGN_PREVIEW, PREVIEW_USER, PREVIEW_MEMBERS, PREVIEW_PLANS, appStorage } from '../designPreview';
 
 const cloudEnabled = isSupabaseConfigured && !IS_DESIGN_PREVIEW;
@@ -131,8 +131,10 @@ const DEFAULT_AVATARS = [
 
 const getOrCreateUserId = () => {
   try {
+    // First check if we have an auth-linked ID
     let id = appStorage.getItem('squadin_user_id');
     if (!id || id === 'usr_guest') {
+      // Generate a temporary local ID; will be replaced by auth.uid() once auth initializes
       id = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36).slice(-4);
       appStorage.setItem('squadin_user_id', id);
     }
@@ -572,9 +574,61 @@ export const AppProvider = ({ children }) => {
     appStorage.setItem('squadin_current_user', JSON.stringify(currentUser));
   }, [currentUser]);
 
+  // === SUPABASE ANONYMOUS AUTH SESSION ===
+  // Establishes a cryptographic identity via Supabase Auth.
+  // This gives each browser a real auth.uid() that RLS policies can verify.
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    if (!cloudEnabled || !supabase) {
+      setAuthReady(true);
+      return;
+    }
+
+    const initializeAuth = async () => {
+      try {
+        const authId = await initAuth();
+        if (authId) {
+          // Update user ID to match the auth session ID
+          const currentLocalId = appStorage.getItem('squadin_user_id');
+          if (currentLocalId !== authId) {
+            appStorage.setItem('squadin_user_id', authId);
+            setCurrentUser(prev => {
+              if (!prev) return prev;
+              const updated = { ...prev, id: authId };
+              appStorage.setItem('squadin_current_user', JSON.stringify(updated));
+              return updated;
+            });
+          }
+        }
+      } catch (err) {
+        // Auth failed — continue with local ID (offline/local mode)
+      }
+      setAuthReady(true);
+    };
+
+    initializeAuth();
+
+    // Listen for auth state changes (session refresh, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const newId = session.user.id;
+        appStorage.setItem('squadin_user_id', newId);
+        setCurrentUser(prev => {
+          if (!prev || prev.id === newId) return prev;
+          const updated = { ...prev, id: newId };
+          appStorage.setItem('squadin_current_user', JSON.stringify(updated));
+          return updated;
+        });
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
   // SUPABASE REALTIME & DATABASE SYNC ENGINE
   useEffect(() => {
-    if (!cloudEnabled || !supabase) return;
+    if (!cloudEnabled || !supabase || !authReady) return;
 
     // 1. Fetch initial profiles, plans, messages, and join requests from Supabase
     const initCloudData = async () => {
@@ -1047,13 +1101,18 @@ export const AppProvider = ({ children }) => {
       supabase.removeChannel(profilesSubscription);
       supabase.removeChannel(requestsSubscription);
     };
-  }, []);
+  }, [authReady]);
 
   // Update profile
   const updateCurrentUserProfile = async (updates) => {
     let updated = null;
+    const ALLOWED_PROFILE_FIELDS = ['name', 'avatar', 'bio', 'city', 'gender', 'interests', 'phoneVerified', 'idVerified', 'workEmailVerified', 'linkedin_verified'];
+    const safeUpdates = {};
+    for (const key of ALLOWED_PROFILE_FIELDS) {
+      if (key in updates) safeUpdates[key] = updates[key];
+    }
     setCurrentUser(prev => {
-      updated = { ...prev, ...updates };
+      updated = { ...prev, ...safeUpdates };
       try {
         appStorage.setItem('squadin_current_user', JSON.stringify(updated));
       } catch (e) {}
@@ -1397,8 +1456,7 @@ export const AppProvider = ({ children }) => {
         try {
           const { data: rpcRes, error: rpcErr } = await supabase.rpc('accept_crew_applicant', {
             p_plan_id: planId,
-            p_user_id: userId,
-            p_host_id: currentUser.id
+            p_user_id: userId
           });
           if (!rpcErr && rpcRes && rpcRes.success) {
             rpcSuccess = true;
@@ -2069,6 +2127,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        authReady,
         currentUser,
         allUsers,
         plans,

@@ -32,6 +32,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
   // Work Email State
   const [workEmail, setWorkEmail] = useState('');
   const [emailOtp, setEmailOtp] = useState('');
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState('');
   const [isEmailOtpSent, setIsEmailOtpSent] = useState(false);
   const [isWorkVerified, setIsWorkVerified] = useState(currentUser?.workEmailVerified || false);
 
@@ -76,7 +77,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
   // 2. Verify Phone OTP
   const handleVerifyPhoneOtp = () => {
     const entered = phoneOtp.join('');
-    if (entered === generatedOtp || entered.length === 6) {
+    if (entered === generatedOtp) {
       setIsPhoneVerified(true);
       if (updateCurrentUserProfile) {
         const masked = phoneNumber.length >= 4
@@ -97,11 +98,17 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
       alert('Please enter a valid corporate work email address (e.g. name@swiggy.in, name@razorpay.com).');
       return;
     }
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(newOtp);
     setIsEmailOtpSent(true);
   };
 
   // 4. Verify Work Email
   const handleVerifyWorkEmail = () => {
+    if (emailOtp !== generatedEmailOtp) {
+      alert('Invalid OTP. Please check the code sent to your email.');
+      return;
+    }
     setIsWorkVerified(true);
     const parts = workEmail.split('@');
     if (parts.length < 2 || !parts[1].includes('.')) return;
@@ -424,7 +431,7 @@ export const VerificationModal = ({ isOpen, onClose, initialTab = 'phone' }) => 
                 ) : (
                   <div className="space-y-3 pt-1">
                     <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs">
-                      <span className="text-stone-700 font-medium">Magic code sent to <strong>{workEmail}</strong>. (Enter code <code>482103</code> to verify)</span>
+                      <span className="text-stone-700 font-medium">Magic code sent to <strong>{workEmail}</strong>. (Enter code <code>{generatedEmailOtp}</code> to verify)</span>
                     </div>
 
                     <input
