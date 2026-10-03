@@ -55,10 +55,110 @@ export function AvatarStack({ ids = [], size = 30 }) {
 export function SpotMeter({ filled, total }) {
   return <span className="spot-dots" aria-label={`${filled} of ${total} spots filled`}>{Array.from({ length: total }, (_, i) => <i key={i} className={i < filled ? 'filled' : ''} />)}</span>;
 }
+export function CustomSelect({
+  value,
+  onChange,
+  options = [],
+  icon = null,
+  placeholder = 'Select...',
+  className = '',
+  menuAlign = 'left',
+  id,
+  name,
+  ariaLabel
+}) {
+  const [open, setOpen] = React.useState(false);
+  const containerRef = useRef(null);
+
+  const selectedOpt = options.find(o => String(o.value) === String(value));
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('touchstart', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('touchstart', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className={`custom-select-wrapper ${className}`} ref={containerRef}>
+      {name && <input type="hidden" name={name} value={value || ''} />}
+      <button
+        type="button"
+        id={id}
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`custom-select-trigger ${open ? 'active' : ''}`}
+        onClick={() => setOpen(v => !v)}
+      >
+        {icon && <span className="custom-select-icon">{icon}</span>}
+        <span className="custom-select-label">{selectedOpt ? selectedOpt.label : placeholder}</span>
+        <ChevronDown size={13} className={`custom-select-chevron ${open ? 'open' : ''}`} />
+      </button>
+
+      {open && (
+        <div className={`custom-select-dropdown align-${menuAlign}`} role="listbox">
+          {options.map((opt) => {
+            const isSelected = String(opt.value) === String(value);
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                role="option"
+                aria-selected={isSelected}
+                className={`custom-select-item ${isSelected ? 'selected' : ''}`}
+                onClick={() => {
+                  if (onChange) onChange(opt.value);
+                  setOpen(false);
+                }}
+              >
+                {opt.color && (
+                  <span
+                    className="custom-select-dot"
+                    style={{ background: opt.color }}
+                  />
+                )}
+                <span className="item-text">{opt.label}</span>
+                {isSelected && <span className="item-check">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CityPicker({ value, onChange, id, name = "city" }) {
   const { selectedCity, setSelectedCity } = useApp();
-  const selectId = id || (value ? "city-picker-custom" : "city-picker-global");
-  return <span className="city-picker"><MapPin size={15} fill="#f49d87" /><select id={selectId} name={name} aria-label="Your city" value={value || selectedCity} onChange={e => (onChange || setSelectedCity)(e.target.value)}>{INDIAN_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}</select><ChevronDown size={14} /></span>;
+  const current = value || selectedCity;
+  const options = INDIAN_CITIES.map(c => ({ value: c.name, label: c.name }));
+
+  return (
+    <CustomSelect
+      id={id || "city-picker"}
+      name={name}
+      ariaLabel="Your city"
+      className="city-picker-select"
+      icon={<MapPin size={15} fill="#f49d87" />}
+      value={current}
+      onChange={v => (onChange || setSelectedCity)(v)}
+      options={options}
+    />
+  );
 }
 export function EmptyState({ title = 'No crews yet!', description = 'Explore plans or post your own. Your people are out there.', action, actionLabel = 'Explore weekend plans', art = 'binoculars' }) {
   return <div className="empty-state"><div className="empty-illustration"><span className="empty-orbit" /><ActivityArt type={art} size={112} /><span className="empty-star">✧</span></div><h3>{title}</h3><p>{description}</p>{action && <button className="button button-yellow" onClick={action}>{actionLabel}<span>↗</span></button>}</div>;
