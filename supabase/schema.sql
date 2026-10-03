@@ -18,6 +18,7 @@ create table if not exists public.profiles (
   id_verified boolean default false,
   karma_score numeric(3,1) default 5.0,
   phone_number text,
+  last_active_at timestamp with time zone default now(),
   created_at timestamp with time zone default now()
 );
 
@@ -28,6 +29,7 @@ do $$ begin
   alter table public.profiles add column if not exists work_email_verified boolean default false;
   alter table public.profiles add column if not exists phone_verified boolean default false;
   alter table public.profiles add column if not exists gender text default 'unspecified';
+  alter table public.profiles add column if not exists last_active_at timestamp with time zone default now();
 exception when others then null; end $$;
 
 -- 2. PLANS TABLE (IRL Activities & Meetups)

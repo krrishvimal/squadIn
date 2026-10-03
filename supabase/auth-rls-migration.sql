@@ -227,3 +227,6 @@ alter table public.messages add constraint message_length_check
     (content is null or length(content) <= 2500) and
     (text is null or length(text) <= 2500)
   );
+
+-- 12. ACTIVITY TRACKING: Auto-pruning & recency for radar
+alter table public.profiles add column if not exists last_active_at timestamp with time zone default now();

@@ -52,6 +52,7 @@ const mapProfileToRadarMember = (p) => {
     linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
     idVerified: Boolean(p.id_verified || p.idVerified || p.avatar?.startsWith('data:image')),
     karmaScore: p.karma_score || p.karmaScore || 5.0,
+    lastActiveAt: p.last_active_at || p.created_at || null,
     distanceKm: 1.8,
     latOffset: (Math.random() * 0.03 - 0.015),
     lngOffset: (Math.random() * 0.03 - 0.015)
@@ -649,7 +650,8 @@ export const AppProvider = ({ children }) => {
             id_verified: Boolean(currentUser.idVerified),
             work_email_verified: Boolean(currentUser.workEmailVerified),
             linkedin_verified: Boolean(currentUser.linkedin_verified),
-            karma_score: currentUser.karmaScore || 5.0
+            karma_score: currentUser.karmaScore || 5.0,
+            last_active_at: new Date().toISOString()
           };
 
           let profileSynced = false;
@@ -696,7 +698,9 @@ export const AppProvider = ({ children }) => {
               workEmailVerified: Boolean(p.work_email_verified || p.workEmailVerified),
               linkedin_verified: Boolean(p.linkedin_verified || p.linkedInVerified),
               idVerified: Boolean(p.id_verified || p.idVerified || p.avatar?.startsWith('data:image')),
-              karmaScore: p.karma_score || p.karmaScore || 5.0
+              karmaScore: p.karma_score || p.karmaScore || 5.0,
+              last_active_at: p.last_active_at || null,
+              lastActiveAt: p.last_active_at || p.created_at || null
             }));
 
             setAllUsers(prev => {
@@ -827,6 +831,7 @@ export const AppProvider = ({ children }) => {
                 idVerified: Boolean(matchedProfile?.id_verified || matchedProfile?.idVerified || matchedProfile?.avatar?.startsWith('data:image')),
                 linkedin_verified: Boolean(matchedProfile?.linkedin_verified || matchedProfile?.linkedInVerified),
                 karmaScore: matchedProfile?.karma_score || 5.0,
+                lastActiveAt: matchedProfile?.last_active_at || matchedProfile?.created_at || cp.created_at || null,
                 distanceKm: 2.3,
                 latOffset: (Math.random() * 0.02 - 0.01),
                 lngOffset: (Math.random() * 0.02 - 0.01)
@@ -861,6 +866,7 @@ export const AppProvider = ({ children }) => {
                   idVerified: Boolean(matchedProfile?.id_verified || matchedProfile?.idVerified || matchedProfile?.avatar?.startsWith('data:image')),
                   linkedin_verified: Boolean(matchedProfile?.linkedin_verified || matchedProfile?.linkedInVerified),
                   karmaScore: matchedProfile?.karma_score || 5.0,
+                  lastActiveAt: matchedProfile?.last_active_at || matchedProfile?.created_at || cp.created_at || null,
                   distanceKm: 3.5,
                   latOffset: (Math.random() * 0.03 - 0.015),
                   lngOffset: (Math.random() * 0.03 - 0.015)
@@ -1010,7 +1016,9 @@ export const AppProvider = ({ children }) => {
               idVerified: Boolean(updatedProfile.id_verified || updatedProfile.avatar?.startsWith('data:image')),
               workEmailVerified: Boolean(updatedProfile.work_email_verified),
               linkedin_verified: Boolean(updatedProfile.linkedin_verified),
-              karmaScore: updatedProfile.karma_score || 5.0
+              karmaScore: updatedProfile.karma_score || 5.0,
+              last_active_at: updatedProfile.last_active_at || null,
+              lastActiveAt: updatedProfile.last_active_at || updatedProfile.created_at || null
             }, ...prev.filter(u => u.id !== updatedProfile.id)]);
           }
         }
@@ -1106,7 +1114,7 @@ export const AppProvider = ({ children }) => {
   // Update profile
   const updateCurrentUserProfile = async (updates) => {
     let updated = null;
-    const ALLOWED_PROFILE_FIELDS = ['name', 'avatar', 'bio', 'city', 'gender', 'interests', 'phoneVerified', 'idVerified', 'workEmailVerified', 'linkedin_verified'];
+    const ALLOWED_PROFILE_FIELDS = ['name', 'avatar', 'bio', 'city', 'gender', 'interests', 'phoneVerified', 'idVerified', 'workEmailVerified', 'linkedin_verified', 'last_active_at'];
     const safeUpdates = {};
     for (const key of ALLOWED_PROFILE_FIELDS) {
       if (key in updates) safeUpdates[key] = updates[key];
@@ -1204,7 +1212,8 @@ export const AppProvider = ({ children }) => {
           id_verified: Boolean(updated.idVerified),
           work_email_verified: Boolean(updated.workEmailVerified),
           linkedin_verified: Boolean(updated.linkedin_verified),
-          karma_score: updated.karmaScore || 5.0
+          karma_score: updated.karmaScore || 5.0,
+          last_active_at: new Date().toISOString()
         }, { onConflict: 'id' });
         if (error) {
           console.warn('⚠️ Profile update upsert failed:', error.message);
