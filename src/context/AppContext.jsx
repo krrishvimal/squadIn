@@ -1325,6 +1325,11 @@ export const AppProvider = ({ children }) => {
       console.warn('Host cannot request to join their own plan');
       return;
     }
+    // Safety check: Women-only spaces are reserved strictly for female members
+    if (targetPlan.womenOnly && currentUser?.gender !== 'female') {
+      showToast('🌸 This meetup is a verified Women-Only safe space.');
+      return;
+    }
     const cleanMessage = String(userMessage || '').trim().slice(0, 500);
     const existingRequest = targetPlan.pendingRequests?.some(r => r.userId === currentUser.id);
     if (existingRequest) {
