@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SquadIn / WashedUp India - Master Post-Launch GTM Playbook</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      padding: 18px 24px;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header */
+    .header-area {
+      text-align: center;
+      margin-bottom: 8px;
+      width: 100%;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 6px;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      background: #EEF2FF;
+      color: #1D4ED8;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 9999px;
+      border: 1px solid #DBEAFE;
+      margin-bottom: 2px;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 2px 0;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      font-size: 10px;
+      color: #64748B;
+      margin: 0;
+    }
+
+    /* Section Cards */
+    .phase-card {
+      border: 1.5px solid #E2E8F0;
+      border-radius: 9px;
+      padding: 8px 12px;
+      background: #FFFFFF;
+      margin-bottom: 7px;
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #F1F5F9;
+      padding-bottom: 3px;
+    }
+
+    .phase-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0;
+    }
+
+    .phase-tag {
+      font-size: 8.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .golden-rule {
+      background: #FEF3C7;
+      border-left: 3px solid #D97706;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      color: #92400E;
+      line-height: 1.35;
+      margin-bottom: 5px;
+    }
+
+    .point-item {
+      margin-bottom: 4px;
+    }
+
+    .point-title {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 1px;
+    }
+
+    .point-desc {
+      font-size: 9px;
+      color: #334155;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .quote-box {
+      background: #F8FAFC;
+      border-left: 2px solid #94A3B8;
+      padding: 3px 8px;
+      font-style: italic;
+      color: #475569;
+      font-size: 8.5px;
+      margin: 2px 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-top: 2px;
+      margin-bottom: 3px;
+    }
+
+    .plan-chip {
+      background: #F1F5F9;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 8.5px;
+      color: #1E293B;
+    }
+
+    /* Themes */
+    .theme-blue { border-color: #BFDBFE; background: #FAFCFF; }
+    .theme-blue .phase-title { color: #1E3A8A; }
+    .theme-blue .phase-tag { background: #DBEAFE; color: #1E40AF; }
+
+    .theme-purple { border-color: #DDD6FE; background: #FAF9FF; }
+    .theme-purple .phase-title { color: #5B21B6; }
+    .theme-purple .phase-tag { background: #EDE9FE; color: #6D28D9; }
+
+    .theme-emerald { border-color: #A7F3D0; background: #F8FEFA; }
+    .theme-emerald .phase-title { color: #065F46; }
+    .theme-emerald .phase-tag { background: #D1FAE5; color: #047857; }
+
+    .theme-amber { border-color: #FDE68A; background: #FFFCF5; }
+    .theme-amber .phase-title { color: #92400E; }
+    .theme-amber .phase-tag { background: #FEF3C7; color: #B45309; }
+
+    /* Bottom Grid */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5px;
+    }
+
+    .metrics-table th {
+      background: #1E3A8A;
+      color: #FFFFFF;
+      text-align: left;
+      padding: 4px 6px;
+      font-weight: 700;
+    }
+
+    .metrics-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #E2E8F0;
+      color: #334155;
+    }
+
+    .metrics-table tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    .scale-box {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 8.5px;
+    }
+
+    .scale-box h4 {
+      margin: 0 0 3px 0;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #166534;
+    }
+
+    .scale-path {
+      font-weight: 700;
+      color: #15803D;
+      line-height: 1.35;
+    }
+
+    .footer-bar {
+      margin-top: auto;
+      padding-top: 4px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <!-- Header -->
+    <div class="header-area">
+      <div class="pill-badge">Post-Launch Execution Playbook</div>
+      <h1>SquadIn / WashedUp India — Complete Launch & Growth Strategy</h1>
+      <p class="subtitle">Step-by-step roadmap from Day 0 to Day 90+: How to get users, build liquidity, and turn on monetization.</p>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-card theme-blue">
+      <div class="phase-header">
+        <h2 class="phase-title">Phase 1: Day 0 to Day 14 — "The 1-Pincode Launch" (0 to 100 Users)</h2>
+        <span class="phase-tag">Hyper-Local Liquidity</span>
+      </div>
+      
+      <div class="golden-rule">
+        <strong>Golden Rule:</strong> Do not launch across India or even across the whole city. Pick <strong>one single neighborhood</strong> with high migrant density (e.g., <i>Koramangala/Indiranagar in Bengaluru</i>, <i>Bandra in Mumbai</i>, or <i>Cyber City in Gurgaon</i>).
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Seed the Feed Yourself (Never launch with an empty app):</div>
+        <p class="point-desc">On Wednesday morning, post 6 curated weekend plans yourself:</p>
+        <div class="plan-grid">
+          <div class="plan-chip"><strong>Plan 1:</strong> Sat 8:00 AM – Cubbon Park Run + Filter Coffee (Cap: 6)</div>
+          <div class="plan-chip"><strong>Plan 2:</strong> Sat 5:00 PM – Board Games at Third Wave (Cap: 4)</div>
+          <div class="plan-chip"><strong>Plan 3:</strong> Sun 11:00 AM – Women-only Thrift Store & Boba (Cap: 4)</div>
+          <div class="plan-chip"><strong>Plan 4:</strong> Sun 4:00 PM – Badminton Doubles at Play Arena (Cap: 4)</div>
+        </div>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Infiltrate Co-Living Lounges & Notice Boards:</div>
+        <p class="point-desc">Print 30 simple, aesthetic flyers with a QR code:</p>
+        <div class="quote-box">"New to the city? Want to grab coffee or play board games this weekend? Scan to join a crew of 4."</div>
+        <p class="point-desc">Stick them on notice boards inside <strong>Zolo, Stanza Living, HelloWorld, Settl</strong>, and <strong>WeWork</strong> cafeterias.</p>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• The Reddit City Subreddit Post:</div>
+        <p class="point-desc">Post organically on <code>r/bangalore</code> or <code>r/mumbai</code>:</p>
+        <div class="quote-box">"Hey everyone! We built a simple app for people who don't have friends in the city to do weekend stuff in small groups of 4 (cafes, badminton, concerts). Everything is verified and in public venues. Dropping 5 weekend plans for Koramangala this Saturday—link in comments."</div>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Attend the First 3 Meetups Personally:</div>
+        <p class="point-desc">Show up as a participant (without acting like the CEO). Watch the human dynamics, observe where people feel shy, and note what needs fixing.</p>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-card theme-purple">
+      <div class="phase-header">
+        <h2 class="phase-title">Phase 2: Day 14 to Day 45 — The Viral Content Loop (100 to 1,000 Users)</h2>
+        <span class="phase-tag">Trust & Organic Growth</span>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Short-Form POV Reels (Organic Instagram & Shorts Growth):</div>
+        <p class="point-desc">Ask attendees at the end of a fun meetup: <i>"Hey, can I take a 5-second video of all of us saying cheers with our coffees?"</i> Post Reels with captions like:</p>
+        <div class="quote-box">• "What happens when 4 strangers in Bengaluru meet for filter coffee on Sunday morning ☕"<br/>• "Moved to Bangalore alone vs. Finding my board game crew in 2 weeks ✨"</div>
+        <p class="point-desc">This format regularly goes viral on Instagram among urban Gen-Z and young techies.</p>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Recruit 5 Female Community Ambassadors:</div>
+        <p class="point-desc">Women are the trust anchor of any social platform. If women feel safe, everyone joins. Offer 5 college/corporate ambassadors (e.g. from Swiggy, Flipkart, local design colleges) a <strong>"Founding Host"</strong> status to post weekly weekend hobby plans.</p>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-card theme-emerald">
+      <div class="phase-header">
+        <h2 class="phase-title">Phase 3: Day 45 to Day 90 — Turn On Monetization & Venue Deals</h2>
+        <span class="phase-tag">Revenue Engine</span>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Walk into Local Cafes & Turfs on a Tuesday Afternoon:</div>
+        <p class="point-desc">Meet the cafe manager or badminton court owner:</p>
+        <div class="quote-box">"I run a social community in Indiranagar. I can bring guaranteed tables of 4–6 paying customers every Saturday afternoon during your slow hours. In exchange, can you give our members 10% off or pay us a ₹50 referral fee per head?"</div>
+        <p class="point-desc">Cafe and turf owners love guaranteed group footfall.</p>
+      </div>
+
+      <div class="point-item">
+        <div class="point-title">• Activate Micro-Transactions:</div>
+        <p class="point-desc">Turn on the <strong>Fast-Unlock (₹49)</strong> and <strong>Bring a Friend (+1 for ₹49)</strong> features. You will start seeing daily automated revenue from people unlocking plans early.</p>
+      </div>
+    </div>
+
+    <!-- BOTTOM SECTION: METRICS & EXPANSION -->
+    <div class="bottom-grid">
+      <!-- Metrics Table -->
+      <div>
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Target</th>
+              <th>What It Tells You</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Fill Rate</strong></td>
+              <td style="color:#059669; font-weight:800;">&gt; 70%</td>
+              <td>Are plans actually filling up and unlocking the chat?</td>
+            </tr>
+            <tr>
+              <td><strong>2. Show-Up Rate</strong></td>
+              <td style="color:#059669; font-weight:800;">&gt; 85%</td>
+              <td>Are accepted members actually showing up at the cafe?</td>
+            </tr>
+            <tr>
+              <td><strong>3. 30-Day Repeat Rate</strong></td>
+              <td style="color:#059669; font-weight:800;">&gt; 35%</td>
+              <td>Are users coming back to join another plan within 3 weeks?</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phase 4 Expansion Box -->
+      <div class="scale-box">
+        <h4>🚀 Phase 4: Day 90+ — Replicate & Scale</h4>
+        <p style="margin:0 0 2px 0; color:#166534; font-size:8px;">Once your first neighborhood has over 70% fill rate, expand to Neighborhood #2:</p>
+        <div class="scale-path">Koramangala ➔ HSR Layout ➔ Indiranagar ➔ Whitefield ➔ Mumbai (Bandra) ➔ Pune (Koregaon Park)</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-bar">
+      <div><strong>SquadIn / WashedUp India</strong> · Post-Launch Master Playbook</div>
+      <div>Confidential · Strategy & Execution Guide · Page 1 of 1</div>
+    </div>
+  </div>
+
+</body>
+</html>

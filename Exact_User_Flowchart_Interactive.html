@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SquadIn / WashedUp India - Master Blueprint & Real-Life Story</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      padding: 20px 28px;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header */
+    .header-area {
+      text-align: center;
+      margin-bottom: 6px;
+      width: 100%;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 6px;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      background: #EEF2FF;
+      color: #4338CA;
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 9999px;
+      border: 1px solid #C7D2FE;
+      margin-bottom: 2px;
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 2px 0;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      font-size: 10px;
+      color: #64748B;
+      margin: 0;
+    }
+
+    /* Page 1: SVG Container */
+    .svg-container {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg {
+      width: 100%;
+      max-height: 980px;
+      display: block;
+    }
+
+    /* Page 2: Story Styling */
+    .story-hero {
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+
+    .story-hero h2 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: #FBBF24;
+    }
+
+    .story-hero p {
+      margin: 0;
+      font-size: 10.5px;
+      line-height: 1.45;
+      color: #E0E7FF;
+    }
+
+    .character-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .char-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #F8FAFC;
+    }
+
+    .char-card h4 {
+      margin: 0 0 2px 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #1E293B;
+    }
+
+    .char-card p {
+      margin: 0;
+      font-size: 9.5px;
+      color: #64748B;
+      line-height: 1.35;
+    }
+
+    .acts-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .act-box {
+      border: 1.5px solid #E2E8F0;
+      border-radius: 9px;
+      padding: 9px 12px;
+      background: #FFFFFF;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .act-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: #EEF2FF;
+      color: #4F46E5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .act-content {
+      flex: 1;
+    }
+
+    .act-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .act-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0F172A;
+      margin: 0;
+    }
+
+    .act-feature-tag {
+      font-size: 8.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #EFF6FF;
+      color: #2563EB;
+      text-transform: uppercase;
+    }
+
+    .act-desc {
+      font-size: 9.5px;
+      color: #475569;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .story-footer {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9.5px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1: MASTER VISUAL FLOWCHART ==================== -->
+  <div class="page">
+    <div class="header-area">
+      <div class="pill-badge">Page 1: Architecture Diagram</div>
+      <h1>WashedUp / SquadIn India — Master Flowchart</h1>
+      <p class="subtitle">Complete visual user journey tracking onboarding, branches, safety locks, and IRL meetups.</p>
+    </div>
+
+    <div class="svg-container">
+      <svg viewBox="0 0 820 1120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748B"/>
+          </marker>
+          <marker id="arrow-emerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+          </marker>
+          <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+          </filter>
+        </defs>
+
+        <!-- STAGE 1: SIGNUP -->
+        <g filter="url(#card-shadow)">
+          <rect x="235" y="10" width="350" height="74" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+        </g>
+        <text x="410" y="32" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="13" fill="#1E1B4B">1️⃣ Step 1: Sign Up & Identity Verification</text>
+        <text x="410" y="50" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10.5" fill="#4338CA">📱 Phone OTP + Real Name + Age</text>
+        <text x="410" y="66" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="10" fill="#4F46E5">🛡️ Aadhaar / DigiLocker / Work Email Badge (@flipkart)</text>
+
+        <!-- Arrow: Stage 1 -> Decision 1 -->
+        <path d="M 410 84 L 410 120" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- STAGE 2: DECISION -->
+        <g filter="url(#card-shadow)">
+          <polygon points="410,125 530,170 410,215 290,170" fill="#FDF2F8" stroke="#DB2777" stroke-width="2"/>
+        </g>
+        <text x="410" y="166" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#831843">❓ Choose Path</text>
+        <text x="410" y="180" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="9.5" fill="#9D174D">What do you want to do?</text>
+
+        <!-- Left Branch: Host -->
+        <path d="M 290 170 L 160 170 L 160 240" stroke="#D97706" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4 2"/>
+        <rect x="180" y="152" width="85" height="18" rx="4" fill="#FEF3C7"/>
+        <text x="222" y="165" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9.5" fill="#92400E">Path A: Host</text>
+
+        <!-- Right Branch: Join -->
+        <path d="M 530 170 L 660 170 L 660 240" stroke="#0284C7" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4 2"/>
+        <rect x="555" y="152" width="85" height="18" rx="4" fill="#E0F2FE"/>
+        <text x="597" y="165" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9.5" fill="#0369A1">Path B: Join</text>
+
+        <!-- Left Card: Host -->
+        <g filter="url(#card-shadow)">
+          <rect x="40" y="240" width="240" height="92" rx="10" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
+        </g>
+        <text x="160" y="260" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12" fill="#78350F">➕ 2A. Create a Plan</text>
+        <text x="160" y="278" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#92400E">• e.g. "Sunday Coffee @ Third Wave"</text>
+        <text x="160" y="294" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#92400E">• Select verified public venue</text>
+        <text x="160" y="312" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9.5" fill="#B45309">Auto-Capacity: 4 Cafe | 6 Concert | 8 Trek</text>
+
+        <!-- Right Card: Join -->
+        <g filter="url(#card-shadow)">
+          <rect x="540" y="240" width="240" height="92" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+        </g>
+        <text x="660" y="260" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12" fill="#0369A1">🔍 2B. Browse Nearby Plans</text>
+        <text x="660" y="278" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#0284C7">• Filter: Women-Only, Distance, Vibe</text>
+        <text x="660" y="294" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#0284C7">• See verified host badges & slots</text>
+        <text x="660" y="312" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9.5" fill="#0369A1">Tap "Join Spot" (e.g. 2/4 filled)</text>
+
+        <!-- Converge to Waiting Room -->
+        <path d="M 160 332 L 160 365 L 340 365 L 340 390" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+        <path d="M 660 332 L 660 365 L 480 365 L 480 390" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- STAGE 3: WAITING ROOM -->
+        <g filter="url(#card-shadow)">
+          <rect x="250" y="390" width="320" height="58" rx="10" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+        </g>
+        <text x="410" y="412" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12" fill="#0F172A">⏳ 3. Plan Live in Neighborhood</text>
+        <text x="410" y="430" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="10.5" fill="#475569">Slots filling in real-time (e.g., 3 out of 4 filled)</text>
+
+        <!-- Lock Warning -->
+        <path d="M 410 448 L 410 472" stroke="#DC2626" stroke-width="2" marker-end="url(#arrow)"/>
+        <g filter="url(#card-shadow)">
+          <rect x="210" y="472" width="400" height="50" rx="8" fill="#FEF2F2" stroke="#EF4444" stroke-width="2"/>
+        </g>
+        <text x="410" y="493" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12" fill="#991B1B">🔒 SAFETY LOCK: Group Chat is LOCKED</text>
+        <text x="410" y="509" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="9.5" fill="#B91C1C">Nobody can message yet. Prevents spam, awkwardness & private DMs.</text>
+
+        <!-- STAGE 4: UNLOCK 3 WAYS -->
+        <path d="M 410 522 L 410 554" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+        <g filter="url(#card-shadow)">
+          <polygon points="410,554 540,594 410,634 280,594" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
+        </g>
+        <text x="410" y="589" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#064E3B">⚡ 4. How Chat Unlocks?</text>
+        <text x="410" y="604" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="9.5" fill="#047857">(3 Smart Paths)</text>
+
+        <!-- 3 Split Arrows -->
+        <path d="M 280 594 L 140 594 L 140 658" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+        <path d="M 410 634 L 410 658" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+        <path d="M 540 594 L 680 594 L 680 658" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+
+        <!-- Way 1 -->
+        <g filter="url(#card-shadow)">
+          <rect x="30" y="658" width="220" height="84" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+        </g>
+        <text x="140" y="679" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#166534">🎉 Way 1: Normal Fill</text>
+        <text x="140" y="697" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">All 4/4 seats filled</text>
+        <text x="140" y="713" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">Free & natural fill.</text>
+        <text x="140" y="730" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9" fill="#166534">Automatic Unlocking</text>
+
+        <!-- Way 2 -->
+        <g filter="url(#card-shadow)">
+          <rect x="300" y="658" width="220" height="84" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+        </g>
+        <text x="410" y="679" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#166534">⚡ Way 2: Fast-Unlock</text>
+        <text x="410" y="697" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">3/4 filled & running late?</text>
+        <text x="410" y="713" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">Pay ₹49 to lock crew now!</text>
+        <text x="410" y="730" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9" fill="#166534">Instant Chat Access</text>
+
+        <!-- Way 3 -->
+        <g filter="url(#card-shadow)">
+          <rect x="570" y="658" width="220" height="84" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+        </g>
+        <text x="680" y="679" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#166534">👥 Way 3: Bring a Friend</text>
+        <text x="680" y="697" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">Group is full (4/4)?</text>
+        <text x="680" y="713" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#15803D">Pay ₹49 to add +1 seat.</text>
+        <text x="680" y="730" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9" fill="#166534">Viral Friend Invite</text>
+
+        <!-- Converge to Chat Unlocks -->
+        <path d="M 140 742 L 140 772 L 330 772 L 330 798" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+        <path d="M 410 742 L 410 798" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+        <path d="M 680 742 L 680 772 L 490 772 L 490 798" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+
+        <!-- STAGE 5: CHAT UNLOCKED -->
+        <g filter="url(#card-shadow)">
+          <rect x="200" y="798" width="420" height="66" rx="12" fill="#059669" stroke="#047857" stroke-width="2"/>
+        </g>
+        <text x="410" y="824" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="13.5" fill="#FFFFFF">🚀💬 GROUP CHAT UNLOCKS!</text>
+        <text x="410" y="844" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10.5" fill="#D1FAE5">All members introduce themselves, coordinate arrival & break the ice.</text>
+
+        <!-- STAGE 6: MEETUP -->
+        <path d="M 410 864 L 410 894" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+        <g filter="url(#card-shadow)">
+          <rect x="200" y="894" width="420" height="72" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+        </g>
+        <text x="410" y="916" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12.5" fill="#0369A1">📍 5. The Real-Life Public Meetup</text>
+        <text x="410" y="934" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#0284C7">• Meet at verified cafe, badminton turf, or park (No private houses)</text>
+        <text x="410" y="950" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="9.5" fill="#075985">🛡️ Safety Active: 1-Tap SOS Emergency Share · Zero Private 1-on-1 DMs</text>
+
+        <!-- STAGE 7: POST MEETUP -->
+        <path d="M 410 966 L 410 996" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+        <g filter="url(#card-shadow)">
+          <rect x="200" y="996" width="420" height="74" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+        </g>
+        <text x="410" y="1018" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12.5" fill="#5B21B6">⭐ 6. Post-Meetup Vibe & Karma Rating</text>
+        <text x="410" y="1036" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="500" font-size="10" fill="#6D28D9">• Prompt: "Did everyone show up? Was the vibe friendly?"</text>
+        <text x="410" y="1052" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="9.5" fill="#4C1D95">📈 Boost Karma Score (e.g. ⭐ 4.9) · 🔒 Chat auto-deletes in 24 hrs for privacy</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: REAL-LIFE USER STORY ==================== -->
+  <div class="page">
+    <div class="header-area">
+      <div class="pill-badge" style="background:#FEF3C7; color:#B45309; border-color:#FDE68A;">Page 2: The Real-World Experience</div>
+      <h1>A Real-Life Story: How Rahul, Priya & Ananya Meet in Bengaluru</h1>
+      <p class="subtitle">A true-to-life walkthrough showing how trust, dynamic group sizes, and unlock mechanics feel to users.</p>
+    </div>
+
+    <!-- Story Hero Banner -->
+    <div class="story-hero">
+      <h2>🌆 Friday Evening in Koramangala, Bengaluru</h2>
+      <p>Priya (24) moved from Pune to Bengaluru 3 weeks ago for a UI design role. Sitting in her co-living room, she wants to explore local cafes and play board games on Saturday, but her college friends live across the city. Dating apps feel awkward, and large Meetup groups feel overwhelming. Here is how SquadIn solves her weekend in 6 steps:</p>
+    </div>
+
+    <!-- Character Cards -->
+    <div class="character-cards">
+      <div class="char-card" style="border-left: 3px solid #4F46E5;">
+        <h4>👩 Priya (24) · User</h4>
+        <p>New city transplant, wants safe weekend friends, loves filter coffee & Catan.</p>
+      </div>
+      <div class="char-card" style="border-left: 3px solid #D97706;">
+        <h4>👨 Rahul (26) · Host</h4>
+        <p>Software dev in HSR, regular host, his friends bailed last minute on game night.</p>
+      </div>
+      <div class="char-card" style="border-left: 3px solid #059669;">
+        <h4>👩 Ananya (23) · Plus-One</h4>
+        <p>Priya's roommate, hesitant about meeting strangers until invited as a +1.</p>
+      </div>
+    </div>
+
+    <!-- Timeline Acts -->
+    <div class="acts-timeline">
+      <!-- Act 1 -->
+      <div class="act-box">
+        <div class="act-icon">1</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">The 30-Second Trust Verification</h3>
+            <span class="act-feature-tag">Safety Shield</span>
+          </div>
+          <p class="act-desc">Priya signs up with her phone number and links her corporate email (<code>@swiggy.in</code>). Within 30 seconds, her profile gets a shiny <b>"Pro Verified"</b> badge and a green ID check. She feels relieved seeing that <i>every single profile on the app is verified</i>—zero anonymous trolls or catfish accounts.</p>
+        </div>
+      </div>
+
+      <!-- Act 2 -->
+      <div class="act-box">
+        <div class="act-icon">2</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">Rahul Posts the Plan & Smart Auto-Capacity</h3>
+            <span class="act-feature-tag" style="background:#FEF3C7; color:#B45309;">Dynamic Sizing</span>
+          </div>
+          <p class="act-desc">Across town, Rahul wants to play board games at <i>Third Wave Coffee, Koramangala</i> on Saturday at 5 PM. He selects the <b>"Cafe / Board Games"</b> category. The app automatically presets the table size to <b>4 people</b> so nobody has to squeeze into awkward restaurant chairs.</p>
+        </div>
+      </div>
+
+      <!-- Act 3 -->
+      <div class="act-box">
+        <div class="act-icon">3</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">The Waiting Room & Anti-Creep Lock</h3>
+            <span class="act-feature-tag" style="background:#FEE2E2; color:#991B1B;">Anti-Spam Lock</span>
+          </div>
+          <p class="act-desc">Priya browses nearby plans, sees Rahul's board game plan, and taps <b>"Join Spot"</b> along with Vikram (another verified techie). The card now shows <b>3/4 spots filled</b>. The chat is strictly <b>LOCKED</b>—nobody can spam or slide into private DMs, keeping Priya's inbox 100% clean and safe.</p>
+        </div>
+      </div>
+
+      <!-- Act 4 -->
+      <div class="act-box">
+        <div class="act-icon">4</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">The Fast-Unlock & The "+1 Roommate" Expansion</h3>
+            <span class="act-feature-tag" style="background:#ECFDF5; color:#059669;">Monetization & Viral Loop</span>
+          </div>
+          <p class="act-desc">It's Saturday 1 PM (4 hours before the game). With 3/4 filled, Rahul pays <b>₹49 Fast-Unlock</b> to guarantee the game. Meanwhile, Priya tells her roommate Ananya: <i>"Hey, want to join?"</i> Priya pays <b>₹49 to add a +1 seat</b>. Ananya quickly verifies her profile, capacity becomes <b>5/5</b>, and <b>PING! The Group Chat Unlocks for all 5!</b></p>
+        </div>
+      </div>
+
+      <!-- Act 5 -->
+      <div class="act-box">
+        <div class="act-icon">5</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">The Safe, High-Vibe Meetup</h3>
+            <span class="act-feature-tag" style="background:#F0F9FF; color:#0284C7;">IRL Connection</span>
+          </div>
+          <p class="act-desc">The app drops an automated icebreaker in chat: <i>"Quick check: What is everyone's go-to coffee order?"</i> By 5:00 PM, all 5 members arrive at the cafe. Priya taps the <b>1-Tap SOS Emergency Share</b> to send the cafe location to her parents. They play <i>Catan</i>, laugh over cold brews, and have an amazing 2 hours.</p>
+        </div>
+      </div>
+
+      <!-- Act 6 -->
+      <div class="act-box">
+        <div class="act-icon">6</div>
+        <div class="act-content">
+          <div class="act-header">
+            <h3 class="act-title">The Trust Karma Loop & Privacy Shield</h3>
+            <span class="act-feature-tag" style="background:#F5F3FF; color:#7C3AED;">Reputation</span>
+          </div>
+          <p class="act-desc">After the game, everyone confirms attendance in the app. Everyone rates the vibe 5/5, boosting their <b>Karma Score to ⭐ 4.9</b>. Priya's ₹49 commitment deposit is instantly refunded to her UPI. In 24 hours, the temporary group chat auto-archives to protect everyone's privacy.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Story Footer -->
+    <div class="story-footer">
+      <div><strong>The Result:</strong> 5 strangers turned into genuine weekend friends with zero creepiness, zero flakes, and ₹0 awkwardness.</div>
+      <div>SquadIn India Master Blueprint · Page 2 of 2</div>
+    </div>
+  </div>
+
+</body>
+</html>

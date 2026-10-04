@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SquadIn / WashedUp India - Developer & VibeCoder Master Specification</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      padding: 18px 24px;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header */
+    .header-area {
+      text-align: center;
+      margin-bottom: 8px;
+      width: 100%;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 6px;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      background: #EEF2FF;
+      color: #1D4ED8;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 9999px;
+      border: 1px solid #DBEAFE;
+      margin-bottom: 2px;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 2px 0;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      font-size: 9.5px;
+      color: #64748B;
+      margin: 0;
+    }
+
+    /* Cards */
+    .spec-card {
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: #FFFFFF;
+      margin-bottom: 7px;
+    }
+
+    .spec-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 4px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spec-tag {
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Grids */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .four-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mini-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 8.5px;
+    }
+
+    .mini-box strong {
+      display: block;
+      color: #0F172A;
+      font-size: 9.5px;
+      margin-bottom: 2px;
+    }
+
+    .mini-box p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.35;
+    }
+
+    /* Code Snippets */
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-block {
+      background: #0F172A;
+      color: #F8FAFC;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 8px;
+      line-height: 1.35;
+      overflow-x: hidden;
+      margin: 4px 0;
+    }
+
+    .code-block .keyword { color: #F43F5E; }
+    .code-block .type { color: #38BDF8; }
+    .code-block .string { color: #4ADE80; }
+    .code-block .comment { color: #64748B; font-style: italic; }
+
+    /* UI Theme & Colors */
+    .color-swatch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8.5px;
+      margin-bottom: 3px;
+    }
+
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .footer-bar {
+      margin-top: auto;
+      padding-top: 4px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1: ARCHITECTURE & SCREENS ==================== -->
+  <div class="page">
+    <div class="header-area">
+      <div class="pill-badge">VibeCoder & Developer Master Spec</div>
+      <h1>SquadIn / WashedUp India — Native App Technical Specification</h1>
+      <p class="subtitle">Complete blueprint for AI builders & engineers: Zero-confusion UI, React Native Expo stack, and Supabase backend.</p>
+    </div>
+
+    <!-- TECH STACK CARD -->
+    <div class="spec-card" style="border-color: #BFDBFE; background: #FAFCFF;">
+      <div class="spec-title" style="color: #1E3A8A;">
+        <span>⚡ 1. The Core Tech Stack (Native Mobile + High Performance)</span>
+        <span class="spec-tag" style="background:#DBEAFE; color:#1E40AF;">Cross-Platform</span>
+      </div>
+      <div class="four-col">
+        <div class="mini-box">
+          <strong>📱 Mobile Core</strong>
+          <p>React Native + Expo SDK 52+ (TypeScript). Compiles natively to iOS and Android.</p>
+        </div>
+        <div class="mini-box">
+          <strong>🎨 Styling Engine</strong>
+          <p>NativeWind v4 (Tailwind CSS). 100% smooth 60–120fps native rendering.</p>
+        </div>
+        <div class="mini-box">
+          <strong>🔥 Backend & DB</strong>
+          <p>Supabase (PostgreSQL + Realtime WebSockets + Row Level Security).</p>
+        </div>
+        <div class="mini-box">
+          <strong>🛡️ Hardware Access</strong>
+          <p>Native Biometrics (Face ID), Camera Liveness, GPS & Push Notifications.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI/UX PHILOSOPHY: ZERO CONFUSION -->
+    <div class="spec-card" style="border-color: #FDE68A; background: #FFFDF8;">
+      <div class="spec-title" style="color: #92400E;">
+        <span>🎯 2. UX Philosophy: The "Zero-Confusion" Rule for Users</span>
+        <span class="spec-tag" style="background:#FEF3C7; color:#B45309;">Simplicity First</span>
+      </div>
+      <div class="three-col">
+        <div class="mini-box">
+          <strong>1. Glanceable Cards</strong>
+          <p>Every plan shows: Category Icon, Time, Venue neighborhood, and Progress bar (e.g. <code>3/4 spots filled</code>).</p>
+        </div>
+        <div class="mini-box">
+          <strong>2. The 4-Tab Bottom Bar</strong>
+          <p>Strictly 4 tabs: <b>Explore</b> (Feed), <b>My Crews</b> (Active plans), <b>Chats</b> (Unlocked), <b>Profile</b> (Trust badges).</p>
+        </div>
+        <div class="mini-box">
+          <strong>3. One-Tap Actions</strong>
+          <p>1-tap to Join, 1-tap Fast Unlock (₹49), 1-tap Invite Friend (+1). Zero complex sub-menus.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 CORE SCREENS SPECIFICATION -->
+    <div class="spec-card" style="border-color: #DDD6FE; background: #FAF9FF;">
+      <div class="spec-title" style="color: #5B21B6;">
+        <span>📱 3. Screen-by-Screen Interaction Specification</span>
+        <span class="spec-tag" style="background:#EDE9FE; color:#6D28D9;">5 Screens Total</span>
+      </div>
+      
+      <div class="two-col">
+        <div class="mini-box">
+          <strong>Screen 1: Explore Feed (Home)</strong>
+          <p>• <b>Top Filter Pills:</b> <i>All, ☕ Cafes, 🏸 Sports, 🎵 Concerts, 🚺 Women-Only</i>.<br/>
+          • <b>Plan Cards:</b> Displays Title, Time, Distance (e.g. <i>'1.2 km away'</i>), Host verified badge, and live slot counter (e.g. <code>[■■■□] 3/4 Filled</code>).<br/>
+          • <b>FAB (Floating Button):</b> <i>'➕ Post a Plan'</i>.</p>
+        </div>
+        <div class="mini-box">
+          <strong>Screen 2: Plan Details Modal</strong>
+          <p>• <b>Map Snapshot:</b> Verified public cafe/venue location.<br/>
+          • <b>Attendee Bubbles:</b> Photos with Trust Badges (Work / ID Verified).<br/>
+          • <b>Main Action:</b> Large primary button <i>'Request Spot (Free)'</i>.<br/>
+          • <b>Deadlock Breaker:</b> Secondary button <i>'⚡ Fast-Unlock for ₹49'</i>.</p>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top: 6px;">
+        <div class="mini-box">
+          <strong>Screen 3: Post a Plan (3-Step Modal)</strong>
+          <p>• <b>Step 1 (Category):</b> Selecting <i>'Dinner'</i> auto-sets capacity to <b>4</b>; <i>'Concert'</i> auto-sets to <b>6</b>; <i>'Trek'</i> auto-sets to <b>8</b>.<br/>
+          • <b>Step 2 (Venue):</b> Google Places search restricted to public commercial cafes, turfs, malls, parks. (Private homes blocked).<br/>
+          • <b>Step 3 (Safety):</b> Toggle: <i>'Women-Only'</i> or <i>'Balanced Mixed'</i>.</p>
+        </div>
+        <div class="mini-box">
+          <strong>Screen 4: Group Chat (The Magic Screen)</strong>
+          <p>• <b>State A (Locked):</b> Grayed-out chat with countdown progress bar + <i>'Fast-Unlock'</i> button.<br/>
+          • <b>State B (Unlocked):</b> Full real-time messaging, icebreaker prompt, in-chat <i>'+1 Invite Friend'</i> button, and top <b>1-Tap SOS Share</b>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESIGN SYSTEM & PALETTE -->
+    <div class="spec-card" style="border-color: #A7F3D0; background: #F8FEFA;">
+      <div class="spec-title" style="color: #065F46;">
+        <span>🎨 4. Design System & Theme Tokens</span>
+        <span class="spec-tag" style="background:#D1FAE5; color:#047857;">UI Tokens</span>
+      </div>
+      <div class="four-col">
+        <div class="color-swatch"><div class="color-dot" style="background:#FAF7F2; border:1px solid #D1D5DB;"></div><span><b>Bg:</b> Warm Cream <code>#FAF7F2</code></span></div>
+        <div class="color-swatch"><div class="color-dot" style="background:#1E1B18;"></div><span><b>Primary:</b> Espresso <code>#1E1B18</code></span></div>
+        <div class="color-swatch"><div class="color-dot" style="background:#D97706;"></div><span><b>Accent:</b> Amber <code>#D97706</code></span></div>
+        <div class="color-swatch"><div class="color-dot" style="background:#059669;"></div><span><b>Unlock:</b> Emerald <code>#059669</code></span></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-bar">
+      <div><strong>SquadIn / WashedUp India</strong> · Native App Developer Specification</div>
+      <div>Page 1 of 2 · Architecture & UI Flow</div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: DATABASE & HARDWARE HOOKS ==================== -->
+  <div class="page">
+    <div class="header-area">
+      <div class="pill-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">Page 2: Backend DB, SQL & Native Code</div>
+      <h1>Database Schemas, State Triggers & Hardware Hooks</h1>
+      <p class="subtitle">Complete copy-pasteable PostgreSQL schema, auto-unlock trigger, and native hardware integration code.</p>
+    </div>
+
+    <!-- SUPABASE SQL SCHEMA -->
+    <div class="spec-card" style="border-color: #E2E8F0; background: #FFFFFF;">
+      <div class="spec-title" style="color: #0F172A;">
+        <span>🗄️ 5. Supabase PostgreSQL Schema (Copy-Pasteable)</span>
+        <span class="spec-tag" style="background:#F1F5F9; color:#475569;">Database</span>
+      </div>
+      <div class="code-block">
+<span class="keyword">CREATE TABLE</span> <span class="type">profiles</span> (
+  id <span class="type">UUID REFERENCES</span> auth.users <span class="keyword">PRIMARY KEY</span>,
+  full_name <span class="type">TEXT NOT NULL</span>,
+  avatar_url <span class="type">TEXT</span>,
+  work_email_verified <span class="type">BOOLEAN DEFAULT FALSE</span>,
+  id_verified <span class="type">BOOLEAN DEFAULT FALSE</span>,
+  karma_rating <span class="type">DECIMAL(2,1) DEFAULT 5.0</span>,
+  created_at <span class="type">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="keyword">CREATE TABLE</span> <span class="type">plans</span> (
+  id <span class="type">UUID DEFAULT gen_random_uuid() PRIMARY KEY</span>,
+  host_id <span class="type">UUID REFERENCES profiles(id)</span>,
+  title <span class="type">TEXT NOT NULL</span>,
+  category <span class="type">TEXT NOT NULL</span>, <span class="comment">-- 'cafe', 'concert', 'sports', 'hike'</span>
+  target_capacity <span class="type">INT NOT NULL</span>, <span class="comment">-- e.g. 4 for cafe, 6 for concert</span>
+  current_capacity <span class="type">INT DEFAULT 1</span>,
+  venue_name <span class="type">TEXT NOT NULL</span>,
+  venue_lat <span class="type">DOUBLE PRECISION</span>,
+  venue_lng <span class="type">DOUBLE PRECISION</span>,
+  event_time <span class="type">TIMESTAMPTZ NOT NULL</span>,
+  status <span class="type">TEXT DEFAULT 'OPEN'</span>, <span class="comment">-- 'OPEN', 'LOCKED_CHAT_ACTIVE', 'COMPLETED'</span>
+  women_only <span class="type">BOOLEAN DEFAULT FALSE</span>
+);
+
+<span class="keyword">CREATE TABLE</span> <span class="type">messages</span> (
+  id <span class="type">UUID DEFAULT gen_random_uuid() PRIMARY KEY</span>,
+  plan_id <span class="type">UUID REFERENCES plans(id)</span>,
+  sender_id <span class="type">UUID REFERENCES profiles(id)</span>,
+  content <span class="type">TEXT NOT NULL</span>,
+  created_at <span class="type">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+      </div>
+    </div>
+
+    <!-- POSTGRES AUTO-UNLOCK TRIGGER -->
+    <div class="spec-card" style="border-color: #A7F3D0; background: #F8FEFA;">
+      <div class="spec-title" style="color: #065F46;">
+        <span>⚡ 6. PostgreSQL Auto-Unlock Function & Trigger (The Game Engine)</span>
+        <span class="spec-tag" style="background:#D1FAE5; color:#047857;">Auto-Trigger</span>
+      </div>
+      <div class="code-block">
+<span class="comment">-- Automatically unlocks chat when capacity is full or fast-unlocked</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> check_plan_capacity_and_unlock() 
+<span class="keyword">RETURNS TRIGGER AS</span> $$
+<span class="keyword">BEGIN</span>
+  <span class="keyword">IF</span> NEW.current_capacity >= NEW.target_capacity <span class="keyword">THEN</span>
+    <span class="keyword">UPDATE</span> plans <span class="keyword">SET</span> status = <span class="string">'LOCKED_CHAT_ACTIVE'</span> <span class="keyword">WHERE</span> id = NEW.id;
+  <span class="keyword">END IF</span>;
+  <span class="keyword">RETURN</span> NEW;
+<span class="keyword">END</span>;
+$$ <span class="keyword">LANGUAGE</span> plpgsql;
+
+<span class="keyword">CREATE TRIGGER</span> trigger_plan_auto_unlock
+<span class="keyword">AFTER UPDATE OF</span> current_capacity <span class="keyword">ON</span> plans
+<span class="keyword">FOR EACH ROW EXECUTE FUNCTION</span> check_plan_capacity_and_unlock();
+      </div>
+    </div>
+
+    <!-- NATIVE HARDWARE HOOKS -->
+    <div class="spec-card" style="border-color: #BFDBFE; background: #FAFCFF;">
+      <div class="spec-title" style="color: #1E3A8A;">
+        <span>🛡️ 7. Native Hardware Hooks (React Native / Expo Libraries)</span>
+        <span class="spec-tag" style="background:#DBEAFE; color:#1E40AF;">Native APIs</span>
+      </div>
+      <div class="two-col">
+        <div class="mini-box">
+          <strong>1. Biometric Face ID / Fingerprint Auth</strong>
+          <div class="code-block" style="margin:2px 0;">
+<span class="keyword">import</span> * <span class="keyword">as</span> LocalAuth <span class="keyword">from</span> <span class="string">'expo-local-authentication'</span>;
+<span class="keyword">const</span> res = <span class="keyword">await</span> LocalAuth.authenticateAsync({
+  promptMessage: <span class="string">'Confirm identity to join plan'</span>
+});
+          </div>
+        </div>
+        <div class="mini-box">
+          <strong>2. 1-Tap SOS Live Location Share</strong>
+          <div class="code-block" style="margin:2px 0;">
+<span class="keyword">import</span> * <span class="keyword">as</span> Location <span class="keyword">from</span> <span class="string">'expo-location'</span>;
+<span class="keyword">const</span> loc = <span class="keyword">await</span> Location.getCurrentPositionAsync({});
+<span class="comment">// Sends live coords & attendee names to emergency contact</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZERO-CONFUSION DEV CHECKLIST -->
+    <div class="spec-card" style="border-color: #FDE68A; background: #FFFDF8;">
+      <div class="spec-title" style="color: #92400E;">
+        <span>✅ 8. VibeCoder Quick Build Sequence (Build in 48 Hours)</span>
+        <span class="spec-tag" style="background:#FEF3C7; color:#B45309;">Action Steps</span>
+      </div>
+      <div class="four-col">
+        <div class="mini-box"><b>Step 1:</b> Run <code>npx create-expo-app</code> with NativeWind & TypeScript.</div>
+        <div class="mini-box"><b>Step 2:</b> Paste Supabase SQL schema & setup free Supabase project.</div>
+        <div class="mini-box"><b>Step 3:</b> Build the 5 simple screens with 4-tab bottom navigation.</div>
+        <div class="mini-box"><b>Step 4:</b> Connect Supabase Realtime channel for instant chat unlock.</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="story-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid #E2E8F0; display:flex; justify-content:space-between; font-size:8px; color:#64748B;">
+      <div><strong>SquadIn / WashedUp India</strong> · Technical Architecture & VibeCoder Blueprint</div>
+      <div>Page 2 of 2 · SQL & Hardware Spec</div>
+    </div>
+  </div>
+
+</body>
+</html>
