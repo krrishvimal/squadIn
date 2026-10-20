@@ -76,6 +76,5 @@ FOR EACH ROW EXECUTE FUNCTION check_plan_capacity_and_unlock();
 ## 👤 Author
 
 **Krrish Vimal**  
-- Portfolio: [the-unsaid-desk.vercel.app](https://the-unsaid-desk.vercel.app)  
 - GitHub: [@krrishvimal](https://github.com/krrishvimal)  
 - LinkedIn: [krrish-vimal](https://linkedin.com/in/krrish-vimal)
