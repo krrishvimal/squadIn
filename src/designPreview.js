@@ -1,13 +1,25 @@
 // Opt-in fixtures stay entirely local: no reads or writes to the production database.
-export const IS_DESIGN_PREVIEW = new URLSearchParams(window.location.search).get('preview') === 'design';
+export const IS_DESIGN_PREVIEW = typeof window !== 'undefined'
+  ? new URLSearchParams(window.location.search).get('preview') === 'design'
+  : false;
+
 export const appStorage = {
   getItem: key => {
+    if (typeof localStorage === 'undefined') return null;
     const value = localStorage.getItem(IS_DESIGN_PREVIEW ? `design_${key}` : key);
     if (IS_DESIGN_PREVIEW && key === 'squadin_onboarded' && value === null) return 'true';
     return value;
   },
-  setItem: (key, value) => localStorage.setItem(IS_DESIGN_PREVIEW ? `design_${key}` : key, value),
-  removeItem: key => localStorage.removeItem(IS_DESIGN_PREVIEW ? `design_${key}` : key),
+  setItem: (key, value) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(IS_DESIGN_PREVIEW ? `design_${key}` : key, value);
+    }
+  },
+  removeItem: key => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(IS_DESIGN_PREVIEW ? `design_${key}` : key);
+    }
+  },
 };
 
 export const PREVIEW_USER = { id: 'preview_krrish', name: 'Krrish', avatar: '/illustrations/member-1.svg', city: 'Bengaluru', phoneVerified: true, idVerified: true, linkedin_verified: false, karmaScore: 4.8, meetupsAttended: 3, bio: 'Always up for a good coffee, a little adventure, and meeting my kind of people.', interests: ['☕ Specialty Coffee', '🥾 Weekend Treks', '🎵 Concerts & Gigs', '🎭 Standup Comedy'] };

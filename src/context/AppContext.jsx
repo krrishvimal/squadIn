@@ -1169,7 +1169,7 @@ export const AppProvider = ({ children }) => {
                 buffer[i] = binary.charCodeAt(i);
               }
               const blob = new Blob([buffer], { type: mime });
-              const fileName = `selfie_${updated.id}_${Date.now()}.jpg`;
+              const fileName = `${updated.id}/selfie_${Date.now()}.jpg`;
 
               const { data: uploadData, error: uploadErr } = await supabase.storage
                 .from('avatars')
@@ -1747,49 +1747,18 @@ export const AppProvider = ({ children }) => {
 
         // e. Handle hosted plans vs joined plans (Peer-to-peer room model)
         for (const p of plans) {
-          if (sameId(p.hostId, userId)) {
-            if (p.acceptedMembers && p.acceptedMembers.length > 0) {
-              // Room has members -> transfer room coordination to first member
-              const newHostId = p.acceptedMembers[0];
-              const remainingMembers = p.acceptedMembers.slice(1);
-              const newHostUser = allUsers.find(u => sameId(u.id, newHostId));
-              const newHostName = newHostUser?.name || 'Crew Member';
-              const newHostAvatar = newHostUser?.avatar || DEFAULT_AVATARS[0];
-
-              await supabase.from('plans').update({
-                host_id: newHostId,
-                host_name: newHostName,
-                host_avatar: newHostAvatar,
-                accepted_members: remainingMembers
-              }).eq('id', p.id);
-
-              await supabase.from('messages').insert({
-                plan_id: p.id,
-                sender_id: 'SYSTEM',
-                content: `👋 ${userName} left the crew. Room coordination has moved to ${newHostName}.`,
-                type: 'system',
-                is_system: true
+          const isHost = sameId(p.hostId, userId);
+          const isMember = (p.acceptedMembers || []).some(mId => sameId(mId, userId));
+          if (isHost || isMember) {
+            try {
+              // Execute atomic stored procedure with SECURITY DEFINER to bypass RLS safely
+              await supabase.rpc('leave_crew_and_cleanup', {
+                p_plan_id: p.id,
+                p_user_id: userId
               });
-            } else {
-              // 0 members were in the room -> delete empty plan
-              await supabase.from('plans').delete().eq('id', p.id);
-              await supabase.from('plan_requests').delete().eq('plan_id', p.id);
+            } catch (rpcErr) {
+              console.warn('leave_crew_and_cleanup rpc notice:', rpcErr);
             }
-          } else if ((p.acceptedMembers || []).some(mId => sameId(mId, userId))) {
-            // User was a member in someone else's plan -> reopen spot
-            const updatedMembers = p.acceptedMembers.filter(mId => !sameId(mId, userId));
-            await supabase.from('plans').update({
-              accepted_members: updatedMembers,
-              status: 'OPEN'
-            }).eq('id', p.id);
-
-            await supabase.from('messages').insert({
-              plan_id: p.id,
-              sender_id: 'SYSTEM',
-              content: `👋 ${userName} left the crew. 1 spot has reopened!`,
-              type: 'system',
-              is_system: true
-            });
           }
         }
       } catch (err) {
@@ -1914,7 +1883,11 @@ export const AppProvider = ({ children }) => {
           id: newMsg.id,
           plan_id: planId,
           sender_id: currentUser.id,
+          user_id: currentUser.id,
+          user_name: currentUser.name || 'Member',
+          user_avatar: currentUser.avatar,
           content: newMsg.content,
+          text: newMsg.content,
           timestamp: newMsg.timestamp,
           is_system: false
         });
