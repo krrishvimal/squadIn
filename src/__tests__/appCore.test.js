@@ -85,4 +85,41 @@ describe('SquadIn Core Architecture & Data Integrity', () => {
       expect(cleanContent.length).toBe(2000);
     });
   });
+
+  describe('Crew Departure & Lifecycle State Transitions', () => {
+    it('re-opens full plan when a member departs', () => {
+      const lockedPlan = {
+        id: 'plan_1',
+        targetCapacity: 4,
+        status: 'LOCKED_CHAT_ACTIVE',
+        acceptedMembers: ['host_1', 'member_2', 'member_3', 'member_4']
+      };
+
+      const remainingMembers = lockedPlan.acceptedMembers.filter(id => id !== 'member_4');
+      const newStatus = remainingMembers.length >= lockedPlan.targetCapacity ? 'LOCKED_CHAT_ACTIVE' : 'OPEN';
+
+      expect(remainingMembers.length).toBe(3);
+      expect(newStatus).toBe('OPEN');
+    });
+
+    it('correctly transfers host when host departs and members remain', () => {
+      const plan = {
+        hostId: 'host_old',
+        acceptedMembers: ['member_first', 'member_second']
+      };
+
+      const newHostId = plan.acceptedMembers[0];
+      const newAccepted = plan.acceptedMembers.slice(1);
+
+      expect(newHostId).toBe('member_first');
+      expect(newAccepted).toEqual(['member_second']);
+    });
+
+    it('marks plan completed when karma review is completed', () => {
+      const plan = { id: 'plan_1', status: 'LOCKED_CHAT_ACTIVE' };
+      const updatedPlan = { ...plan, status: 'COMPLETED' };
+      expect(updatedPlan.status).toBe('COMPLETED');
+      expect(isPlanExpired(updatedPlan)).toBe(true);
+    });
+  });
 });

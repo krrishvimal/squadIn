@@ -1584,19 +1584,21 @@ export const AppProvider = ({ children }) => {
 
     if (cloudEnabled && supabase && updatedTarget) {
       try {
-        await supabase
-          .from('plans')
-          .update({
-            accepted_members: updatedTarget.acceptedMembers,
-            status: updatedTarget.status
-          })
-          .eq('id', planId);
+        // Use atomic procedure to safely remove member without violating host-only RLS
+        await supabase.rpc('leave_crew_and_cleanup', {
+          p_plan_id: planId,
+          p_user_id: currentUser.id
+        });
 
+        // Insert notification message with authenticated caller's credentials
         await supabase.from('messages').insert({
           id: sysMsg.id,
           plan_id: planId,
-          sender_id: 'SYSTEM',
+          sender_id: currentUser.id,
+          user_id: currentUser.id,
+          user_name: 'SquadIn System',
           content: sysMsg.content,
+          text: sysMsg.content,
           type: 'system',
           is_system: true
         });
@@ -1659,8 +1661,11 @@ export const AppProvider = ({ children }) => {
         await supabase.from('messages').insert({
           id: sysMsg.id,
           plan_id: planId,
-          sender_id: 'SYSTEM',
+          sender_id: currentUser.id,
+          user_id: currentUser.id,
+          user_name: 'SquadIn System',
           content: sysMsg.content,
+          text: sysMsg.content,
           type: 'system',
           is_system: true
         });
@@ -1941,8 +1946,8 @@ export const AppProvider = ({ children }) => {
       if (userRatings[u.id]) {
         return {
           ...u,
-          karmaScore: Math.min(5.0, Number((u.karmaScore + 0.05).toFixed(1))),
-          meetupsAttended: u.meetupsAttended + 1
+          karmaScore: Math.min(5.0, Number(((u.karmaScore || 5.0) + 0.05).toFixed(1))),
+          meetupsAttended: (u.meetupsAttended || 0) + 1
         };
       }
       return u;
@@ -1954,6 +1959,14 @@ export const AppProvider = ({ children }) => {
       }
       return p;
     }));
+
+    if (cloudEnabled && supabase) {
+      supabase
+        .from('plans')
+        .update({ status: 'COMPLETED' })
+        .eq('id', planId)
+        .then(() => {}, (err) => console.warn('Karma completion cloud notice:', err));
+    }
 
     setShowKarmaModal(false);
   };
